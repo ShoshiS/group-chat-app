@@ -6,9 +6,12 @@ Node.js + Express + Mongoose + JWT + Multer + Socket.io.
 
 ```bash
 cp .env.example .env
+# Edit .env — set MONGO_URI to your MongoDB Atlas connection string
 npm install
-npm run dev
+npm run connect
 ```
+
+`npm run connect` tests the Atlas connection and exits.
 
 ## Structure
 
