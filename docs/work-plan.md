@@ -35,7 +35,7 @@
 
 **טכנולוגיות (גרסאות עדכניות):**
 - **Server:** Node.js (LTS אחרון) + Express + Mongoose + JWT + bcrypt + Multer + Socket.io
-- **Client:** Angular 19 (standalone components, Signals, Reactive Forms) + Angular Material + HttpClient
+- **Client:** Angular 20 (standalone components, Signals, Reactive Forms) + Angular Material + HttpClient
 - **DB:** MongoDB Atlas (מומלץ) / Compass לייצוא מקומי
 - **State:** Angular Signals + Services (לא NgRx)
 - **Git:** Monorepo — `server/` + `client/` + README ראשי

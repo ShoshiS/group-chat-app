@@ -1,4 +1,4 @@
-const { connectDB } = require('../src/config/database');
+import { connectDB } from '../src/config/database';
 
 describe('connectDB', () => {
   const originalUri = process.env.MONGO_URI;

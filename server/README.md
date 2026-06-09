@@ -1,6 +1,7 @@
 # Server
 
-Node.js + Express + Mongoose + JWT + Multer + Socket.io.
+Node.js + Express + Mongoose + JWT + Multer + Socket.io. Written in **TypeScript (ESM)**;
+source runs directly with `tsx` (no build step). See [AGENTS.md](AGENTS.md) for conventions.
 
 ## Setup
 
