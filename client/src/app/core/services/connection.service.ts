@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { io, type Socket } from 'socket.io-client';
 
 import { environment } from '../../../environments/environment';
@@ -25,9 +25,8 @@ export class ConnectionService {
   readonly health = signal<HealthResponse | null>(null);
   readonly lastError = signal<string | null>(null);
 
+  private readonly http = inject(HttpClient);
   private socket?: Socket;
-
-  constructor(private readonly http: HttpClient) {}
 
   checkApi(): void {
     this.apiStatus.set('connecting');
