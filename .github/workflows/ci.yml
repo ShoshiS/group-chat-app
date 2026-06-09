@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref to save CI minutes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Detect which workspaces are scaffolded so jobs self-skip until ready.
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      server: ${{ steps.check.outputs.server }}
+      client: ${{ steps.check.outputs.client }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        shell: bash
+        run: |
+          if [ -f server/package.json ]; then
+            echo "server=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "server=false" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -f client/package.json ]; then
+            echo "client=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "client=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  server:
+    needs: detect
+    if: needs.detect.outputs.server == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    strategy:
+      fail-fast: false
+      matrix:
+        # Active LTS lines supported by the project (Angular 19 + Mongoose 8).
+        node-version: ['20', '22']
+    name: server (node ${{ matrix.node-version }})
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+      - run: npm run lint --if-present
+      - run: npm test --if-present
+
+  client:
+    needs: detect
+    if: needs.detect.outputs.client == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - run: npm ci
+      - run: npm run lint --if-present
+      # Angular 20 `ng build` defaults to the production configuration.
+      - run: npm run build
+      # Angular unit tests run headless and non-interactive in CI.
+      - run: npm test -- --no-watch --browsers=ChromeHeadless
+
+  # Single required status check: stays green even while client is not scaffolded,
+  # but fails if any executed job failed.
+  ci-status:
+    if: always()
+    needs: [server, client]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all jobs succeeded (skipped is allowed)
+        shell: bash
+        run: |
+          echo "server result: ${{ needs.server.result }}"
+          echo "client result: ${{ needs.client.result }}"
+          if [ "${{ needs.server.result }}" = "failure" ] || [ "${{ needs.client.result }}" = "failure" ]; then
+            echo "::error::A CI job failed."
+            exit 1
+          fi
+          echo "All executed jobs passed."

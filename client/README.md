@@ -1,6 +1,6 @@
 # Client
 
-Angular 19 — standalone components, Signals, Reactive Forms, Angular Material.
+Angular 20 — standalone components, Signals, Reactive Forms, Angular Material.
 
 ## Setup
 
@@ -8,6 +8,18 @@ Angular 19 — standalone components, Signals, Reactive Forms, Angular Material.
 npm install
 ng serve
 ```
+
+## Linting
+
+ESLint is configured via the official `angular-eslint` integration
+(flat config in `eslint.config.js`). Run it with:
+
+```bash
+npm run lint
+```
+
+CI runs `npm run lint`, `npm run build -- --configuration production`, and
+`npm test -- --watch=false --browsers=ChromeHeadless` on every push/PR to `main`.
 
 ## Structure
 
