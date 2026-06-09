@@ -1,8 +1,8 @@
-require('dotenv').config();
+import 'dotenv/config';
 
-const { connectDB } = require('./config/database');
+import { connectDB } from './config/database';
 
-async function seedTemp() {
+async function seedTemp(): Promise<void> {
   const connection = await connectDB();
   const temp = connection.collection('temp');
 
@@ -20,7 +20,9 @@ async function seedTemp() {
   await connection.close();
 }
 
-seedTemp().catch((error) => {
-  console.error('Seed failed:', error.message);
+try {
+  await seedTemp();
+} catch (error) {
+  console.error('Seed failed:', (error as Error).message);
   process.exit(1);
-});
+}

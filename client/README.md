@@ -19,7 +19,7 @@ npm run lint
 ```
 
 CI runs `npm run lint`, `npm run build -- --configuration production`, and
-`npm test -- --watch=false --browsers=ChromeHeadless` on every push/PR to `main`.
+`npm run test:ci` (headless, single run) on every push/PR to `main`.
 
 ## Structure
 
