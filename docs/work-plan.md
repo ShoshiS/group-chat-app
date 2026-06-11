@@ -10,18 +10,18 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | שלב 0 — הקמה משותפת |
-| **Slice פעיל** | Slice 0 |
-| **Branch פעיל** | `main` |
-| **משימה עכשיו** | יצירת Monorepo + GitHub |
-| **עודכן לאחרונה** | 2026-06-08 |
-| **עודכן על ידי** | שתיהן |
+| **שלב נוכחי** | Phase 1 — Database |
+| **משימה פעילה** | כל ה-Models (User, Group, Invitation, Message) |
+| **Branch פעיל** | `feature/auth` / `feature/groups` (לפתוח) |
+| **משימה עכשיו** | **DB קודם:** בניית כל ה-models. **אחר כך** Server (Phase 2), ולבסוף Client (Phase 3) |
+| **עודכן לאחרונה** | 2026-06-10 |
+| **עודכן על ידי** | שושי |
 
 > עדכנו שדה זה בכל מעבר שלב — בסוף כל שבוע עבודה לפחות.
 
 ### איך לעדכן
 
-1. בסיום משימה / מעבר Slice — עדכני את הטבלה + תאריך
+1. בסיום משימה / מעבר Phase — עדכני את הטבלה + תאריך
 2. הזיזי את `▶ **[שלב נוכחי]**` לכותרת השלב החדשה
 3. עדכני גם את מסמכי העבודה האישיים (תמר + שושי) — סנכרון צוות
 
@@ -41,7 +41,7 @@
 - **Git:** Monorepo — `server/` + `client/` + README ראשי
 - **שפה:** אנגלית, LTR
 
-**עקרון חלוקה:** חלוקה לפי **Vertical Slices** (פיצ'רים) — כל אחת **בעלים ראשית** על חלק מהפיצ'רים, אבל **חובה לגעת בכל שכבה** (Schema, API, Middleware, Component, Service, Validation, Tests ידניים). השנייה עושה **Code Review + משימות משניות חובה** בכל slice.
+**עקרון חלוקה:** העבודה מאורגנת ב-**Phases גלובליים** לפי שכבה — קודם **כל מסד הנתונים** (Phase 1), אחר כך **כל השרת** (Phase 2), ולבסוף **כל הלקוח** (Phase 3). בתוך כל phase כל אחת **בעלים ראשית (~70%)** על חלק מהפיצ'רים והשנייה עושה **Code Review + משימות משניות חובה (~30%)**. כל אחת **חייבת** לגעת בכל שכבה (Schema, API, Middleware, Component, Service, Validation, Tests ידניים) לאורך ה-phases.
 
 ---
 
@@ -221,95 +221,76 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ## חלוקת עבודה — תמר זיסמן vs שושי ספראי
 
-### עקרון: "Primary + Secondary + Cross-Cutting"
+### עקרון: "Phases גלובליים + Primary/Secondary"
 
-כל slice כולל 4 שכבות: **DB → API → Client Service → UI**.  
-הבעלים הראשית עושה ~70%, המשנית ~30% (חובה).
-
----
-
-### ▶ **[שלב נוכחי]** שלב 0 — הקמה משותפת (יום 1–2, **שתיהן ביחד**)
-
-- [ ] יצירת Monorepo + GitHub repo
-- [ ] `server`: Express scaffold, `.env`, חיבור MongoDB
-- [ ] `client`: `ng new` עם routing, Material, standalone
-- [ ] הגדרת `.env.example` בשני הצדדים
-- [ ] הסכמה על conventions: naming, branch strategy (`main`, feature branches)
-- [ ] יצירת `docs/` עם templates לקדם-הגשה
+העבודה מתקדמת **שכבה אחר שכבה** עבור כל הפיצ'רים יחד:
+**Phase 1 = כל ה-DB → Phase 2 = כל השרת → Phase 3 = כל הלקוח → Phase 4 = גימור.**
+בכל phase הבעלים הראשית עושה ~70% והמשנית ~30% (Review + משימות חובה).
 
 ---
 
-### Slice 1 — Auth (התחברות / הרשמה / JWT)
+### Phase 0 — הקמה משותפת (יום 1–2, **שתיהן ביחד**) ✓
 
-| משימה | תמר (Primary) | שושי (Secondary) |
+- [x] יצירת Monorepo + GitHub repo
+- [x] `server`: Express scaffold, `.env`, חיבור MongoDB
+- [ ] `client`: `ng new` עם routing, Material, standalone *(routing + standalone ✓; Material — Phase 3)*
+- [x] הגדרת `.env.example` בשני הצדדים
+- [x] הסכמה על conventions: naming, branch strategy (`main`, feature branches)
+- [x] יצירת `docs/` עם templates לקדם-הגשה
+
+---
+
+### ▶ **[שלב נוכחי]** Phase 1 — Database (כל ה-Models)
+
+> בונים את **כל ארבעת ה-collections** לפני כתיבת השרת. כל model עומד בדרישות Mongoose (`pre` hook / `static` / `toJSON`).
+
+| Model | Primary | Secondary |
 |---|---|---|
-| **DB** | User model + pre hash + toJSON | Review + static `findByEmail` |
-| **API** | auth routes, register/login controllers, JWT sign | Review + validation middleware |
-| **Middleware** | `authMiddleware` — verify JWT | `errorLogger` middleware |
-| **Client Service** | AuthService + Signals (user state) | HTTP interceptor (attach token) |
-| **UI** | RegisterComponent + validation | LoginComponent + AuthGuard |
-| **Validation** | Server: express-validator on register | Client: Reactive Forms validators |
+| **User** [Auth] — pre hash, toJSON, role | תמר | שושי (Review + `findByEmail`) |
+| **Group** [Groups] — refs, validation, indexes, `findForUser` | שושי | תמר (Review + indexes) |
+| **Invitation** [Invitations] — status enum, `findPendingForUser` | תמר | שושי (Review) |
+| **Message** [Messages] — attachments schema, `findByGroup`, toJSON | שושי | תמר (Review + toJSON transform) |
 
-**תוצר:** הרשמה, התחברות, logout, protected routes.
+**תוצר:** 4 collections מוגדרים ונבדקים (users, groups, invitations, messages).
 
 ---
 
-### Slice 2 — Groups (יצירה, רשימה, ניהול)
+### Phase 2 — Server (API / Middleware / Sockets / Validators)
 
-| משימה | שושי (Primary) | תמר (Secondary) |
+> אחרי שכל ה-models מוכנים. כל endpoint נבדק ב-Thunder Client לפני Phase 3.
+
+| פיצ'ר | Primary | Secondary |
 |---|---|---|
-| **DB** | Group model + refs + validation | Review + indexes |
-| **API** | CRUD groups, leave group, admin check | Review + tests in Thunder Client |
-| **Middleware** | `isGroupAdmin` middleware | Review |
-| **Client Service** | GroupService + group Signal store | Review |
-| **UI** | GroupList, GroupCard, GroupForm (add/edit by id) | NavBar links by role |
-| **Validation** | Server: group name required, min length | Client: Reactive Forms |
+| **Auth** — `authMiddleware` (JWT), `errorLogger`, auth controllers, routes, express-validator | תמר | שושי (Review + validation, Thunder test) |
+| **Groups** — `isGroupAdmin`/`isGroupMember`, CRUD + leave + invite, routes, validation | שושי | תמר (Review + Thunder test) |
+| **Invitations** — controller (list/accept/reject/count), routes, `POST /:id/invite` | תמר | שושי (Review) |
+| **Messages** — controller CRUD, Multer upload, `createRateLimiter`, Socket.io server + room events, routes | שושי | תמר (Review `createRateLimiter`) |
+| **Admin** — `DELETE /:id/members/:userId`, `PUT /api/auth/me` + avatar | תמר | שושי (Review) |
 
-**תוצר:** יצירת קבוצה, רשימת קבוצות, עריכה/מחיקה (admin), יציאה.
+**Socket.io events:** `joinGroup`, `leaveGroup`, `newMessage`, `messageUpdated`, `messageDeleted`.
+
+**תוצר:** כל ה-REST endpoints + Socket.io עובדים ונבדקו ב-Thunder Client.
 
 ---
 
-### Slice 3 — Invitations (הזמנות)
+### Phase 3 — Client (Angular)
 
-| משימה | תמר (Primary) | שושי (Secondary) |
+> אחרי ש-API יציב. מתחילים ב-`ng add @angular/material` (שושי).
+
+| פיצ'ר | תמר | שושי |
 |---|---|---|
-| **DB** | Invitation model + status enum | Review |
-| **API** | invite, list, accept, reject endpoints | Review |
-| **Client Service** | InvitationService + Signal | Review |
-| **UI** | InvitationList + accept/reject buttons | Badge/count in NavBar |
-| **Validation** | Server: user exists, not already member | Client: confirm dialog |
+| **Auth UI** | RegisterComponent + AuthService (Signals) | `ng add material`, Login, AuthGuard, HTTP interceptor |
+| **Groups UI** | NavBar (links לפי auth state) | GroupService + Signal, GroupList/Card/Form (add/edit by id) |
+| **Invitations UI** | InvitationService + List + Actions, route `/invitations` | Badge/count ב-NavBar + confirm dialog לפני reject |
+| **Messages UI** | SocketService + listeners + MessageItem (edit/delete own) | MessageService + ChatRoom/List/Form + file preview |
+| **Profile/Admin UI** | MemberManagementPanel + AvatarUpload (user) | ProfileComponent + group avatar upload |
+| **Validation** | Client Reactive Forms validators | Client file picker (type/size) |
 
-**תוצר:** הזמנה לקבוצה, צפייה בהזמנות, קבלה/דחייה.
-
----
-
-### Slice 4 — Messages + Media + Real-time
-
-| משימה | שושי (Primary) | תמר (Secondary) |
-|---|---|---|
-| **DB** | Message model + attachments schema | Review + toJSON transform |
-| **API** | Message CRUD + Multer (image/audio/pdf) | Review |
-| **Socket.io** | Server: socket setup, room events | Client: socket service + listeners |
-| **Client Service** | MessageService + real-time Signal updates | Review |
-| **UI** | ChatRoom, MessageList, MessageForm, file preview | MessageItem (edit/delete own) |
-| **Validation** | Server: file type/size limits | Client: file picker validation |
-| **Middleware** | `createRateLimiter` (middleware creator) | Review |
-
-**תוצר:** צ'אט בזמן אמת, שליחת טקסט + קבצים, עריכה/מחיקה.
+**תוצר:** כל המסכים עובדים מקצה לקצה מול ה-API.
 
 ---
 
-### Slice 5 — Admin Actions + Profile
-
-| משימה | תמר (Primary) | שושי (Secondary) |
-|---|---|---|
-| **API** | DELETE member from group (admin) | Review |
-| **UI** | Member management panel in group | ProfileComponent + avatar upload |
-| **Media** | Avatar upload flow (user) | Group avatar upload |
-
----
-
-### Slice 6 — גימור משותף (שבוע אחרון)
+### Phase 4 — גימור משותף (שבוע אחרון)
 
 **שתיהן — חובה:**
 
@@ -354,28 +335,27 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ```mermaid
 gantt
-    title לוח זמנים
+    title לוח זמנים (לפי Phases)
     dateFormat YYYY-MM-DD
     section Setup
-    MonorepoSetup           :s0, 2026-06-09, 3d
-    section Slices
-    AuthSlice               :s1, after s0, 5d
-    GroupsSlice             :s2, after s1, 5d
-    InvitationsSlice        :s3, after s2, 4d
-    MessagesRealtime        :s4, after s3, 7d
-    AdminProfile            :s5, after s4, 3d
+    MonorepoSetup           :p0, 2026-06-09, 3d
+    section Database
+    AllModels               :p1, after p0, 4d
+    section Server
+    AllApiSocketsMiddleware  :p2, after p1, 9d
+    section Client
+    AllAngularUi            :p3, after p2, 10d
     section Finish
-    DocsTestingDeploy       :s6, after s5, 5d
+    DocsResponsiveDemo      :p4, after p3, 5d
 ```
 
-| שבוע | מטרה | אחראית ראשית |
-|---|---|---|
-| 1 | Setup + Auth | תמר (API) + שושי (UI) |
-| 2 | Groups CRUD | שושי |
-| 3 | Invitations | תמר |
-| 4–5 | Messages + Socket.io + Media | שושי |
-| 5 | Admin + Profile | תמר |
-| 6 | Docs, Responsive, Demo, Deploy (Render — בונוס) | שתיהן |
+| Phase | מטרה | תמר (Primary) | שושי (Primary) |
+|---|---|---|---|
+| 0 | Setup (Monorepo, env, conventions) | משותף | משותף |
+| 1 | Database — כל ה-Models | User, Invitation | Group, Message |
+| 2 | Server — API, Middleware, Sockets | Auth, Invitations, Admin | Groups, Messages, Socket.io server |
+| 3 | Client — כל ה-Angular UI | Register, NavBar, Invitations, MessageItem, MemberPanel | Login/Guard/interceptor, Groups, Chat, Profile |
+| 4 | גימור — Docs, Responsive, Demo, Deploy (Render — בונוס) | Desktop + Admin docs | Mobile + User docs |
 
 **דדליין הגשה:** י"א כסלו תשפ"ו (לפי מסמך הדרישות)
 
