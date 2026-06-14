@@ -2,7 +2,7 @@ import cors from 'cors';
 import express, { type Express, type Request, type Response } from 'express';
 import mongoose from 'mongoose';
 
-import { env, isProduction } from './config/env';
+import { env } from './config/env';
 import groupRoutes from './routes/group-routes.js';
 
 /**
@@ -26,9 +26,7 @@ export function createApp(): Express {
   });
 
   // TODO: swap stubAuthMiddleware for authMiddleware once Tamar's auth slice merges.
-  if (!isProduction) {
-    app.use('/api/groups', groupRoutes);
-  }
+  app.use('/api/groups', groupRoutes);
 
   return app;
 }

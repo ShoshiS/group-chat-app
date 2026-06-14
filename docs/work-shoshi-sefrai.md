@@ -14,10 +14,10 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | יום 1 — Groups: middleware + controller (שרת) |
+| **שלב נוכחי** | יום 2 — Groups: routes + wiring + בדיקות (שרת) |
 | **Branch פעיל** | `feature/groups` |
-| **משימה עכשיו** | `isGroupAdmin` / `isGroupMember` + תחילת group-controller |
-| **עודכן לאחרונה** | 2026-06-11 |
+| **משימה עכשיו** | יום 3 — Messages: controller + routes |
+| **עודכן לאחרונה** | 2026-06-14 |
 | **עודכן על ידי** | שושי |
 
 > עדכני את הטבלה + סמני ✓ בכל סוף יום.
@@ -76,11 +76,11 @@ Socket.io bootstrap · `group-model.ts` ✓ · `message-model.ts` ✓.
 
 ## יום 2 — ראשון 14/06 — Groups: routes + wiring + בדיקות
 
-- [ ] השלמת `group-controller.ts`: `updateGroup` (admin), `deleteGroup` (admin), `leaveGroup`
-- [ ] `server/src/routes/group-routes.ts` — חיבור controllers + middleware
-- [ ] חיבור הראוטר ב-`server/src/app.ts` תחת `/api/groups`
-- [ ] בדיקות ב-Thunder Client: CRUD מלא + leave + הרשאות admin
-- [ ] טיפול בשגיאות + status codes נכונים (201/400/403/404)
+- [x] השלמת `group-controller.ts`: `updateGroup` (admin), `deleteGroup` (admin), `leaveGroup`
+- [x] `server/src/routes/group-routes.ts` — חיבור controllers + middleware
+- [x] חיבור הראוטר ב-`server/src/app.ts` תחת `/api/groups`
+- [x] בדיקות ב-Thunder Client: CRUD מלא + leave + הרשאות admin
+- [x] טיפול בשגיאות + status codes נכונים (201/400/403/404)
 
 **סוף יום:** Groups API עובד מקצה לקצה ובדוק.
 
