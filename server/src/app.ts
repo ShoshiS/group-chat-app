@@ -3,6 +3,7 @@ import express, { type Express, type Request, type Response } from 'express';
 import mongoose from 'mongoose';
 
 import { env } from './config/env';
+import { errorHandler } from './middleware/error-middleware.js';
 import groupRoutes from './routes/group-routes.js';
 
 /**
@@ -27,6 +28,8 @@ export function createApp(): Express {
 
   // TODO: swap stubAuthMiddleware for authMiddleware once Tamar's auth slice merges.
   app.use('/api/groups', groupRoutes);
+
+  app.use(errorHandler);
 
   return app;
 }

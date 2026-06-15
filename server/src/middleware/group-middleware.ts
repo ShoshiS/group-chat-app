@@ -11,27 +11,33 @@ import { Group, type IGroup } from '../models/group-model.js';
 async function loadGroup(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<HydratedDocument<IGroup> | null> {
-  const id = req.params['id'];
+  try {
+    const id = req.params['id'];
 
-  if (!req.userId) {
-    res.status(401).json({ error: 'Unauthorized' });
+    if (!req.userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return null;
+    }
+
+    if (typeof id !== 'string' || !Types.ObjectId.isValid(id)) {
+      res.status(400).json({ error: 'Invalid group id' });
+      return null;
+    }
+
+    const group = req.group ?? (await Group.findById(id));
+    if (!group) {
+      res.status(404).json({ error: 'Group not found' });
+      return null;
+    }
+
+    req.group = group;
+    return group;
+  } catch (err) {
+    next(err);
     return null;
   }
-
-  if (typeof id !== 'string' || !Types.ObjectId.isValid(id)) {
-    res.status(400).json({ error: 'Invalid group id' });
-    return null;
-  }
-
-  const group = req.group ?? (await Group.findById(id));
-  if (!group) {
-    res.status(404).json({ error: 'Group not found' });
-    return null;
-  }
-
-  req.group = group;
-  return group;
 }
 
 /** Ensures the authenticated user is listed in the group's members array. */
@@ -40,7 +46,7 @@ export async function isGroupMember(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  const group = await loadGroup(req, res);
+  const group = await loadGroup(req, res, next);
   if (!group) {
     return;
   }
@@ -60,7 +66,7 @@ export async function isGroupAdmin(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  const group = await loadGroup(req, res);
+  const group = await loadGroup(req, res, next);
   if (!group) {
     return;
   }

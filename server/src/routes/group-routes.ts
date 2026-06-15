@@ -10,15 +10,17 @@ import {
 } from '../controllers/group-controller.js';
 import { isGroupAdmin, isGroupMember } from '../middleware/group-middleware.js';
 import { stubAuthMiddleware } from '../middleware/stub-auth-middleware.js';
+import { validateBody } from '../middleware/validate-middleware.js';
+import validateGroup from '../models/group-model.js';
 
 const router = Router();
 
 router.use(stubAuthMiddleware);
 
 router.get('/', getMyGroups);
-router.post('/', createGroup);
+router.post('/', validateBody(validateGroup), createGroup);
 router.get('/:id', isGroupMember, getGroupById);
-router.put('/:id', isGroupAdmin, updateGroup);
+router.put('/:id', isGroupAdmin, validateBody(validateGroup), updateGroup);
 router.delete('/:id', isGroupAdmin, deleteGroup);
 router.post('/:id/leave', isGroupMember, leaveGroup);
 
