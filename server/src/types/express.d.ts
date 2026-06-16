@@ -2,6 +2,7 @@ import type { HydratedDocument } from 'mongoose';
 import type { Types } from 'mongoose';
 
 import type { IGroup } from '../models/group-model.js';
+import type { IMessage } from '../models/message-model.js';
 
 declare global {
   namespace Express {
@@ -10,6 +11,8 @@ declare global {
       userId?: Types.ObjectId;
       /** Populated by group middleware to avoid a second DB lookup in controllers. */
       group?: HydratedDocument<IGroup>;
+      /** Populated by message middleware to avoid a second DB lookup in controllers. */
+      message?: HydratedDocument<IMessage>;
     }
   }
 }

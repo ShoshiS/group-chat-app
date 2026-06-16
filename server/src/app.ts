@@ -8,6 +8,7 @@ import groupsRouter from './routes/groups';
 import { env } from './config/env';
 import { errorHandler } from './middleware/error-middleware.js';
 import groupRoutes from './routes/group-routes.js';
+import { groupMessageRouter, messageRouter } from './routes/message-routes.js';
 
 /**
  * Builds the Express application. Kept separate from the HTTP/Socket.io
@@ -34,6 +35,8 @@ export function createApp(): Express {
 
   // TODO: swap stubAuthMiddleware for authMiddleware once Tamar's auth slice merges.
   app.use('/api/groups', groupRoutes);
+  app.use('/api/groups/:id/messages', groupMessageRouter);
+  app.use('/api/messages', messageRouter);
 
   app.use(errorHandler);
 

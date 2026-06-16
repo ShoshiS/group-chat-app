@@ -1,93 +1,103 @@
-# מסמך עבודה — היום (ראשון 14/06/2026)
+# מסמך עבודה — היום (שני 15/06/2026)
 
-**יום 2 מתוך 8** · שלב: **שרת — Groups** · Slice: Groups (Primary: שושי)
+**יום 3 מתוך 8** · שלב: **שרת — Messages** · Slice: Messages (Primary: שושי)
 **מסמכים קשורים:** [work-plan.md](work-plan.md) · [work-shoshi-sefrai.md](work-shoshi-sefrai.md) · [work-tamar-zisman.md](work-tamar-zisman.md)
 
 > **גישה:** קודם השרת מקצה לקצה (API + DB + Socket), ורק אז הלקוח.
-> אתמול (יום 1) נבנו ה-middleware של ההרשאות + שלוש הפעולות הראשונות. היום סוגרים את
-> שכבת ה-Groups בשרת: שלוש הפעולות הנותרות, חיווט מלא של ה-routes, ובדיקה מקצה לקצה.
+> אתמול (יום 2) נסגרה שכבת ה-Groups בשרת ו-`feature/groups` **מוזג ל-`main`**. היום הושלמה
+> שכבת ההודעות (טקסט) בשרת: controller, middleware של בעלות, routes, וחיווט מלא.
 
 ---
 
 ## מטרת היום
 
-להשלים את **group-controller** (update / delete / leave), **לחווט את כל ה-routes**
-עם ה-middleware הנכון, ולוודא ש-**Groups API עובד מקצה לקצה ובדוק** — CRUD מלא,
-יציאה מקבוצה, והרשאות admin עם status codes נכונים.
+להעמיד **Messages API (טקסט) עובד מקצה לקצה ובדוק** — שליפה עם pagination, יצירה,
+עריכה (owner בלבד) ומחיקה (owner או admin) — עם הרשאות member/owner/admin נכונות
+ו-status codes מדויקים.
 
 
-|                   |                                                                       |
-| ----------------- | --------------------------------------------------------------------- |
-| **Branch**        | `feature/groups`                                                      |
-| **לפני שמתחילים** | `nvm use` (Node 22 LTS) · `npm install` ב-`server/` · `git pull`      |
-| **בסוף היום**     | `npm run lint` + `npm run typecheck` נקיים · commit עם `feat:` · push |
+|                   |                                                                                                 |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| **Branch**        | `feature/chat-realtime` (מסתעף מ-`main` אחרי מיזוג `feature/groups`)                            |
+| **לפני שמתחילים** | `git checkout main` + `git pull` · `nvm use` (Node 22 LTS) · `git checkout -b feature/chat-realtime` · `npm install` ב-`server/` |
+| **בסוף היום**     | `npm run lint` + `npm run typecheck` נקיים · commit עם `feat:` · push ל-`feature/chat-realtime`  |
 
 
 ---
 
-## נקודת פתיחה (מה כבר קיים מאתמול)
+## נקודת פתיחה (מה כבר קיים)
 
-- `server/src/controllers/group-controller.ts` — `getMyGroups`, `createGroup`, `getGroupById` ✓
-- `server/src/middleware/group-middleware.ts` — `isGroupMember`, `isGroupAdmin` ✓ (טוענים את הקבוצה ל-`req.group`)
-- `server/src/routes/group-routes.ts` — `GET /`, `POST /`, `GET /:id` ✓ (מחובר תחת `stubAuthMiddleware`)
-- `server/src/app.ts` — `/api/groups` מחובר (כרגע ב-non-production בלבד)
-- `server/src/models/group-model.ts` — `findForUser`, `validateGroup` (Joi, `stripUnknown`), `pre('save')` שמוסיף את היוצר ל-members ✓
+- `server/src/models/message-model.ts` — `findByGroup` (pagination דרך `before`), `validateMessage` (Joi, `.or('text','attachments')`), `toJSON` ✓
+- `server/src/middleware/group-middleware.ts` — `isGroupMember`, `isGroupAdmin` (טוענים את הקבוצה ל-`req.group`) ✓
+- `server/src/middleware/validate-middleware.ts` — `validateBody(schema)` (factory ל-Joi) ✓
+- `server/src/middleware/stub-auth-middleware.ts` — מזריק `req.userId` (עד שה-JWT של תמר ינחת) ✓
+- `server/src/controllers/message-controller.ts` — `getMessages`, `createMessage`, `updateMessage`, `deleteMessage` ✓
+- `server/src/middleware/message-middleware.ts` — `isMessageOwner`, `isMessageOwnerOrAdmin` ✓
+- `server/src/routes/message-routes.ts` — `groupMessageRouter` + `messageRouter` ✓
+- `server/src/app.ts` — `/api/groups/:id/messages` + `/api/messages` מחוברים ✓
 
 ---
 
 ## משימות היום
 
-### 1. השלמת Controller — `server/src/controllers/group-controller.ts`
+### 1. Controller — `server/src/controllers/message-controller.ts` (חדש)
 
-- [x] `updateGroup` — admin בלבד (אחרי `isGroupAdmin`)
-  - `validateGroup.validate(req.body)` (Joi, `stripUnknown` — מסנן `adminId`/`members` מה-body)
-  - עדכון `name` / `description` / `avatar` על `req.group` ושמירה
-  - 200 עם הקבוצה המעודכנת · 400 אם validation נכשל
-- [x] `deleteGroup` — admin בלבד (אחרי `isGroupAdmin`)
-  - מחיקת הקבוצה · החזרת **204** (ללא body)
-- [x] `leaveGroup` — חבר בלבד (אחרי `isGroupMember`)
-  - הסרת `req.userId` מ-`members` ושמירה · 200
-  - **חסימת יציאה של ה-admin** → 403 + הודעה ("admin must delete or transfer the group")
-- [x] עיקרון קבוע: `adminId` נלקח מה-token בלבד — לעולם לא מ-body
+- [x] `getMessages` — member בלבד
+  - `Message.findByGroup(req.params.id, { before, limit })` (pagination דרך query `before`)
+  - 200 עם רשימת ההודעות (oldest-first)
+- [x] `createMessage` — member בלבד
+  - `senderId` מה-token, `groupId` מה-`params` · 201 עם ההודעה
+  - עיקרון קבוע: `senderId` נלקח מה-token בלבד — לעולם לא מ-body
+- [x] `updateMessage` — owner בלבד
+  - עדכון `text` על `req.message` ושמירה · 200 · 400 אם validation נכשל
+- [x] `deleteMessage` — owner או admin של הקבוצה
+  - מחיקה · החזרת **204** (ללא body)
 
-### 2. חיווט Routes — `server/src/routes/group-routes.ts`
+### 2. Middleware — `server/src/middleware/message-middleware.ts` (חדש)
 
-- [x] `PUT /:id` → `isGroupAdmin, updateGroup`
-- [x] `DELETE /:id` → `isGroupAdmin, deleteGroup`
-- [x] `POST /:id/leave` → `isGroupMember, leaveGroup`
+- [x] loader שטוען את ההודעה לפי `:id` ל-`req.message` (במתכונת `loadGroup`):
+  - `:id` לא תקין → 400 · לא קיים → 404
+- [x] `isMessageOwner` — `req.message.senderId` שווה ל-`req.userId` (אחרת 403)
+- [x] בדיקת owner-or-admin למחיקה (owner או `adminId` של הקבוצה)
 
-> מפת ה-routes המלאה בסוף היום:
-> `GET /` · `POST /` · `GET /:id` (member) · `PUT /:id` (admin) · `DELETE /:id` (admin) · `POST /:id/leave` (member)
+### 3. Routes — `server/src/routes/message-routes.ts` (חדש)
 
-### 3. חיווט app + טיפול בשגיאות — `server/src/app.ts`
+- [x] router מקונן (`mergeParams`) תחת קבוצה:
+  - `GET /api/groups/:id/messages` → `isGroupMember, getMessages`
+  - `POST /api/groups/:id/messages` → `isGroupMember, validateBody(validateMessage), createMessage`
+- [x] router עליון להודעה בודדת:
+  - `PUT /api/messages/:id` → owner, `validateBody(validateMessage), updateMessage`
+  - `DELETE /api/messages/:id` → owner-or-admin, `deleteMessage`
 
-- [x] לוודא ש-`/api/groups` מחובר (לשקול הסרת תנאי ה-`!isProduction` כך שיעבוד גם מעבר ל-dev)
-- [x] טיפול עקבי ב-async errors בקונטרולרים (try/catch כל עוד אין error-middleware מרכזי של תמר)
+### 4. חיווט app — `server/src/app.ts`
+
+- [x] חיבור ה-routers החדשים (`/api/groups/:id/messages` + `/api/messages`)
+- [x] טיפול עקבי ב-async errors (`next(err)` ל-`errorHandler` המרכזי)
 - [x] status codes נכונים לאורך כל הזרימה: **200 / 201 / 204 / 400 / 403 / 404 / 500**
 
-### 4. בדיקה ידנית (Thunder Client)
+### 5. בדיקה ידנית (Thunder Client)
 
 > שולחים את ה-header `X-Test-User-Id: <ObjectId תקין>` (stub auth עד שה-JWT של תמר ינחת).
 
-- [x] CRUD מלא: `POST` (201) → `GET /` (רק שלי) → `GET /:id` → `PUT /:id` (200) → `DELETE /:id` (204)
-- [x] `POST /:id/leave` ע"י חבר רגיל → 200 (הוסר מ-members)
-- [x] ניסיון `leave` ע"י ה-admin → 403 (נחסם)
-- [x] גישה/עדכון/מחיקה ע"י מי שאינו member/admin → 403
-- [x] `:id` לא קיים → 404 · `:id` לא תקין → 400
+- [ ] יצירת הודעת טקסט (201) → שליפה עם pagination (`before`) → 200
+- [ ] עריכת הודעה שלי → 200 · עריכת הודעה של מישהו אחר → 403
+- [ ] מחיקת הודעה שלי / כ-admin → 204 · מחיקה ע"י זר → 403
+- [ ] גוף ריק (ללא `text` וללא `attachments`) → 400
+- [ ] `:id` לא קיים → 404 · `:id` לא תקין → 400
 
 ---
 
 ## קריטריון "סיימתי"
 
-- [x] שש פעולות ה-Groups עובדות מול ה-DB עם הרשאות נכונים
-- [x] admin אינו יכול לצאת מהקבוצה (חייב למחוק) · משתמש זר מקבל 403
-- [x] status codes תקינים (201/204/400/403/404)
+- [ ] ארבע פעולות ההודעות (טקסט) עובדות מול ה-DB עם הרשאות member/owner/admin נכונים
+- [ ] owner בלבד עורך · owner או admin מוחק · זר מקבל 403
+- [ ] status codes תקינים (200/201/204/400/403/404)
 - [x] `npm run lint` + `npm run typecheck` עוברים נקי
 
 ---
 
 ## תזכורת סוף יום
 
-1. עדכני את טבלת **סמן מיקום** ב-[work-shoshi-sefrai.md](work-shoshi-sefrai.md) (תאריך + משימה הבאה: יום 3 — Messages)
-2. סמני ✓ את משימות יום 2 שהושלמו
-3. Commit + push ל-`feature/groups`
+1. עדכני את טבלת **סמן מיקום** ב-[work-shoshi-sefrai.md](work-shoshi-sefrai.md) (תאריך + משימה הבאה: יום 4 — Upload (Multer) + Rate-limiter)
+2. סמני ✓ את משימות יום 3 שהושלמו
+3. Commit + push ל-`feature/chat-realtime`
