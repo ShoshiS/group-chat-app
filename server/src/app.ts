@@ -5,6 +5,9 @@ import mongoose from 'mongoose';
 import { corsOptions } from './config/cors';
 import agentRouter from './routes/agent';
 import groupsRouter from './routes/groups';
+import { env } from './config/env';
+import { errorHandler } from './middleware/error-middleware.js';
+import groupRoutes from './routes/group-routes.js';
 
 /**
  * Builds the Express application. Kept separate from the HTTP/Socket.io
@@ -28,6 +31,11 @@ export function createApp(): Express {
       timestamp: new Date().toISOString(),
     });
   });
+
+  // TODO: swap stubAuthMiddleware for authMiddleware once Tamar's auth slice merges.
+  app.use('/api/groups', groupRoutes);
+
+  app.use(errorHandler);
 
   return app;
 }
