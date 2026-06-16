@@ -2,11 +2,10 @@ import cors from 'cors';
 import express, { type Express, type Request, type Response } from 'express';
 import mongoose from 'mongoose';
 
-import { corsOptions } from './config/cors';
-import agentRouter from './routes/agent';
-import groupsRouter from './routes/groups';
-import { env } from './config/env';
+import { corsOptions } from './config/cors.js';
+import { env } from './config/env.js';
 import { errorHandler } from './middleware/error-middleware.js';
+import agentRouter from './routes/agent.js';
 import groupRoutes from './routes/group-routes.js';
 import { groupMessageRouter, messageRouter } from './routes/message-routes.js';
 
@@ -21,7 +20,6 @@ export function createApp(): Express {
   app.use(express.json());
 
   app.use('/api/agent', agentRouter);
-  app.use('/api/groups', groupsRouter);
 
   // Lightweight endpoint the client uses to confirm the API is reachable.
   app.get('/api/health', (_req: Request, res: Response) => {
