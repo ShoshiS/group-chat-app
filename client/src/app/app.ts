@@ -1,18 +1,16 @@
-import { JsonPipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { ConnectionService } from './core/services/connection.service';
+import { AgentChat } from './features/agent/agent-chat';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, JsonPipe],
+  imports: [AgentChat],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App implements OnInit {
-  protected readonly title = signal('Group Chat');
-  protected readonly connection = inject(ConnectionService);
+  private readonly connection = inject(ConnectionService);
 
   ngOnInit(): void {
     this.connection.checkApi();

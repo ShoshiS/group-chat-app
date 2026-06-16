@@ -2,7 +2,7 @@ import type { Server as HttpServer } from 'node:http';
 
 import { Server as SocketServer } from 'socket.io';
 
-import { env } from '../config/env';
+import { corsOptions } from '../config/cors';
 
 /**
  * Attaches a Socket.io server to the given HTTP server. For now this only
@@ -11,7 +11,7 @@ import { env } from '../config/env';
  */
 export function createSocketServer(httpServer: HttpServer): SocketServer {
   const io = new SocketServer(httpServer, {
-    cors: { origin: env.clientOrigin, credentials: true },
+    cors: corsOptions,
   });
 
   io.on('connection', (socket) => {
