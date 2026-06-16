@@ -2,7 +2,9 @@ import cors from 'cors';
 import express, { type Express, type Request, type Response } from 'express';
 import mongoose from 'mongoose';
 
-import { env } from './config/env';
+import { corsOptions } from './config/cors';
+import agentRouter from './routes/agent';
+import groupsRouter from './routes/groups';
 
 /**
  * Builds the Express application. Kept separate from the HTTP/Socket.io
@@ -11,8 +13,11 @@ import { env } from './config/env';
 export function createApp(): Express {
   const app = express();
 
-  app.use(cors({ origin: env.clientOrigin, credentials: true }));
+  app.use(cors(corsOptions));
   app.use(express.json());
+
+  app.use('/api/agent', agentRouter);
+  app.use('/api/groups', groupsRouter);
 
   // Lightweight endpoint the client uses to confirm the API is reachable.
   app.get('/api/health', (_req: Request, res: Response) => {

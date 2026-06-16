@@ -9,6 +9,8 @@ export const env = {
   port: Number(process.env.PORT ?? 3000),
   nodeEnv: process.env.NODE_ENV ?? 'development',
   clientOrigin: process.env.CLIENT_ORIGIN ?? 'http://localhost:4200',
+  geminiApiKey: process.env.GEMINI_API_KEY ?? '',
+  geminiModel: process.env.GEMINI_MODEL ?? 'gemini-2.5-flash',
 } as const;
 
 export const isProduction = env.nodeEnv === 'production';
