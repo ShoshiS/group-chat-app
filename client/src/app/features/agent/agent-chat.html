@@ -1,0 +1,46 @@
+<section class="agent-chat">
+  <header class="agent-chat__header">
+    <h1>Group Chat</h1>
+    <p>כתבי מה שאת רוצה לעשות — לפתוח קבוצה, להזמין חבר, ועוד.</p>
+  </header>
+
+  <div class="agent-chat__messages">
+    @if (!agent.messages().length) {
+      <p class="agent-chat__empty">
+        לדוגמה: "פתחי קבוצה חדשה בשם משפחה" או "הזמיני את דנה לקבוצה"
+      </p>
+    }
+
+    @for (message of agent.messages(); track message.id) {
+      <div class="agent-chat__bubble" [class.agent-chat__bubble--user]="message.role === 'user'">
+        {{ message.text }}
+        @if (message.actionSummary) {
+          <p class="agent-chat__actions">{{ message.actionSummary }}</p>
+        }
+      </div>
+    }
+
+    @if (agent.pending()) {
+      <div class="agent-chat__bubble agent-chat__bubble--typing">…</div>
+    }
+
+    @if (agent.error(); as errorMessage) {
+      <p class="agent-chat__error">{{ errorMessage }}</p>
+    }
+  </div>
+
+  <div class="agent-chat__composer">
+    <input
+      type="text"
+      [value]="draftText()"
+      (input)="updateDraft($event)"
+      (keydown.enter)="submit()"
+      placeholder="כתבי הודעה…"
+      autocomplete="off"
+      aria-label="Message to the assistant"
+    />
+    <button type="button" (click)="submit()" [disabled]="!agent.canSend() || !draftText().trim()">
+      שליחה
+    </button>
+  </div>
+</section>
