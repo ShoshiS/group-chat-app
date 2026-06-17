@@ -14,10 +14,10 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | יום 2 — Groups: routes + wiring + בדיקות (שרת) |
-| **Branch פעיל** | `feature/groups` |
-| **משימה עכשיו** | יום 3 — Messages: controller + routes |
-| **עודכן לאחרונה** | 2026-06-14 |
+| **שלב נוכחי** | יום 6 — Groups (service + list/card/form) + Auth (secondary) (לקוח) |
+| **Branch פעיל** | `feature/chat-realtime` |
+| **משימה עכשיו** | יום 6 — לקוח: Groups (service + list/card/form) + Auth (secondary) |
+| **עודכן לאחרונה** | 2026-06-17 |
 | **עודכן על ידי** | שושי |
 
 > עדכני את הטבלה + סמני ✓ בכל סוף יום.
@@ -113,12 +113,12 @@ Socket.io bootstrap · `group-model.ts` ✓ · `message-model.ts` ✓.
 
 ## יום 5 — רביעי 17/06 — Socket.io events + בדיקת שרת מלאה
 
-- [ ] הרחבת `server/src/sockets/index.ts` מעבר ל-bootstrap:
-  - [ ] `joinGroup`, `leaveGroup`
-  - [ ] שידור `newMessage`, `messageUpdated`, `messageDeleted` לחדר הקבוצה
-- [ ] חיבור controllers ל-emit אירועים אחרי שמירה ב-DB
-- [ ] בדיקת שרת מלאה: Auth (של תמר) → Groups → Messages → Socket real-time
-- [ ] `npm run lint` + `npm run typecheck` נקיים
+- [x] הרחבת `server/src/sockets/index.ts` מעבר ל-bootstrap:
+  - [x] `joinGroup`, `leaveGroup`
+  - [x] שידור `newMessage`, `messageUpdated`, `messageDeleted` לחדר הקבוצה
+- [x] חיבור controllers ל-emit אירועים אחרי שמירה ב-DB
+- [x] בדיקת שרת מלאה: Auth (stub) → Groups → Messages → Socket real-time
+- [x] `npm run lint` + `npm run typecheck` נקיים
 
 **🎯 סוף יום 5: השרת עובד טוב ובדוק — מעבר לצד לקוח.**
 

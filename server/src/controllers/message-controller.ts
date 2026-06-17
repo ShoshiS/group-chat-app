@@ -1,6 +1,20 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { Message, type IMessage } from '../models/message-model.js';
+import { MESSAGE_EVENTS, getIO } from '../sockets/index.js';
+
+/**
+ * Broadcasts a real-time event to the members of a group's room. Best-effort:
+ * a Socket.io failure (or a missing io, e.g. in tests) must never break the
+ * already-completed HTTP response, so it is logged and swallowed.
+ */
+function broadcast(req: Request, groupId: string, event: string, payload: unknown): void {
+  try {
+    getIO(req.app)?.to(groupId).emit(event, payload);
+  } catch (err) {
+    console.error(`Socket broadcast failed (${event}):`, (err as Error).message);
+  }
+}
 
 /**
  * Lists a group's messages, oldest-first, paginated via the `before` cursor.
@@ -32,12 +46,14 @@ export async function createMessage(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const groupId = req.params['id'] as string;
     const message = await Message.create({
       ...req.body,
-      groupId: req.params['id'],
+      groupId,
       senderId: req.userId,
     });
     res.status(201).json(message);
+    broadcast(req, groupId, MESSAGE_EVENTS.created, message.toJSON());
   } catch (err) {
     next(err);
   }
@@ -60,6 +76,7 @@ export async function updateMessage(
 
     const updated = await req.message!.save();
     res.json(updated);
+    broadcast(req, updated.groupId.toString(), MESSAGE_EVENTS.updated, updated.toJSON());
   } catch (err) {
     next(err);
   }
@@ -72,8 +89,11 @@ export async function deleteMessage(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const { id } = req.message!;
+    const groupId = req.message!.groupId.toString();
     await req.message!.deleteOne();
     res.status(204).send();
+    broadcast(req, groupId, MESSAGE_EVENTS.deleted, { id, groupId });
   } catch (err) {
     next(err);
   }
