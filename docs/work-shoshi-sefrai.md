@@ -14,10 +14,10 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | יום 6 — Groups (service + list/card/form) + Auth (secondary) (לקוח) |
-| **Branch פעיל** | `feature/chat-realtime` |
-| **משימה עכשיו** | יום 6 — לקוח: Groups (service + list/card/form) + Auth (secondary) |
-| **עודכן לאחרונה** | 2026-06-17 |
+| **שלב נוכחי** | יום 8 — גימור: Responsive mobile + Docs + Demo + PR סופי |
+| **Branch פעיל** | `feature/client` |
+| **משימה עכשיו** | יום 8 — Responsive mobile + Docs + Demo |
+| **עודכן לאחרונה** | 2026-06-18 |
 | **עודכן על ידי** | שושי |
 
 > עדכני את הטבלה + סמני ✓ בכל סוף יום.
@@ -129,36 +129,36 @@ Socket.io bootstrap · `group-model.ts` ✓ · `message-model.ts` ✓.
 ## יום 6 — חמישי 18/06 — Groups (לקוח) + Auth (secondary)
 
 ### Groups — Primary שלך
-- [ ] `features/groups/group.ts` — service + Signal store (רשימת קבוצות)
-- [ ] `features/groups/group-list.ts` — route `/groups`
-- [ ] `features/groups/group-card.ts`
-- [ ] `features/groups/group-form.ts` — shared: `/groups/new` + `/groups/:id/edit`
-- [ ] Lazy routes ב-`app.routes.ts`
+- [x] `features/groups/group.ts` — service + Signal store (רשימת קבוצות)
+- [x] `features/groups/group-list.ts` — route `/groups`
+- [x] `features/groups/group-card.ts`
+- [x] `features/groups/group-form.ts` — shared: `/groups/new` + `/groups/:id/edit`
+- [x] Lazy routes ב-`app.routes.ts`
 
 ### Auth — Secondary שלך (Auth עצמו של תמר)
-- [ ] `features/auth/login.ts` + Reactive Forms validation
-- [ ] `core/guards/auth-guard.ts` (functional)
-- [ ] `core/interceptors/auth-interceptor.ts` — attach JWT
-- [ ] Review: `register.ts`, `auth.ts` (תמר)
+- [x] `features/auth/login.ts` + Reactive Forms validation
+- [x] `core/guards/auth-guard.ts` (functional)
+- [x] `core/interceptors/auth-interceptor.ts` — attach JWT
+- [x] Review: `register.ts`, `auth.ts` (תמר)
 
-**סוף יום:** התחברות + צפייה/יצירה/עריכה/מחיקה/יציאה מקבוצה בדפדפן.
+**סוף יום:** התחברות + צפייה/יצירה/עריכה/מחיקה/יציאה מקבוצה בדפדפן. ✅ (דחוס ל-18/06)
 
-## יום 7 — ראשון 21/06 — Chat (לקוח) + Profile
+## יום 7 — ראשון 21/06 — Chat (לקוח) + Profile *(דחוס ל-18/06)*
 
 ### Chat — Primary שלך
-- [ ] `features/chat/message.ts` — service + Signal (real-time updates)
-- [ ] `features/chat/chat-room.ts` — `/groups/:id`
-- [ ] `features/chat/message-list.ts`
-- [ ] `features/chat/message-form.ts` — text + file picker + preview
-- [ ] File preview: image / audio player / PDF link
-- [ ] Validation: סוג + גודל קובץ
-- [ ] Review: `socket.ts`, `message-item.ts` (תמר)
+- [x] `features/chat/message.ts` — service + Signal (real-time updates)
+- [x] `features/chat/chat-room.ts` — `/groups/:id`
+- [x] `features/chat/message-list.ts`
+- [x] `features/chat/message-form.ts` — text + file picker + preview
+- [x] File preview: image / audio player / PDF link
+- [x] Validation: סוג + גודל קובץ
+- [x] Review: `socket.ts`, `message-item.ts` (תמר)
 
 ### Profile — Secondary שלך
-- [ ] `features/profile/profile.ts` — route `/profile` + עדכון username
-- [ ] **Group avatar upload** ב-`group-form.ts`
+- [x] `features/profile/profile.ts` — route `/profile` + עדכון username
+- [x] Group avatar URL field ב-`group-form.ts` (upload מלא — יום 8)
 
-**סוף יום:** צ'אט real-time + שליחת קבצים + פרופיל עובדים.
+**סוף יום:** צ'אט real-time + שליחת קבצים + פרופיל עובדים. ✅ (דחוס ל-18/06)
 
 ---
 
@@ -195,10 +195,10 @@ Socket.io bootstrap · `group-model.ts` ✓ · `message-model.ts` ✓.
 
 ## Checklist הגשה — מה את אחראית להציג
 
-- [ ] Login + AuthGuard + interceptor
-- [ ] Groups CRUD + GroupForm (add/edit) + יציאה
-- [ ] צ'אט real-time + שליחת קבצים
-- [ ] Profile + group avatar
+- [x] Login + AuthGuard + interceptor
+- [x] Groups CRUD + GroupForm (add/edit) + יציאה
+- [x] צ'אט real-time + שליחת קבצים
+- [x] Profile + group avatar URL (upload מלא — יום 8)
 - [ ] isGroupAdmin + createRateLimiter — הסבר
 - [ ] Socket.io server events
 

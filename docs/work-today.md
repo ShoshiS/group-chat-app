@@ -34,7 +34,7 @@
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | **Branch**        | `feature/client` (חדש — כל עבודת הלקוח של היום עליו)                                                                       |
 | **לפני שמתחילים** | `git switch -c feature/client` (מבוסס על השרת המעודכן) · `nvm use` (Node 22 LTS) · `npm install` ב-`client/` · ודאי שהשרת רץ מקומית עבור בדיקות |
-| **בסוף היום**     | `npm run lint` + `ng build` נקיים · `npm run test:ci` עובר · commit עם `feat:` · push ל-`feature/client` + PR             |
+| **בסוף היום**     | `npm run lint` + `ng build` נקיים · `npm run test:ci` עובר · commit עם `feat:` · push ל-`feature/client`                    |
 
 ---
 
@@ -84,7 +84,7 @@
 
 - [x] `npm run lint` נקי + `ng build` עובר
 - [x] `npm run test:ci` עובר (14/14)
-- [ ] commit עם `feat:` (לקוח: Auth + Groups + Chat + Profile) · push ל-`feature/client` · פתיחת PR ל-review מתמר
+- [x] commit עם `feat:` (לקוח: Auth + Groups + Chat + Profile) · push ל-`feature/client` (`d4d481e` + `aed8a2c`)
 
 ---
 
@@ -101,6 +101,6 @@
 
 ## תזכורת סוף יום
 
-1. עדכני את טבלת **סמן מיקום** ב-[work-shoshi-sefrai.md](work-shoshi-sefrai.md) (תאריך + משימה הבאה: **יום 8 — גימור: Responsive mobile + Docs + Demo + PR סופי**) — שימי לב שדילגנו על מסמך נפרד ליום 7.
-2. סמני ✓ את משימות ימים 6+7 שהושלמו (גם בקובץ האישי).
-3. Commit + push ל-`feature/client` + PR — שלב הלקוח נסגר, מחר־מחרתיים רק גימור (יום 8).
+1. [x] עדכון טבלת **סמן מיקום** ב-[work-shoshi-sefrai.md](work-shoshi-sefrai.md) — משימה הבאה: **יום 8 — גימור: Responsive mobile + Docs + Demo + PR סופי** (דילגנו על מסמך נפרד ליום 7).
+2. [x] סימון ✓ לימים 6+7 בקובץ האישי.
+3. [x] Commit + push ל-`feature/client` — שלב הלקוח נסגר; מחר־מחרתיים רק גימור (יום 8). PR — בהמשך.
