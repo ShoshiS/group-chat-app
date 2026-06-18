@@ -3,7 +3,6 @@ import express, { type Express, type Request, type Response } from 'express';
 import mongoose from 'mongoose';
 
 import { corsOptions } from './config/cors.js';
-import { env } from './config/env.js';
 import { errorHandler } from './middleware/error-middleware.js';
 import agentRouter from './routes/agent.js';
 import groupRoutes from './routes/group-routes.js';
