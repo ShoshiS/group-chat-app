@@ -39,7 +39,7 @@ export class Register {
     this.submitting.set(true);
     try {
       await this.auth.register(this.form.getRawValue());
-      await this.router.navigate(['/']);
+      await this.router.navigate(['/groups']);
     } catch (err: unknown) {
       const message =
         (err as { error?: { error?: string } })?.error?.error ??
