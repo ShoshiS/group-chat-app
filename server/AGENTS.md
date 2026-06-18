@@ -37,7 +37,7 @@ Attachments (images, audio, pdf) are uploaded to **Cloudflare R2** (S3-compatibl
 - **Layering:** `routes → controllers → services → models`. Keep routes/controllers thin.
 - **Async:** `async/await` only; wrap handlers so errors reach the error middleware (no unhandled rejections).
 - **Errors:** throw typed errors; a central error handler formats the JSON response. Never leak stack traces in production.
-- **Validation:** validate every request body/params (e.g. `express-validator`) before hitting the DB.
+- **Validation:** Joi schemas on Mongoose models + `validateBody()` middleware (`validate-middleware.ts`); validate every request body/params before hitting the DB.
 - **Auth:** JWT in `Authorization: Bearer <token>`; `authMiddleware` verifies, `isGroupAdmin` authorises.
 - **Middleware creators:** prefer factory functions: `const createRateLimiter = (max, windowMs) => (req, res, next) => {…}`.
 - **Mongoose (required per model):** at least one `pre` hook (hash password), one `static` (e.g. `findByEmail`), and `toJSON` to hide `passwordHash`.

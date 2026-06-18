@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import type { StringValue } from 'ms';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -14,6 +15,9 @@ dotenv.config({ path: envPath, override: true });
 export const env = {
   port: Number(process.env.PORT ?? 3000),
   nodeEnv: process.env.NODE_ENV ?? 'development',
+  mongoUri: process.env.MONGO_URI ?? '',
+  jwtSecret: process.env.JWT_SECRET ?? '',
+  jwtExpiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as StringValue,
   clientOrigin: process.env.CLIENT_ORIGIN ?? 'http://localhost:4200',
   geminiApiKey: process.env.GEMINI_API_KEY ?? '',
   geminiModel: process.env.GEMINI_MODEL ?? 'gemini-2.5-flash',
