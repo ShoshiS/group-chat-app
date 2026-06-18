@@ -101,7 +101,7 @@
 
 **Git / PR Slice 2 (2026-06-18):**
 - Branch: `feature/nav-bar`
-- PR: *(נפתח)* — feat: Slice 2 NavBar + protected routes
+- PR: [#7 — feat: Slice 2 NavBar + protected routes](https://github.com/ShoshiS/group-chat-app/pull/7)
 
 ---
 
