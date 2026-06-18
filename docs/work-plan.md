@@ -10,11 +10,11 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | שלב 0 — הקמה משותפת |
-| **Slice פעיל** | Slice 0 |
-| **Branch פעיל** | `main` |
-| **משימה עכשיו** | יצירת Monorepo + GitHub |
-| **עודכן לאחרונה** | 2026-06-08 |
+| **שלב נוכחי** | Slice 1 — Auth (תמר Primary) |
+| **Slice פעיל** | Slice 1 |
+| **Branch פעיל** | `feature/auth` |
+| **משימה עכשיו** | B1 — מודל User |
+| **עודכן לאחרונה** | 2026-06-18 |
 | **עודכן על ידי** | שתיהן |
 
 > עדכנו שדה זה בכל מעבר שלב — בסוף כל שבוע עבודה לפחות.
@@ -34,12 +34,17 @@
 **צוות:** תמר זיסמן + שושי ספראי
 
 **טכנולוגיות (גרסאות עדכניות):**
-- **Server:** Node.js (LTS אחרון) + Express + Mongoose + JWT + bcrypt + Multer + Socket.io
+- **Server:** Node.js 22 LTS + Express + Mongoose + JWT + bcrypt + Socket.io — **TypeScript (ESM)**
 - **Client:** Angular 20 (standalone components, Signals, Reactive Forms) + Angular Material + HttpClient
 - **DB:** MongoDB Atlas (מומלץ) / Compass לייצוא מקומי
 - **State:** Angular Signals + Services (לא NgRx)
+- **Validation (Server):** Joi במודלים + `validateBody()` middleware (לא express-validator)
 - **Git:** Monorepo — `server/` + `client/` + README ראשי
 - **שפה:** אנגלית, LTR
+
+**Conventions (מוסכם):**
+- קבצים: `kebab-case` — למשל `user-model.ts`, `auth-middleware.ts`
+- Env: `MONGO_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN=7d` — גישה מרכזית ב-`server/src/config/env.ts`
 
 **עקרון חלוקה:** חלוקה לפי **Vertical Slices** (פיצ'רים) — כל אחת **בעלים ראשית** על חלק מהפיצ'רים, אבל **חובה לגעת בכל שכבה** (Schema, API, Middleware, Component, Service, Validation, Tests ידניים). השנייה עושה **Code Review + משימות משניות חובה** בכל slice.
 
@@ -82,35 +87,34 @@ flowchart TB
 ## מבנה Monorepo
 
 ```
-node-angular-project/
-├── README.md                  # תיאור כללי + הוראות הרצה
+group-chat-app/
+├── README.md
 ├── .gitignore
-├── docs/                      # מסמכי קדם-הגשה
-│   ├── work-plan.md           # תכנון עבודה ראשי (קובץ זה)
-│   ├── work-tamar-zisman.md   # קובץ עבודה — תמר
-│   ├── work-shoshi-sefrai.md  # קובץ עבודה — שושי
-│   ├── server-analysis.md     # תרשים פעולות לפי משתמש
-│   ├── database-analysis.md   # אוספים + קשרים
-│   └── screens-analysis.md    # מסכים + קומפוננטות
+├── docs/
+│   ├── work-plan.md
+│   ├── work-tamar-zisman.md
+│   ├── work-shoshi-sefrai.md
+│   ├── server-analysis.md
+│   ├── database-analysis.md
+│   └── screens-analysis.md
 ├── server/
 │   ├── .env.example
 │   ├── README.md
-│   ├── src/
-│   │   ├── config/
-│   │   ├── models/            # User, Group, Invitation, Message
-│   │   ├── routes/
-│   │   ├── controllers/
-│   │   ├── middleware/        # auth, errorLogger, shabbatBlock (custom)
-│   │   ├── services/
-│   │   ├── sockets/
-│   │   └── utils/
-│   └── uploads/               # תמונות, אודיו, PDF
+│   └── src/
+│       ├── config/          # env.ts, database.ts, cors.ts
+│       ├── models/          # user-model.ts, group-model.ts, ...
+│       ├── routes/
+│       ├── controllers/
+│       ├── middleware/      # auth-middleware.ts, error-middleware.ts, validate-middleware.ts
+│       ├── services/
+│       ├── sockets/
+│       └── utils/
 └── client/
     ├── .env.example
     ├── README.md
     └── src/app/
-        ├── core/              # auth, interceptors, guards
-        ├── shared/            # כפתורים, כרטיסים, טופס משותף
+        ├── core/
+        ├── shared/
         └── features/
             ├── auth/
             ├── groups/
@@ -228,18 +232,18 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ---
 
-### ▶ **[שלב נוכחי]** שלב 0 — הקמה משותפת (יום 1–2, **שתיהן ביחד**)
+### שלב 0 — הקמה משותפת (יום 1–2, **שתיהן ביחד**) ✅
 
-- [ ] יצירת Monorepo + GitHub repo
-- [ ] `server`: Express scaffold, `.env`, חיבור MongoDB
-- [ ] `client`: `ng new` עם routing, Material, standalone
-- [ ] הגדרת `.env.example` בשני הצדדים
-- [ ] הסכמה על conventions: naming, branch strategy (`main`, feature branches)
-- [ ] יצירת `docs/` עם templates לקדם-הגשה
+- [x] יצירת Monorepo + GitHub repo
+- [x] `server`: Express scaffold, `.env`, חיבור MongoDB
+- [x] `client`: `ng new` עם routing, Material, standalone
+- [x] הגדרת `.env.example` בשני הצדדים
+- [x] הסכמה על conventions: TypeScript, kebab-case, Joi, branch strategy
+- [x] יצירת `docs/` עם templates לקדם-הגשה
 
 ---
 
-### Slice 1 — Auth (התחברות / הרשמה / JWT)
+### ▶ **[שלב נוכחי]** Slice 1 — Auth (התחברות / הרשמה / JWT)
 
 | משימה | תמר (Primary) | שושי (Secondary) |
 |---|---|---|
@@ -248,7 +252,7 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 | **Middleware** | `authMiddleware` — verify JWT | `errorLogger` middleware |
 | **Client Service** | AuthService + Signals (user state) | HTTP interceptor (attach token) |
 | **UI** | RegisterComponent + validation | LoginComponent + AuthGuard |
-| **Validation** | Server: express-validator on register | Client: Reactive Forms validators |
+| **Validation** | Server: Joi on register/login body | Client: Reactive Forms validators |
 
 **תוצר:** הרשמה, התחברות, logout, protected routes.
 
@@ -345,7 +349,7 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ## ספריות npm נוספות (לבחירה)
 
-- **Server:** `express-validator`, `winston` (logging), `socket.io`
+- **Server:** `joi`, `winston` (logging), `socket.io`, `jsonwebtoken`, `bcrypt`
 - **Client:** `socket.io-client`, ספרייה נוספת לבחירה (למשל `date-fns` לתאריכים)
 
 ---
