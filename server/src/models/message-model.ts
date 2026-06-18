@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import { Document, Model, Schema, Types, model } from 'mongoose';
 
-interface IAttachment {
+export interface IAttachment {
   type: 'image' | 'audio' | 'pdf';
   url: string;
   originalName: string;

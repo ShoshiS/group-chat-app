@@ -2,12 +2,11 @@ import cors from 'cors';
 import express, { type Express, type Request, type Response } from 'express';
 import mongoose from 'mongoose';
 
-import { corsOptions } from './config/cors';
-import agentRouter from './routes/agent';
-import groupsRouter from './routes/groups';
-import { env } from './config/env';
+import { corsOptions } from './config/cors.js';
 import { errorHandler } from './middleware/error-middleware.js';
+import agentRouter from './routes/agent.js';
 import groupRoutes from './routes/group-routes.js';
+import { groupMessageRouter, messageRouter } from './routes/message-routes.js';
 
 /**
  * Builds the Express application. Kept separate from the HTTP/Socket.io
@@ -20,7 +19,6 @@ export function createApp(): Express {
   app.use(express.json());
 
   app.use('/api/agent', agentRouter);
-  app.use('/api/groups', groupsRouter);
 
   // Lightweight endpoint the client uses to confirm the API is reachable.
   app.get('/api/health', (_req: Request, res: Response) => {
@@ -34,6 +32,8 @@ export function createApp(): Express {
 
   // TODO: swap stubAuthMiddleware for authMiddleware once Tamar's auth slice merges.
   app.use('/api/groups', groupRoutes);
+  app.use('/api/groups/:id/messages', groupMessageRouter);
+  app.use('/api/messages', messageRouter);
 
   app.use(errorHandler);
 

@@ -15,12 +15,15 @@ src/
 ├── models/       # Mongoose schemas: User, Group, Invitation, Message
 ├── routes/       # Express routers (thin — delegate to controllers)
 ├── controllers/  # request handlers (one responsibility each)
-├── middleware/   # auth, error-logger, validators, rate-limiter
-├── services/     # business logic, reusable across controllers
+├── middleware/   # auth, error-logger, validators, rate-limiter, upload (multer)
+├── services/     # business logic, reusable across controllers (e.g. r2-service)
 ├── sockets/      # Socket.io setup + room/event handlers
 └── utils/        # pure helpers
-uploads/          # multer files (images, audio, pdf) — git-ignored
 ```
+
+Attachments (images, audio, pdf) are uploaded to **Cloudflare R2** (S3-compatible) via
+`@aws-sdk/client-s3`. Multer uses `memoryStorage` (buffer → R2); MongoDB stores only
+`{ type, url, originalName }`. No local `uploads/` folder.
 
 ## Naming
 
