@@ -9,13 +9,13 @@ import {
   updateGroup,
 } from '../controllers/group-controller.js';
 import { isGroupAdmin, isGroupMember } from '../middleware/group-middleware.js';
-import { stubAuthMiddleware } from '../middleware/stub-auth-middleware.js';
+import { authMiddleware } from '../middleware/auth-middleware.js';
 import { validateBody } from '../middleware/validate-middleware.js';
 import validateGroup from '../models/group-model.js';
 
 const router = Router();
 
-router.use(stubAuthMiddleware);
+router.use(authMiddleware);
 
 router.get('/', getMyGroups);
 router.post('/', validateBody(validateGroup), createGroup);

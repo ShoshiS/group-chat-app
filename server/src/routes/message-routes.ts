@@ -10,7 +10,7 @@ import { isGroupMember } from '../middleware/group-middleware.js';
 import { isMessageOwner, isMessageOwnerOrAdmin } from '../middleware/message-middleware.js';
 import { createRateLimiter } from '../middleware/rate-limiter-middleware.js';
 import { mergeFileAttachments, uploadMessageFiles } from '../middleware/upload-middleware.js';
-import { stubAuthMiddleware } from '../middleware/stub-auth-middleware.js';
+import { authMiddleware } from '../middleware/auth-middleware.js';
 import { validateBody } from '../middleware/validate-middleware.js';
 import validateMessage from '../models/message-model.js';
 
@@ -22,7 +22,7 @@ const messageRateLimiter = createRateLimiter(30, 60_000);
  */
 export const groupMessageRouter = Router({ mergeParams: true });
 
-groupMessageRouter.use(stubAuthMiddleware);
+groupMessageRouter.use(authMiddleware);
 
 groupMessageRouter.get('/', isGroupMember, getMessages);
 groupMessageRouter.post(
@@ -38,7 +38,7 @@ groupMessageRouter.post(
 /** Single-message operations — mounted at `/api/messages`. */
 export const messageRouter = Router();
 
-messageRouter.use(stubAuthMiddleware);
+messageRouter.use(authMiddleware);
 
 messageRouter.put('/:id', isMessageOwner, validateBody(validateMessage), updateMessage);
 messageRouter.delete('/:id', isMessageOwnerOrAdmin, deleteMessage);

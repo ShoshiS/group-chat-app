@@ -1,7 +1,9 @@
 import mongoose, { type Connection } from 'mongoose';
 
+import { env } from './env.js';
+
 export async function connectDB(): Promise<Connection> {
-  const uri = process.env.MONGO_URI;
+  const uri = env.mongoUri;
 
   if (!uri) {
     throw new Error(

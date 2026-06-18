@@ -1,0 +1,35 @@
+<section class="home">
+  <header class="home__header">
+    <div>
+      <h1>Group Chat</h1>
+      @if (auth.currentUser(); as user) {
+        <p>Signed in as {{ user.username }}</p>
+      }
+    </div>
+
+    <div class="home__actions">
+      <button type="button" class="home__agent-btn" (click)="openAgent()">
+        AI Assistant (temp)
+      </button>
+      <button type="button" class="home__logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main class="home__main">
+    <div class="home__placeholder">
+      <h2>Your groups</h2>
+      <p>Group list and chat room will appear here in the next slices.</p>
+      <p class="home__hint">Use the temporary button above to try the AI assistant.</p>
+    </div>
+  </main>
+
+  @if (agentOpen()) {
+    <aside class="home__agent-panel" aria-label="AI assistant panel">
+      <div class="home__agent-toolbar">
+        <span>AI Assistant — temporary access</span>
+        <button type="button" (click)="closeAgent()">Close</button>
+      </div>
+      <app-agent-chat />
+    </aside>
+  }
+</section>
