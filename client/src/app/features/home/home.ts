@@ -1,32 +1,20 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-
-import { Auth } from '../../core/services/auth';
-import { AgentChat } from '../agent/agent-chat';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 /**
- * Main authenticated shell. Group chat UI will land here in later slices;
- * the AI agent is exposed only through an explicit temporary dev button.
+ * Entry point for authenticated users — immediately redirects to /groups.
+ * Kept as a named route so guards apply before the redirect.
  */
 @Component({
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AgentChat],
-  templateUrl: './home.html',
-  styleUrl: './home.scss',
+  imports: [],
+  template: '',
 })
-export class Home {
-  protected readonly auth = inject(Auth);
-  protected readonly agentOpen = signal(false);
+export class Home implements OnInit {
+  private readonly router = inject(Router);
 
-  protected openAgent(): void {
-    this.agentOpen.set(true);
-  }
-
-  protected closeAgent(): void {
-    this.agentOpen.set(false);
-  }
-
-  protected logout(): void {
-    this.auth.logout();
+  ngOnInit(): void {
+    void this.router.navigate(['/groups'], { replaceUrl: true });
   }
 }

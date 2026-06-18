@@ -1,104 +1,106 @@
-# מסמך עבודה — היום (רביעי 17/06/2026)
+# מסמך עבודה — היום (חמישי 18/06/2026)
 
-**יום 5 מתוך 8** · שלב: **שרת — Socket.io events + בדיקת שרת מלאה** · Slice: Messages + Real-time (Primary: שושי)
+**ימים 6–7 מתוך 8 (דחוסים ליום אחד)** · שלב: **לקוח — Angular מקצה לקצה** · Slice: Groups + Messages/Chat (Primary: שושי), Auth/Profile (Secondary)
 **מסמכים קשורים:** [work-plan.md](work-plan.md) · [work-shoshi-sefrai.md](work-shoshi-sefrai.md) · [work-tamar-zisman.md](work-tamar-zisman.md)
 
-> **גישה:** קודם השרת מקצה לקצה (API + DB + Socket), ורק אז הלקוח.
-> אתמול (יום 4) הושלמה שכבת ההעלאות בשרת: Multer + Cloudinary ל-attachments,
-> ו-`createRateLimiter(max, windowMs)` מופעל על endpoint ההודעות.
-> היום סוגרים את שלב השרת — **אירועי Socket.io בזמן אמת** (חדרי קבוצה + שידור
-> הודעות) ו-**בדיקת שרת מלאה** מקצה לקצה.
+> **גישה:** השרת כבר עובד מקצה לקצה ובדוק (יום 5 ✅). היום עוברים **לצד לקוח** —
+> ובוחרים לדחוס את **יום 6 (Groups + Auth)** ואת **יום 7 (Chat + Profile)** ליום אחד.
+> המטרה: לסיים את כל ה-SPA היום, כך שמחר־מחרתיים (יום 8) נשארים רק Responsive + Docs + Demo.
+
+> ⚠️ **עיצוב היום = בסיסי בלבד.** הפוקוס הוא על פונקציונליות מלאה (זרימות + חיבור לשרת),
+> לא על מראה. מספיק Angular Material ברירת־מחדל + פריסה תקינה — בלי ליטוש צבעים, מרווחים,
+> אנימציות או ריספונסיב מלוטש. **העיצוב הסופי ייעשה ביום נפרד** (במסגרת הגימור).
 
 ---
 
-## למה real-time דרך חדרי קבוצה
+## למה לדחוס את שני הימים
 
-כל הודעה צריכה להגיע **רק לחברי הקבוצה הרלוונטית**, לא לכל המחוברים.
-לכן כל socket מצטרף ל-**room** לפי `groupId` (`socket.join(groupId)`), והשרת משדר
-את האירועים עם `io.to(groupId).emit(...)`. כך שכבת ה-REST נשארת מקור האמת לשמירה
-ב-DB, וה-Socket רק מודיע לחברי החדר על שינוי שכבר נשמר.
+כל שכבת הלקוח נשענת על אותו בסיס: `HttpClient` + interceptor שמצרף JWT, ניווט lazy,
+ו-Signal stores. ברגע שמקימים את הבסיס הזה (Auth secondary), בניית Groups ו-Chat
+הופכת לחזרה על אותו pattern (service + signal store → list → card/item → form).
+לכן זרימה אחת רציפה — מ-Login דרך Groups ועד Chat real-time — חוסכת הקמות חוזרות
+ומשאירה את יום 8 כולו לגימור.
 
 ---
 
 ## מטרת היום
 
-להעמיד **real-time מלא בשרת ובדוק** — הצטרפות/יציאה מחדר קבוצה, ושידור
-`newMessage` / `messageUpdated` / `messageDeleted` לחברי הקבוצה אחרי שמירה ב-DB.
-בסוף היום השרת עובד מקצה לקצה: Auth → Groups → Messages → אירועי Socket בזמן אמת,
-ושלב השרת נסגר לקראת המעבר ללקוח (יום 6).
+להעמיד **לקוח Angular מלא ומחובר לשרת**: התחברות (Login + Guard + Interceptor),
+ניהול קבוצות מלא (רשימה / יצירה / עריכה / מחיקה / יציאה), צ'אט בזמן אמת עם שליחת
+טקסט וקבצים (תמונה / אודיו / PDF) ו-preview, ומסך פרופיל. בסוף היום אפשר לעבור את
+כל הזרימה בדפדפן: **Login → רשימת קבוצות → יצירת/עריכת קבוצה → צ'אט real-time → פרופיל**.
 
-
-|                   |                                                                                                 |
-| ----------------- | ----------------------------------------------------------------------------------------------- |
-| **Branch**        | `feature/chat-realtime` (ממשיכים מאתמול — ההודעות וההעלאות כבר עליו)                             |
-| **לפני שמתחילים** | `git checkout feature/chat-realtime` · `nvm use` (Node 22 LTS) · `npm install` ב-`server/` (לוודא ש-`socket.io` מותקן) |
-| **בסוף היום**     | `npm run lint` + `npm run typecheck` נקיים · commit עם `feat:` · push ל-`feature/chat-realtime`  |
-
+|                   |                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Branch**        | `feature/client` (חדש — כל עבודת הלקוח של היום עליו)                                                                       |
+| **לפני שמתחילים** | `git switch -c feature/client` (מבוסס על השרת המעודכן) · `nvm use` (Node 22 LTS) · `npm install` ב-`client/` · ודאי שהשרת רץ מקומית עבור בדיקות |
+| **בסוף היום**     | `npm run lint` + `ng build` נקיים · `npm run test:ci` עובר · commit עם `feat:` · push ל-`feature/client` + PR             |
 
 ---
 
-## נקודת פתיחה (מה כבר קיים)
+## נקודת פתיחה (מה כבר קיים בלקוח)
 
-- `server/src/sockets/index.ts` — `createSocketServer` עם lifecycle בלבד (`connection` / `disconnect` + `connected`); **אין** room events ✓
-- `server/src/controllers/message-controller.ts` — `createMessage` / `updateMessage` / `deleteMessage` שומרים ב-DB אך **ללא** emit ✓
-- `server/src/server.ts` — `createSocketServer(httpServer)` נקרא, אך ה-`io` החוזר לא נשמר ולא נחשף ל-app ✓
-- `server/src/app.ts` — אין גישה ל-`io` ב-request flow ✓
-- `server/src/middleware/upload-middleware.ts` + `rate-limiter-middleware.ts` — Multer/Cloudinary + `createRateLimiter` (יום 4) ✓
-- `server/src/routes/message-routes.ts` — `messageRateLimiter = createRateLimiter(30, 60_000)` מחובר ל-`POST` ✓
+- `client/src/app/app.routes.ts` — רק `''` (agent-chat demo) ו-`debug`; **אין** routes ל-auth/groups/chat/profile ✓
+- `client/src/app/app.config.ts` — `provideHttpClient()` **בלי** interceptors ✓
+- `client/src/app/core/services/connection.service.ts` — Socket bootstrap קיים; **אין** auth-guard / auth-interceptor ✓
+- `client/src/app/features/` — רק `agent` (demo) ו-`debug`; **אין** תיקיות `auth` / `groups` / `chat` / `profile` ✓
+- השרת (REST + Socket.io) עובד מקצה לקצה ובדוק — הלקוח ניגש אליו דרך `env.clientOrigin` / API base ✓
 
 ---
 
-## משימות היום
+## משימות היום (רשימה אחת רציפה)
 
-### 1. הרחבת אירועי Socket.io — `server/src/sockets/index.ts`
+### בסיס לקוח + Auth (Secondary — Auth עצמו של תמר)
 
-- [x] `socket.on('joinGroup', groupId)` → `socket.join(groupId)` (הצטרפות לחדר הקבוצה)
-- [x] `socket.on('leaveGroup', groupId)` → `socket.leave(groupId)` (יציאה מהחדר)
-- [x] להגדיר שמות אירועי השידור היוצאים: `newMessage`, `messageUpdated`, `messageDeleted` (לחדר `groupId`)
-- [x] לשמור על ה-lifecycle הקיים (`connection` / `disconnect`) ועל ה-`cors` מ-`env.clientOrigin`
+- [x] `app.config.ts` — `provideHttpClient(withInterceptors([authInterceptor]))` + הגדרת API base
+- [x] `core/interceptors/auth-interceptor.ts` — functional interceptor שמצרף JWT ל-headers
+- [x] `core/guards/auth-guard.ts` — functional guard להגנה על routes פרטיים
+- [x] `features/auth/login.ts` — Reactive Forms + validation, קריאה ל-`/api/auth/login`, שמירת token
+- [x] Review: `register.ts` + `auth.ts` (Auth service + Signals של תמר) — נמשכו מ-feature/auth
 
-### 2. חשיפת `io` ל-controllers — `server/src/server.ts` + `server/src/app.ts`
+### Groups (Primary שלך)
 
-- [x] ב-`server.ts`: לשמור את ה-`io` החוזר מ-`createSocketServer(httpServer)`
-- [x] להצמיד אותו ל-app: `app.set('io', io)` (לפני `httpServer.listen`)
-- [x] (אופציונלי) טיפוס עזר ב-`types/express.d.ts` או getter קטן, כדי לקרוא `io` ב-controllers בצורה מוטיפסת
+- [x] `features/groups/group.ts` — service + Signal store (רשימת קבוצות, CRUD, leave)
+- [x] `features/groups/group-list.ts` — route `/groups` (`@for` + `track`, OnPush)
+- [x] `features/groups/group-card.ts` — כרטיס קבוצה בודד (`input()`)
+- [x] `features/groups/group-form.ts` — shared: `/groups/new` + `/groups/:id/edit` (Reactive Forms + validation)
+- [x] Lazy routes ב-`app.routes.ts` (`loadComponent`) + הגנת `authGuard`
 
-### 3. שידור אירועים מה-controllers — `server/src/controllers/message-controller.ts`
+### Chat (Primary שלך)
 
-- [x] `createMessage` — אחרי השמירה: `req.app.get('io').to(groupId).emit('newMessage', message)`
-- [x] `updateMessage` — אחרי העדכון: `emit('messageUpdated', updated)` לחדר הקבוצה
-- [x] `deleteMessage` — אחרי המחיקה: `emit('messageDeleted', { id, groupId })` לחדר הקבוצה
-- [x] לוודא שה-emit קורה **רק אחרי** הצלחת פעולת ה-DB (לא לפני), ושכשלון לא חוסם את התגובה ל-HTTP
+- [x] `features/chat/message.ts` — service + Signal עם עדכוני real-time (`newMessage` / `messageUpdated` / `messageDeleted`)
+- [x] `features/chat/chat-room.ts` — route `/groups/:id` + `joinGroup` / `leaveGroup` בכניסה/יציאה
+- [x] `features/chat/message-list.ts` — רשימת הודעות (`@for` + `track`, גלילה)
+- [x] `features/chat/message-form.ts` — שליחת טקסט + file picker + preview
+- [x] File preview: image / audio player / PDF link + validation (סוג + גודל קובץ)
+- [x] `socket.ts` + `message-item.ts` — נבנו כחלק מה-Chat slice
 
-### 4. בדיקת שרת מלאה (מקצה לקצה)
+### Profile (Secondary שלך)
 
-> stub auth דרך `X-Test-User-Id: <ObjectId תקין>` עד שה-JWT של תמר ינחת.
+- [x] `features/profile/profile.ts` — route `/profile` + עדכון username
+- [x] Group avatar URL field ב-`group-form.ts` (preview מובנה; upload מלא ביום 8)
 
-- [x] זרימה מלאה: Auth (stub) → יצירת/צפייה בקבוצה (Groups) → שליחת הודעה (Messages) → קבלת `newMessage` בזמן אמת
-- [x] לפתוח שני clients (או Socket client / חלון בדיקה), להצטרף לאותו `groupId`, ולוודא שהודעה חדשה מגיעה לשני הצדדים
-- [x] עריכת הודעה → `messageUpdated` מגיע · מחיקת הודעה → `messageDeleted` מגיע
-- [x] לוודא ששידור מגיע **רק** לחברי החדר הרלוונטי (מי שלא ב-room לא מקבל)
+### ניקיון וסגירה
 
-### 5. ניקיון וסגירת שלב השרת
-
-- [x] `npm run lint` + `npm run typecheck` נקיים
-- [x] commit עם `feat:` (אירועי Socket.io + שידור הודעות) · push ל-`feature/chat-realtime`
+- [x] `npm run lint` נקי + `ng build` עובר
+- [x] `npm run test:ci` עובר (14/14)
+- [ ] commit עם `feat:` (לקוח: Auth + Groups + Chat + Profile) · push ל-`feature/client` · פתיחת PR ל-review מתמר
 
 ---
 
 ## קריטריון "סיימתי"
 
-- [x] `joinGroup` / `leaveGroup` עובדים — socket מצטרף/יוצא מחדר לפי `groupId`
-- [x] הודעה חדשה משודרת בזמן אמת לחברי הקבוצה (`newMessage`) אחרי שמירה ב-DB
-- [x] עריכה/מחיקה משדרות `messageUpdated` / `messageDeleted` לחדר הקבוצה
-- [x] השידור מגיע רק לחברי החדר הרלוונטי
-- [x] הזרימה המלאה Auth → Groups → Messages → Socket עובדת מקצה לקצה
-- [x] `npm run lint` + `npm run typecheck` עוברים נקי — **השרת עובד טוב ובדוק** 🎯
+- [x] Login עובד: התחברות שומרת JWT, ה-interceptor מצרף אותו, `authGuard` חוסם routes פרטיים
+- [x] Groups: רשימה / יצירה / עריכה / מחיקה / יציאה מחוברים לשרת
+- [x] Chat real-time: כניסה ל-`/groups/:id` מצרפת ל-room, Socket.io מנהל `newMessage` / `messageUpdated` / `messageDeleted`
+- [x] שליחת קובץ (תמונה / אודיו / PDF) עם preview עובדת, validation חוסם סוג/גודל לא תקין
+- [x] Profile: עדכון username מחובר, group avatar URL field
+- [x] `npm run lint` + `ng build` + `npm run test:ci` (14/14) עוברים נקי — **הלקוח עובד מקצה לקצה** 🎯
 
 ---
 
 ## תזכורת סוף יום
 
-1. עדכני את טבלת **סמן מיקום** ב-[work-shoshi-sefrai.md](work-shoshi-sefrai.md) (תאריך + משימה הבאה: יום 6 — לקוח: Groups (service + list/card/form) + Auth (secondary))
-2. סמני ✓ את משימות יום 5 שהושלמו
-3. Commit + push ל-`feature/chat-realtime` — שלב השרת נסגר, מחר עוברים לצד לקוח
+1. עדכני את טבלת **סמן מיקום** ב-[work-shoshi-sefrai.md](work-shoshi-sefrai.md) (תאריך + משימה הבאה: **יום 8 — גימור: Responsive mobile + Docs + Demo + PR סופי**) — שימי לב שדילגנו על מסמך נפרד ליום 7.
+2. סמני ✓ את משימות ימים 6+7 שהושלמו (גם בקובץ האישי).
+3. Commit + push ל-`feature/client` + PR — שלב הלקוח נסגר, מחר־מחרתיים רק גימור (יום 8).
