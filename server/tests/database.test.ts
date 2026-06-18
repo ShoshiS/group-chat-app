@@ -1,18 +1,15 @@
-import { connectDB } from '../src/config/database';
+import { jest } from '@jest/globals';
+
+await jest.unstable_mockModule('../src/config/env.js', () => ({
+  env: {
+    mongoUri: '',
+  },
+}));
+
+const { connectDB } = await import('../src/config/database.js');
 
 describe('connectDB', () => {
-  const originalUri = process.env.MONGO_URI;
-
-  afterEach(() => {
-    if (originalUri === undefined) {
-      delete process.env.MONGO_URI;
-    } else {
-      process.env.MONGO_URI = originalUri;
-    }
-  });
-
   it('throws a clear error when MONGO_URI is not defined', async () => {
-    delete process.env.MONGO_URI;
     await expect(connectDB()).rejects.toThrow('MONGO_URI is not defined');
   });
 });
