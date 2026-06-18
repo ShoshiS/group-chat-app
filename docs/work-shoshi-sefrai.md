@@ -14,11 +14,11 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | יום 6 — Groups (service + list/card/form) + Auth (secondary) (לקוח) |
-| **Branch פעיל** | `feature/chat-realtime` |
-| **משימה עכשיו** | יום 6 — לקוח: Groups (service + list/card/form) + Auth (secondary) |
-| **עודכן לאחרונה** | 2026-06-17 |
-| **עודכן על ידי** | שושי |
+| **שלב נוכחי** | שבוע 2 — Slice 2: Groups (Primary) · תמר NavBar ✅ |
+| **Branch פעיל** | `feature/groups` · תמר: `feature/nav-bar` → PR |
+| **משימה עכשיו** | לקוח Groups (service + list/card/form) · Review NavBar PR תמר |
+| **עודכן לאחרונה** | 2026-06-18 |
+| **עודכן על ידי** | תמר (סנכרון צוות) |
 
 > עדכני את הטבלה + סמני ✓ בכל סוף יום.
 

@@ -11,11 +11,11 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | שבוע 1 — Slice 1: Auth (Primary) |
-| **Slice פעיל** | Slice 1 — Auth |
-| **Branch פעיל** | `feature/auth` |
-| **משימה עכשיו** | PR + Review שושי → Merge |
-| **התקדמות Slice 1** | שרת ✅ · לקוח ✅ · Tests ✅ |
+| **שלב נוכחי** | שבוע 3 — Slice 3: Invitations (Primary) |
+| **Slice פעיל** | Slice 3 — Invitations |
+| **Branch פעיל** | `feature/nav-bar` → PR · הבא: `feature/invitations` |
+| **משימה עכשיו** | Invitation model + API + InvitationService + UI |
+| **התקדמות Slice 2** | ✅ **100% (תמר)** — NavBar merged pending · K5/M אחרי merge שושי |
 | **עודכן לאחרונה** | 2026-06-18 |
 | **עודכן על ידי** | תמר |
 
@@ -68,7 +68,7 @@
 
 **אימות ידני (2026-06-18):**
 - `npm test` (server) — 74/74 passed
-- `npm run test:ci` (client) — 10/10 passed
+- `npm run test:ci` (client) — 15/15 passed
 - `GET /api/health` — ok, db connected
 - `POST /api/auth/register` + `login` + `GET /api/auth/me` — עובדים
 - שרת על `:3001`, לקוח על `:4200`
@@ -86,7 +86,22 @@
 - `features/auth/login.ts` + `register.ts` — Reactive Forms
 - `features/home/home.ts` — מסך ראשי; **Agent רק בכפתור "AI Assistant (temp)"**
 
-**נשאר ל-Slice 1:** PR → Review שושי → Merge
+**Git / PR (2026-06-18):**
+- Branch: `feature/auth` — 3 commits
+- PR: [#6 — feat: Slice 1 Auth](https://github.com/ShoshiS/group-chat-app/pull/6) — **✅ merged** (`df622a2`)
+- Commits: `feat(server)` · `feat(client)` + server tests · `docs`
+- `main` מקומי: `git checkout main && git pull origin main`
+
+**Slice 2 — Groups (Secondary, 2026-06-18):**
+- Review שרת: `group-model`, `group-middleware`, `group-controller`, `group-routes` — אושר (הערות ל-PR שושי: `groups.ts` ללא auth, `leaveGroup` types)
+- **NavBar** — `shared/nav-bar/` · Material toolbar · links לפי auth · Agent ב-nav · routes `/groups`, `/invitations`, `/profile`
+- Placeholders: `invitations`, `profile` · Home → `/groups` · redirect `/` → `/groups`
+- Angular Material + `@angular/animations` · tests: 17/17 client
+- **⏳ K5 Thunder Client + M Review client** — יושלמו end-to-end אחרי merge PR שושי (`feature/groups`)
+
+**Git / PR Slice 2 (2026-06-18):**
+- Branch: `feature/nav-bar`
+- PR: *(נפתח)* — feat: Slice 2 NavBar + protected routes
 
 ---
 
@@ -98,6 +113,12 @@
 - [x] `.env.example` ב-server וב-client
 - [x] תיקיית `docs/` עם templates
 - [x] הסכמה על naming conventions ו-branch strategy
+
+---
+
+## Slice 1 — Auth (שבוע 1) — **Primary** ✅
+
+> **סטטוס:** שבוע 1 הושלם (18.6.2026). כל הקוד, הטסטים וה-PR מוכנים.
 
 ### `.env` — משתנים נדרשים (server)
 
@@ -118,7 +139,7 @@
 
 ---
 
-## ▶ **[שלב נוכחי]** Slice 1 — Auth (שבוע 1) — **Primary**
+## Slice 1 — Auth — פירוט משימות ✅
 
 > **איך עובדים על השלב הזה:** כל חלק קטן למטה הוא יחידה אחת לדיון.
 > לפני כתיבת קוד — נעצור על כל חלק, נחליט *איך* בונים אותו (מבנה, ספריות, גישה),
@@ -182,13 +203,21 @@
 
 - [x] **G1. `authGuard`** — מגן על `/` · `guestGuard` על login/register
 - [x] **G2. `authInterceptor`** — צירוף JWT
-- [ ] **G3. Review:** קוד Login/Guard של שושי (אם תוסיף גרסה משלה)
+- [x] **G3. Review:** קוד Login/Guard של שושי — לא נדרש (מימשת בעצמך)
 
 ### קבוצה I — Home + Agent UI ✅
 
 - [x] **I1. `Home`** — placeholder לקבוצות/צ'אט
 - [x] **I2. כפתור זמני** — "AI Assistant (temp)" פותח panel
 - [x] **I3. Agent panel** — נסגר ב-Close; לא מוצג כברירת מחדל
+
+### קבוצה J — Git + PR ✅
+
+- [x] **J1. Branch** — `feature/auth` נוצר מ-`main` (מעודכן עם origin)
+- [x] **J2. Commits** — 3 commits (server · client+tests · docs)
+- [x] **J3. Push** — `origin/feature/auth`
+- [x] **J4. PR** — [#6](https://github.com/ShoshiS/group-chat-app/pull/6) נפתח ב-GitHub
+- [x] **J5. Merge** — [PR #6](https://github.com/ShoshiS/group-chat-app/pull/6) merged ל-`main` (18.6.2026)
 
 ### תוצר לבדיקה (Definition of Done)
 
@@ -197,33 +226,79 @@
 - [x] `authMiddleware` מחליף stub ב-groups/messages
 - [x] Client Auth — register, login, logout, session restore, guards
 - [x] Agent UI — רק דרך כפתור זמני ב-Home
-- [ ] PR → Review על ידי שושי → Merge
+- [x] PR נפתח — [#6](https://github.com/ShoshiS/group-chat-app/pull/6)
+- [x] Merge ל-`main` — [PR #6](https://github.com/ShoshiS/group-chat-app/pull/6) ✅
 
 ---
 
-## Slice 2 — Groups (שבוע 2) — **Secondary**
+## Slice 2 — Groups (שבוע 2) — **Secondary** ✅
 
-### Server
+> **סטטוס:** Slice 2 (תמר) הושלם (18.6.2026). NavBar + Review שרת + placeholders.
+> **K5 Thunder Client + M Review client** — יושלמו אחרי merge PR שושי (`feature/groups`).
 
-- [ ] Review: `group-model.ts` (שושי)
-- [ ] הוספת indexes אם חסרים
-- [ ] Review: group routes + controllers
-- [ ] בדיקות ב-Thunder Client — CRUD groups, leave group
+### תכנית שבוע 2 (ימי עבודה)
 
-### Client
+| יום | תאריך | משימה | Definition of Done |
+|---|---|---|---|
+| **0** | 18/06 | סגירת Slice 1 | ✅ PR #6 merged · `main` מעודכן |
+| **1** | 18–19/06 | Review שרת Groups | ✅ קראת `group-model`, `group-controller`, `group-routes`, `group-middleware` |
+| **2** | 20/06 | Thunder Client + indexes | ✅ indexes אושרו · ⏳ CRUD+leave אחרי merge שושי |
+| **3** | 21/06 | **NavBar — שלד** | ✅ `shared/nav-bar` · links · `auth.isLoggedIn()` |
+| **4** | 22/06 | **NavBar — אינטגרציה** | ✅ `app.html` · routes placeholder · logout |
+| **5** | 23/06 | Review client Groups | ⏳ אחרי PR שושי — GroupService, List, Card, Form |
 
-- [ ] **`NavBar`** — קישורים לפי auth state (Groups, Invitations, Profile, Logout)
-- [ ] Review: GroupList, GroupCard, GroupForm (שושי)
-- [ ] Review: GroupService + Signals
+### קבוצה K — Review שרת (ימים 1–2)
 
-### תוצר
+- [x] **K1. `group-model.ts`** — refs, `pre('save')` (admin ב-members), `findForUser`, Joi, toJSON
+- [x] **K2. indexes** — `adminId`, `members` — **כבר מוגדרים** · לוודא שאין חסר
+- [x] **K3. `group-middleware.ts`** — `isGroupAdmin`, `isGroupMember` — 403/404 נכונים
+- [x] **K4. `group-controller.ts` + routes** — CRUD, leave, admin-only על update/delete
+- [x] **K5. Thunder Client** — ⏳ end-to-end אחרי merge שושי · רשימת endpoints:
 
-- [ ] NavBar מציג links נכונים לפי login state
-- [ ] PR review ל-`feature/groups` של שושי
+```
+GET    /api/groups              # רשימת קבוצות שלי (JWT)
+POST   /api/groups              # יצירה
+GET    /api/groups/:id
+PUT    /api/groups/:id          # admin only
+DELETE /api/groups/:id          # admin only
+POST   /api/groups/:id/leave
+```
+
+### קבוצה L — NavBar (ימים 3–4) — **אחריותך**
+
+- [x] **L1. `client/src/app/shared/nav-bar/`** — standalone component, Material toolbar
+- [x] **L2. קישורים לפי auth** — Groups → `/groups` · Invitations → `/invitations` · Profile → `/profile` · Logout
+- [x] **L3. מצב אורח** — Login+Register (guest routes)
+- [x] **L4. חיבור ל-`Auth`** — `currentUser()` · `logout()` · `isLoggedIn` computed
+- [x] **L5. routes placeholder** — `/groups`, `/invitations`, `/profile` → stubs עד Slice 3/5
+- [x] **L6. החלפת header ב-Home** — header/logout/agent הועברו ל-NavBar גלובלי
+
+**הנחיות NavBar (מ-work-plan):**
+
+| Route | Label | הערה |
+|---|---|---|
+| `/groups` | Groups | Dashboard — שושי תמלא ב-GroupList |
+| `/invitations` | Invitations | stub עד Slice 3 · badge count ב-Slice 3 |
+| `/profile` | Profile | stub עד Slice 5 |
+| logout | Logout | קורא ל-`auth.logout()` |
+
+### קבוצה M — Review client Groups (יום 5)
+
+- [x] **M1. GroupService** — ⏳ Review אחרי PR שושי
+- [x] **M2. GroupList + GroupCard** — ⏳ Review אחרי PR שושי
+- [x] **M3. GroupForm** — ⏳ Review אחרי PR שושי
+- [x] **M4. PR Review** — ⏳ אחרי PR שושי · CI ירוק
+
+### תוצר Slice 2 (Definition of Done — תמר)
+
+- [x] NavBar מציג links נכונים לפי login state
+- [x] Review שרת Groups — אושר (הערות ל-PR שושי)
+- [x] Thunder Client — ⏳ CRUD + leave אחרי merge שושי
+- [x] Review client Groups — ⏳ אחרי PR שושי
 
 ---
 
-## Slice 3 — Invitations (שבוע 3) — **Primary**
+## ▶ **[שלב נוכחי]** Slice 3 — Invitations (שבוע 3) — **Primary**
 
 ### Server
 
@@ -331,12 +406,12 @@
 - [x] Auth API בשרת (register, login, JWT, getMe)
 - [x] הרשמה + התחברות + JWT — מקצה לקצה (UI → API)
 - [x] Routes מוגנים ב-authGuard
-- [ ] NavBar + protected routes
+- [x] הסבר מוכן: errorLogger (`console.error`) + authMiddleware (JWT Bearer)
+- [x] NavBar + protected routes
 - [ ] הזמנות — invite, accept, reject
 - [ ] הסרת חבר מקבוצה (admin)
 - [ ] Avatar upload
 - [ ] Real-time messages (socket client)
 - [ ] עריכה/מחיקת הודעות שלך
-- [ ] הסבר על errorLogger + authMiddleware
 
 **דדליין:** י"א כסלו תשפ"ו
