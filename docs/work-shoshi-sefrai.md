@@ -14,9 +14,9 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | Slice 3 Review — Invitations PR (Secondary) |
-| **Branch פעיל** | `feature/client` (merged) · Review: `feature/invitations` (תמר) |
-| **משימה עכשיו** | Review PR Invitations של תמר · יום 8 — Responsive + Docs |
+| **שלב נוכחי** | Slice 4 — Messages + Real-time (Primary) |
+| **Branch פעיל** | `main` מעודכן · `feature/chat-realtime` |
+| **משימה עכשיו** | Messages CRUD + Socket.io + Media · יום 8 — Responsive + Docs |
 | **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר (סנכרון) |
 
