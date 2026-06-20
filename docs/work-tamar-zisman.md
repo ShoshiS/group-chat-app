@@ -11,12 +11,12 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | שבוע 3 — Slice 3: Invitations (Primary) |
+| **שלב נוכחי** | שבוע 3 — Slice 3: Invitations (Primary) — **מימוש הושלם · PR ל-Review** |
 | **Slice פעיל** | Slice 3 — Invitations |
-| **Branch פעיל** | `feature/nav-bar` → PR · הבא: `feature/invitations` |
-| **משימה עכשיו** | Invitation model + API + InvitationService + UI |
-| **התקדמות Slice 2** | ✅ **100% (תמר)** — NavBar merged pending · K5/M אחרי merge שושי |
-| **עודכן לאחרונה** | 2026-06-18 |
+| **Branch פעיל** | `feature/invitations` → PR |
+| **משימה עכשיו** | PR Review על ידי שושי · Thunder Client לזרימת הזמנות |
+| **התקדמות Slice 3** | ✅ **100% (תמר)** — server + client + tests |
+| **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר |
 
 > עדכני שדה זה בכל מעבר שלב — בסוף כל שבוע עבודה לפחות.
@@ -298,29 +298,55 @@ POST   /api/groups/:id/leave
 
 ---
 
-## ▶ **[שלב נוכחי]** Slice 3 — Invitations (שבוע 3) — **Primary**
+## ▶ **[שלב נוכחי]** Slice 3 — Invitations (שבוע 3) — **Primary** ✅
+
+> **סטטוס:** Slice 3 (תמר) הושלם (21.6.2026). PR ל-Review על ידי שושי.
 
 ### Server
 
-- [ ] `server/src/models/invitation-model.ts` (כבר קיים — Review + השלמות לפי הצורך)
-- [ ] `server/src/controllers/invitation.controller.js` — list, accept, reject, pending count
-- [ ] `server/src/routes/invitation.routes.js`
-- [ ] Validation: user exists, not already member, no duplicate pending invite
-- [ ] endpoint הזמנה ב-group controller: `POST /api/groups/:id/invite`
+- [x] `server/src/models/invitation-model.ts` — status enum, Joi, `findDuplicatePending`, toJSON
+- [x] `server/src/controllers/invitation-controller.ts` — list, accept, reject, inviteToGroup, listGroupInvitations
+- [x] `server/src/routes/invitation-routes.ts` — `GET /`, `PUT /:id/accept`, `PUT /:id/reject`
+- [x] Validation: user exists, not already member, no duplicate pending invite, no self-invite
+- [x] `POST /api/groups/:id/invite` — הזמנה לפי email או username
+- [x] **בונוס:** `group-event-model.ts` + `group-timeline-service.ts` — אירועי join/leave/invite בצ'אט
+- [x] **בונוס:** `GET /api/groups/:id/members`, `GET /api/groups/:id/invitations`, `DELETE .../members/:userId`
+
+**Unit tests (14 חדשים, 88 סה"כ ב-server):**
+- `tests/invitation-model.test.ts`
+- `tests/invitation-controller.test.ts`
+- `tests/group-member-controller.test.ts`
 
 ### Client
 
-- [ ] **`InvitationService`** + Signal (רשימת הזמנות, count)
-- [ ] **`InvitationListComponent`** — רשימת הזמנות pending
-- [ ] **`InvitationActionsComponent`** — כפתורי Accept / Reject
-- [ ] Route: `/invitations`
-- [ ] Validation: confirm dialog לפני reject
+- [x] **`InvitationStore`** + Signal — רשימת הזמנות, `pendingCount` computed
+- [x] **`InvitationList`** + **`InvitationActions`** — Accept / Reject
+- [x] Route: `/invitations` — מחובר ל-store
+- [x] Validation: confirm dialog לפני reject
+- [x] **NavBar badge** — `MatBadge` עם `pendingCount`, טעינה אוטומטית ב-login
+- [x] **בונוס:** `GroupMemberList` + `GroupInvitationActivity` בצ'אט
+- [x] **בונוס:** `ChatTimeline` + `ChatSystemEvent` — הודעות מערכת ב-chat room
+
+**Unit tests (5 חדשים, 20 סה"כ ב-client):**
+- `chat-timeline.spec.ts` + עדכון `nav-bar.spec.ts`
 
 ### תוצר
 
-- [ ] הזמנה לקבוצה לפי email
-- [ ] צפייה, קבלה ודחייה של הזמנות
-- [ ] PR → Review על ידי שושי
+- [x] הזמנה לקבוצה לפי email / username
+- [x] צפייה, קבלה ודחייה של הזמנות
+- [x] PR → Review על ידי שושי
+
+### Endpoints (Thunder Client)
+
+```
+GET    /api/invitations              # הזמנות pending שלי
+PUT    /api/invitations/:id/accept
+PUT    /api/invitations/:id/reject
+POST   /api/groups/:id/invite        # { "email": "user@example.com" }
+GET    /api/groups/:id/invitations   # timeline הזמנות בקבוצה
+GET    /api/groups/:id/members
+DELETE /api/groups/:id/members/:userId  # admin only
+```
 
 ---
 
