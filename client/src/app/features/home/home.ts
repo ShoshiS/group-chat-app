@@ -1,20 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
- * Entry point for authenticated users — immediately redirects to /groups.
- * Kept as a named route so guards apply before the redirect.
+ * Groups dashboard placeholder. GroupList / GroupCard land here in Slice 2 (Shoshi).
  */
 @Component({
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
-  template: '',
+  templateUrl: './home.html',
+  styleUrl: './home.scss',
 })
-export class Home implements OnInit {
-  private readonly router = inject(Router);
-
-  ngOnInit(): void {
-    void this.router.navigate(['/groups'], { replaceUrl: true });
-  }
-}
+export class Home {}

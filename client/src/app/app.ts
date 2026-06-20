@@ -3,10 +3,11 @@ import { RouterOutlet } from '@angular/router';
 
 import { ConnectionService } from './core/services/connection.service';
 import { Auth } from './core/services/auth';
+import { NavBar } from './shared/nav-bar/nav-bar';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, NavBar],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

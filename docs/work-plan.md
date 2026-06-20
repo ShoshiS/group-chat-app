@@ -10,12 +10,12 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | Slice 1 — Auth (תמר Primary) |
-| **Slice פעיל** | Slice 1 |
-| **Branch פעיל** | `feature/auth` |
-| **משימה עכשיו** | B1 — מודל User |
+| **שלב נוכחי** | Slice 3 — Invitations (תמר Primary · שושי Secondary) |
+| **Slice פעיל** | Slice 3 |
+| **Branch פעיל** | תמר: `feature/nav-bar` → PR · שושי: `feature/groups` |
+| **משימה עכשיו** | תמר: Invitations · שושי: GroupService + UI |
 | **עודכן לאחרונה** | 2026-06-18 |
-| **עודכן על ידי** | שתיהן |
+| **עודכן על ידי** | תמר |
 
 > עדכנו שדה זה בכל מעבר שלב — בסוף כל שבוע עבודה לפחות.
 
@@ -243,37 +243,41 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ---
 
-### ▶ **[שלב נוכחי]** Slice 1 — Auth (התחברות / הרשמה / JWT)
+### Slice 1 — Auth (התחברות / הרשמה / JWT) — ✅ **שבוע 1 הושלם**
 
-| משימה | תמר (Primary) | שושי (Secondary) |
-|---|---|---|
-| **DB** | User model + pre hash + toJSON | Review + static `findByEmail` |
-| **API** | auth routes, register/login controllers, JWT sign | Review + validation middleware |
-| **Middleware** | `authMiddleware` — verify JWT | `errorLogger` middleware |
-| **Client Service** | AuthService + Signals (user state) | HTTP interceptor (attach token) |
-| **UI** | RegisterComponent + validation | LoginComponent + AuthGuard |
-| **Validation** | Server: Joi on register/login body | Client: Reactive Forms validators |
+| משימה | תמר (Primary) | שושי (Secondary) | סטטוס |
+|---|---|---|---|
+| **DB** | User model + pre hash + toJSON | Review + static `findByEmail` | ✅ |
+| **API** | auth routes, register/login controllers, JWT sign | Review | ✅ |
+| **Middleware** | `authMiddleware` — verify JWT | error logging (`console.error`) | ✅ |
+| **Client Service** | Auth service + Signals | JWT interceptor | ✅ |
+| **UI** | Register + Login + Home shell | Review Login/Guard | ✅ (תמר מימשה) |
+| **Validation** | Server: Joi on register/login body | Client: Reactive Forms validators | ✅ |
 
-**תוצר:** הרשמה, התחברות, logout, protected routes.
+**תוצר:** הרשמה, התחברות, logout, protected routes, session restore.
 
----
+**PR:** [#6 — feat: Slice 1 Auth](https://github.com/ShoshiS/group-chat-app/pull/6) · **✅ merged ל-`main`** (18.6.2026 · `df622a2`)
 
-### Slice 2 — Groups (יצירה, רשימה, ניהול)
-
-| משימה | שושי (Primary) | תמר (Secondary) |
-|---|---|---|
-| **DB** | Group model + refs + validation | Review + indexes |
-| **API** | CRUD groups, leave group, admin check | Review + tests in Thunder Client |
-| **Middleware** | `isGroupAdmin` middleware | Review |
-| **Client Service** | GroupService + group Signal store | Review |
-| **UI** | GroupList, GroupCard, GroupForm (add/edit by id) | NavBar links by role |
-| **Validation** | Server: group name required, min length | Client: Reactive Forms |
-
-**תוצר:** יצירת קבוצה, רשימת קבוצות, עריכה/מחיקה (admin), יציאה.
+**Tests:** server 74/74 · client 15/15 · smoke: health + register + login + getMe
 
 ---
 
-### Slice 3 — Invitations (הזמנות)
+### Slice 2 — Groups (יצירה, רשימה, ניהול) — **שבוע 2** ✅ (תמר)
+
+| משימה | שושי (Primary) | תמר (Secondary) | סטטוס |
+|---|---|---|---|
+| **DB** | Group model + refs + validation | Review + indexes | ✅ Review |
+| **API** | CRUD groups, leave group, admin check | Review + Thunder Client | ✅ Review · ⏳ Thunder אחרי merge שושי |
+| **Middleware** | `isGroupAdmin` middleware | Review | ✅ |
+| **Client Service** | GroupService + group Signal store | Review | ⏳ שושי |
+| **UI** | GroupList, GroupCard, GroupForm (add/edit by id) | **NavBar** links by auth state | ✅ NavBar · ⏳ Groups UI שושי |
+| **Validation** | Server: group name required, min length | Client: Reactive Forms | ⏳ שושי |
+
+**Branch:** `feature/groups` (שושי) · `feature/nav-bar` (תמר) → PR
+
+---
+
+### ▶ **[שלב נוכחי]** Slice 3 — Invitations (הזמנות)
 
 | משימה | תמר (Primary) | שושי (Secondary) |
 |---|---|---|
@@ -374,8 +378,8 @@ gantt
 
 | שבוע | מטרה | אחראית ראשית |
 |---|---|---|
-| 1 | Setup + Auth | תמר (API) + שושי (UI) |
-| 2 | Groups CRUD | שושי |
+| 1 | Setup + Auth | תמר — **✅ הושלם + merged** · [PR #6](https://github.com/ShoshiS/group-chat-app/pull/6) |
+| 2 | Groups CRUD | שושי (Primary) · תמר: NavBar + Review |
 | 3 | Invitations | תמר |
 | 4–5 | Messages + Socket.io + Media | שושי |
 | 5 | Admin + Profile | תמר |

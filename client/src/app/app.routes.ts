@@ -4,11 +4,7 @@ import { authGuard } from './core/guards/auth-guard';
 import { guestGuard } from './core/guards/guest-guard';
 
 export const routes: Routes = [
-  {
-    path: '',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/home/home').then((m) => m.Home),
-  },
+  { path: '', pathMatch: 'full', redirectTo: 'groups' },
   {
     path: 'groups',
     canActivate: [authGuard],
@@ -28,6 +24,11 @@ export const routes: Routes = [
     path: 'groups/:id',
     canActivate: [authGuard],
     loadComponent: () => import('./features/chat/chat-room').then((m) => m.ChatRoom),
+  },
+  {
+    path: 'invitations',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/invitations/invitations').then((m) => m.Invitations),
   },
   {
     path: 'profile',
