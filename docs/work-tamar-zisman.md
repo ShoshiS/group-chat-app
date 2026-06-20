@@ -334,7 +334,7 @@ POST   /api/groups/:id/leave
 
 - [x] הזמנה לקבוצה לפי email / username
 - [x] צפייה, קבלה ודחייה של הזמנות
-- [x] PR → Review על ידי שושי
+- [x] PR → Review על ידי שושי — [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9)
 
 ### Endpoints (Thunder Client)
 

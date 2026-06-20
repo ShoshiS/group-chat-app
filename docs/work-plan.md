@@ -289,7 +289,7 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 **תוצר:** הזמנה לקבוצה, צפייה בהזמנות, קבלה/דחייה.
 
-**Branch:** `feature/invitations` (תמר) → PR
+**Branch:** `feature/invitations` (תמר) → [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9)
 
 **Tests:** server 88/88 · client 20/20
 
@@ -384,7 +384,7 @@ gantt
 |---|---|---|
 | 1 | Setup + Auth | תמר — **✅ הושלם + merged** · [PR #6](https://github.com/ShoshiS/group-chat-app/pull/6) |
 | 2 | Groups CRUD | שושי (Primary) · תמר: NavBar + Review |
-| 3 | Invitations | תמר — **✅ מימוש הושלם · PR ל-Review** |
+| 3 | Invitations | תמר — **✅ מימוש הושלם · [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9)** |
 | 4–5 | Messages + Socket.io + Media | שושי |
 | 5 | Admin + Profile | תמר |
 | 6 | Docs, Responsive, Demo, Deploy (Render — בונוס) | שתיהן |
