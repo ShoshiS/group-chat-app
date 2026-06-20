@@ -67,7 +67,7 @@ const inviteMemberTool: AgentTool = {
       required: ['groupName', 'invitee'],
     },
   },
-  execute: (args, _context) => inviteMember(args),
+  execute: (args, context) => inviteMember(args, context.userId),
 };
 
 const listGroupsTool: AgentTool = {

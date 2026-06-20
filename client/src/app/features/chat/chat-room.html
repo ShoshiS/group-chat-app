@@ -4,9 +4,47 @@
       <mat-icon>arrow_back</mat-icon>
     </a>
     <h2 class="chat-room__title">{{ groupName() || groupId() }}</h2>
+    <span class="chat-room__spacer"></span>
+    <button mat-stroked-button type="button" (click)="toggleMembers()">Members</button>
+    <button mat-stroked-button type="button" (click)="toggleInvite()">Invite</button>
   </header>
 
-  <app-message-list [groupId]="groupId()" class="chat-room__messages" />
+  @if (membersOpen()) {
+    <div class="chat-room__panel">
+      <h3 class="chat-room__panel-title">Group members</h3>
+      <app-group-member-list
+        [members]="members()"
+        [loading]="membersLoading()"
+        [canRemove]="isGroupAdmin()"
+        (removeMember)="onRemoveMember($event)"
+      />
+    </div>
+  }
+
+  @if (inviteOpen()) {
+    <div class="chat-room__invite">
+      <mat-form-field appearance="outline">
+        <mat-label>Invite by email</mat-label>
+        <input
+          matInput
+          type="email"
+          [formControl]="inviteEmail"
+          (keydown.enter)="$event.preventDefault(); sendInvite()"
+        />
+        @if (inviteEmail.hasError('email') && inviteEmail.touched) {
+          <mat-error>Enter a valid email</mat-error>
+        }
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="button" (click)="sendInvite()">Send</button>
+    </div>
+  }
+
+  <app-message-list
+    [groupId]="groupId()"
+    [activities]="invitationActivity()"
+    [activitiesLoading]="activityLoading()"
+    class="chat-room__messages"
+  />
 
   <app-message-form [groupId]="groupId()" />
 </section>
