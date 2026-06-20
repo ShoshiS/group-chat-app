@@ -1,0 +1,32 @@
+<section class="group-member-list">
+  @if (loading()) {
+    <p class="group-member-list__status">Loading members…</p>
+  } @else if (members().length === 0) {
+    <p class="group-member-list__status">No members yet.</p>
+  } @else {
+    <mat-list>
+      @for (member of members(); track member.id) {
+        <mat-list-item>
+          <span matListItemTitle>
+            {{ member.username }}
+            @if (member.isAdmin) {
+              <span class="group-member-list__badge">Admin</span>
+            }
+          </span>
+          <span matListItemLine>{{ member.email }}</span>
+          @if (canRemoveMember(member)) {
+            <button
+              mat-icon-button
+              matListItemMeta
+              type="button"
+              aria-label="Remove member"
+              (click)="onRemove(member)"
+            >
+              <mat-icon>person_remove</mat-icon>
+            </button>
+          }
+        </mat-list-item>
+      }
+    </mat-list>
+  }
+</section>
