@@ -10,10 +10,10 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | Slice 3 — Invitations (תמר Primary · שושי Secondary) — **PR ל-Review** |
-| **Slice פעיל** | Slice 3 |
-| **Branch פעיל** | תמר: `feature/invitations` → PR · שושי: `feature/client` (merged) |
-| **משימה עכשיו** | שושי: Review PR Invitations · תמר: Thunder Client + מעבר ל-Slice 4 |
+| **שלב נוכחי** | Slice 4 — Messages + Real-time (שושי Primary · תמר Secondary) |
+| **Slice פעיל** | Slice 4 |
+| **Branch פעיל** | `main` מעודכן (Slice 3 merged) · שושי: `feature/chat-realtime` |
+| **משימה עכשיו** | שושי: Messages + Socket primary · תמר: Review + MessageItem |
 | **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר |
 
@@ -277,7 +277,7 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ---
 
-### ▶ **[שלב נוכחי]** Slice 3 — Invitations (הזמנות) — ✅ **תמר**
+### Slice 3 — Invitations (הזמנות) — ✅ **תמר · merged**
 
 | משימה | תמר (Primary) | שושי (Secondary) | סטטוס |
 |---|---|---|---|
@@ -289,13 +289,13 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 **תוצר:** הזמנה לקבוצה, צפייה בהזמנות, קבלה/דחייה.
 
-**Branch:** `feature/invitations` (תמר) → [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9)
+**PR:** [#9 — feat: Slice 3 Invitations](https://github.com/ShoshiS/group-chat-app/pull/9) · **✅ merged ל-`main`** (20.6.2026 · `456c349`)
 
 **Tests:** server 88/88 · client 20/20
 
 ---
 
-### Slice 4 — Messages + Media + Real-time
+### ▶ **[שלב נוכחי]** Slice 4 — Messages + Media + Real-time
 
 | משימה | שושי (Primary) | תמר (Secondary) |
 |---|---|---|
@@ -384,7 +384,7 @@ gantt
 |---|---|---|
 | 1 | Setup + Auth | תמר — **✅ הושלם + merged** · [PR #6](https://github.com/ShoshiS/group-chat-app/pull/6) |
 | 2 | Groups CRUD | שושי (Primary) · תמר: NavBar + Review |
-| 3 | Invitations | תמר — **✅ מימוש הושלם · [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9)** |
+| 3 | Invitations | תמר — **✅ merged** · [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) |
 | 4–5 | Messages + Socket.io + Media | שושי |
 | 5 | Admin + Profile | תמר |
 | 6 | Docs, Responsive, Demo, Deploy (Render — בונוס) | שתיהן |

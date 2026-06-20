@@ -11,11 +11,11 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | שבוע 3 — Slice 3: Invitations (Primary) — **מימוש הושלם · PR ל-Review** |
-| **Slice פעיל** | Slice 3 — Invitations |
-| **Branch פעיל** | `feature/invitations` → PR |
-| **משימה עכשיו** | PR Review על ידי שושי · Thunder Client לזרימת הזמנות |
-| **התקדמות Slice 3** | ✅ **100% (תמר)** — server + client + tests |
+| **שלב נוכחי** | שבוע 4 — Slice 4: Messages + Real-time (Secondary) |
+| **Slice פעיל** | Slice 4 — Messages + Real-time |
+| **Branch פעיל** | `main` מעודכן · הבא: review / `feature/chat-realtime` |
+| **משימה עכשיו** | Review Message model + Socket · MessageItem (edit/delete) |
+| **התקדמות Slice 3** | ✅ **100% + merged** · [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) |
 | **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר |
 
@@ -298,9 +298,9 @@ POST   /api/groups/:id/leave
 
 ---
 
-## ▶ **[שלב נוכחי]** Slice 3 — Invitations (שבוע 3) — **Primary** ✅
+## Slice 3 — Invitations (שבוע 3) — **Primary** ✅
 
-> **סטטוס:** Slice 3 (תמר) הושלם (21.6.2026). PR ל-Review על ידי שושי.
+> **סטטוס:** Slice 3 (תמר) הושלם (21.6.2026). **Merged ל-`main`** על ידי שושי — [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) (`456c349`, 20.6.2026).
 
 ### Server
 
@@ -334,7 +334,7 @@ POST   /api/groups/:id/leave
 
 - [x] הזמנה לקבוצה לפי email / username
 - [x] צפייה, קבלה ודחייה של הזמנות
-- [x] PR → Review על ידי שושי — [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9)
+- [x] Merge ל-`main` — [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) ✅ (20.6.2026 · שושי)
 
 ### Endpoints (Thunder Client)
 
@@ -350,7 +350,9 @@ DELETE /api/groups/:id/members/:userId  # admin only
 
 ---
 
-## Slice 4 — Messages + Real-time (שבועות 4–5) — **Secondary**
+## ▶ **[שלב נוכחי]** Slice 4 — Messages + Real-time (שבועות 4–5) — **Secondary**
+
+> **נקודת פתיחה:** Chat + Socket.io client כבר ב-`main` ([PR #8](https://github.com/ShoshiS/group-chat-app/pull/8)). אחריות תמר: Review + MessageItem.
 
 ### Server
 
