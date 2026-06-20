@@ -8,7 +8,22 @@ export const routes: Routes = [
   {
     path: 'groups',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/home/home').then((m) => m.Home),
+    loadComponent: () => import('./features/groups/group-list').then((m) => m.GroupList),
+  },
+  {
+    path: 'groups/new',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/groups/group-form').then((m) => m.GroupForm),
+  },
+  {
+    path: 'groups/:id/edit',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/groups/group-form').then((m) => m.GroupForm),
+  },
+  {
+    path: 'groups/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/chat/chat-room').then((m) => m.ChatRoom),
   },
   {
     path: 'invitations',
@@ -19,6 +34,11 @@ export const routes: Routes = [
     path: 'profile',
     canActivate: [authGuard],
     loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
+  },
+  {
+    path: 'agent',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/agent/agent-page').then((m) => m.AgentPage),
   },
   {
     path: 'login',

@@ -1,4 +1,5 @@
 import { type Content, FunctionCallingConfigMode, GoogleGenAI } from '@google/genai';
+import { Types } from 'mongoose';
 
 import { env } from '../../config/env';
 import {
@@ -12,7 +13,7 @@ import {
   isListGroupsIntent,
 } from './agent-intent';
 import type { AgentAction, AgentTurn, ChatMessage } from './agent-types';
-import { executeTool, functionDeclarations } from './tools';
+import { type AgentToolContext, executeTool, functionDeclarations } from './tools';
 
 export type { AgentAction, AgentTurn, ChatMessage } from './agent-types';
 
@@ -50,13 +51,16 @@ function toContents(messages: ChatMessage[]): Content[] {
  * Deterministic handlers for create/list — bypass the LLM so groups are always
  * persisted and listed from MongoDB, not hallucinated.
  */
-async function tryDeterministicTurn(messages: ChatMessage[]): Promise<AgentTurn | null> {
+async function tryDeterministicTurn(
+  messages: ChatMessage[],
+  context: AgentToolContext,
+): Promise<AgentTurn | null> {
   const lastUser = getLastUserText(messages);
   const hebrew = isHebrewConversation(messages);
   const actions: AgentAction[] = [];
 
   if (isListGroupsIntent(lastUser)) {
-    const result = await executeTool('list_groups', {});
+    const result = await executeTool('list_groups', {}, context);
     actions.push({ tool: 'list_groups', args: {}, result });
 
     if (typeof result.error === 'string') {
@@ -73,7 +77,7 @@ async function tryDeterministicTurn(messages: ChatMessage[]): Promise<AgentTurn 
       return null;
     }
 
-    const result = await executeTool('create_group', { name });
+    const result = await executeTool('create_group', { name }, context);
     actions.push({ tool: 'create_group', args: { name }, result });
 
     if (typeof result.error === 'string') {
@@ -101,8 +105,12 @@ async function tryDeterministicTurn(messages: ChatMessage[]): Promise<AgentTurn 
  * possible; otherwise delegates to Gemini function calling for invites and
  * multi-turn clarification.
  */
-export async function runAgentTurn(messages: ChatMessage[]): Promise<AgentTurn> {
-  const deterministic = await tryDeterministicTurn(messages);
+export async function runAgentTurn(
+  messages: ChatMessage[],
+  userId: Types.ObjectId,
+): Promise<AgentTurn> {
+  const context: AgentToolContext = { userId };
+  const deterministic = await tryDeterministicTurn(messages, context);
   if (deterministic) {
     return deterministic;
   }
@@ -139,7 +147,7 @@ export async function runAgentTurn(messages: ChatMessage[]): Promise<AgentTurn> 
     const responseParts = await Promise.all(
       calls.map(async (call) => {
         const args = (call.args ?? {}) as Record<string, unknown>;
-        const result = await executeTool(call.name ?? '', args);
+        const result = await executeTool(call.name ?? '', args, context);
         actions.push({ tool: call.name ?? '', args, result });
         return {
           functionResponse: {

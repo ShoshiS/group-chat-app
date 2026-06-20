@@ -1,0 +1,53 @@
+<section class="group-form">
+  <header class="group-form__header">
+    <a mat-icon-button routerLink="/groups" aria-label="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <h1>{{ isEdit() ? 'Edit Group' : 'New Group' }}</h1>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="group-form__body">
+    <mat-form-field appearance="outline">
+      <mat-label>Group name</mat-label>
+      <input matInput formControlName="name" placeholder="My awesome group" />
+      @if (form.controls.name.errors?.['required']) {
+        <mat-error>Name is required</mat-error>
+      } @else if (form.controls.name.errors?.['minlength']) {
+        <mat-error>Name must be at least 2 characters</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description (optional)</mat-label>
+      <textarea matInput formControlName="description" rows="3" placeholder="What is this group about?"></textarea>
+      @if (form.controls.description.errors?.['maxlength']) {
+        <mat-error>Description cannot exceed 500 characters</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Avatar URL (optional)</mat-label>
+      <input matInput formControlName="avatar" placeholder="https://..." />
+      @if (form.controls.avatar.errors?.['pattern']) {
+        <mat-error>Must be a valid https:// URL</mat-error>
+      }
+    </mat-form-field>
+
+    @if (form.controls.avatar.value) {
+      <div class="group-form__preview">
+        <img [src]="form.controls.avatar.value" alt="Avatar preview" />
+      </div>
+    }
+
+    <div class="group-form__actions">
+      <a mat-stroked-button routerLink="/groups">Cancel</a>
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+        @if (saving()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          {{ isEdit() ? 'Save changes' : 'Create group' }}
+        }
+      </button>
+    </div>
+  </form>
+</section>

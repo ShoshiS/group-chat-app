@@ -1,0 +1,34 @@
+<section class="group-list">
+  <header class="group-list__header">
+    <h1>Your Groups</h1>
+    <button mat-fab extended color="primary" (click)="createGroup()">
+      <mat-icon>add</mat-icon>
+      New Group
+    </button>
+  </header>
+
+  @if (store.loading()) {
+    <div class="group-list__spinner">
+      <mat-spinner diameter="48" />
+    </div>
+  } @else if (store.error()) {
+    <p class="group-list__error">{{ store.error() }}</p>
+  } @else if (store.isEmpty()) {
+    <div class="group-list__empty">
+      <mat-icon>group_off</mat-icon>
+      <p>You have no groups yet.</p>
+      <button mat-stroked-button color="primary" (click)="createGroup()">Create your first group</button>
+    </div>
+  } @else {
+    <div class="group-list__grid">
+      @for (group of store.groups(); track group.id) {
+        <app-group-card
+          [group]="group"
+          (edit)="editGroup($event)"
+          (delete)="deleteGroup($event)"
+          (leave)="leaveGroup($event)"
+        />
+      }
+    </div>
+  }
+</section>

@@ -1,8 +1,10 @@
 <section class="agent-chat">
-  <header class="agent-chat__header">
-    <h2>AI Assistant</h2>
-    <p>Temporary dev access — describe actions in natural language.</p>
-  </header>
+  @if (!compact()) {
+    <header class="agent-chat__header">
+      <h2>AI Assistant</h2>
+      <p>Temporary dev access — describe actions in natural language.</p>
+    </header>
+  }
 
   <div class="agent-chat__messages">
     @if (!agent.messages().length) {

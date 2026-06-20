@@ -30,7 +30,7 @@ export async function handleAgentChat(req: Request, res: Response): Promise<void
   }
 
   try {
-    const turn = await runAgentTurn(messages);
+    const turn = await runAgentTurn(messages, req.userId!);
     res.json(turn);
   } catch (error) {
     const message = (error as Error).message;

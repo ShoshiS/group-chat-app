@@ -1,4 +1,5 @@
 import { type FunctionDeclaration, Type } from '@google/genai';
+import { Types } from 'mongoose';
 
 import {
   createGroup,
@@ -12,7 +13,14 @@ import {
  * persist and can be verified in Compass or GET /api/groups.
  */
 
-type ToolExecutor = (args: Record<string, unknown>) => Promise<ToolResult>;
+export interface AgentToolContext {
+  userId: Types.ObjectId;
+}
+
+type ToolExecutor = (
+  args: Record<string, unknown>,
+  context: AgentToolContext,
+) => Promise<ToolResult>;
 
 interface AgentTool {
   declaration: FunctionDeclaration;
@@ -36,7 +44,7 @@ const createGroupTool: AgentTool = {
       required: ['name'],
     },
   },
-  execute: createGroup,
+  execute: (args, context) => createGroup({ ...args, adminId: context.userId }),
 };
 
 const inviteMemberTool: AgentTool = {
@@ -59,7 +67,7 @@ const inviteMemberTool: AgentTool = {
       required: ['groupName', 'invitee'],
     },
   },
-  execute: inviteMember,
+  execute: (args, _context) => inviteMember(args),
 };
 
 const listGroupsTool: AgentTool = {
@@ -72,7 +80,7 @@ const listGroupsTool: AgentTool = {
       properties: {},
     },
   },
-  execute: () => listGroups(),
+  execute: (_args, context) => listGroups(context.userId),
 };
 
 const tools: AgentTool[] = [createGroupTool, inviteMemberTool, listGroupsTool];
@@ -86,6 +94,7 @@ export const functionDeclarations: FunctionDeclaration[] = tools.map((tool) => t
 export async function executeTool(
   name: string,
   args: Record<string, unknown>,
+  context: AgentToolContext,
 ): Promise<ToolResult> {
   const tool = tools.find((candidate) => candidate.declaration.name === name);
   if (!tool) {
@@ -93,7 +102,7 @@ export async function executeTool(
   }
 
   try {
-    return await tool.execute(args);
+    return await tool.execute(args, context);
   } catch (error) {
     return { error: (error as Error).message };
   }

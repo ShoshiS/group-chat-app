@@ -1,0 +1,26 @@
+.chat-room {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  &__messages {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+}
