@@ -4,10 +4,21 @@ import { authGuard } from './core/guards/auth-guard';
 import { guestGuard } from './core/guards/guest-guard';
 
 export const routes: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'groups' },
   {
-    path: '',
+    path: 'groups',
     canActivate: [authGuard],
     loadComponent: () => import('./features/home/home').then((m) => m.Home),
+  },
+  {
+    path: 'invitations',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/invitations/invitations').then((m) => m.Invitations),
+  },
+  {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
   },
   {
     path: 'login',
