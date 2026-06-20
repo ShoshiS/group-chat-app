@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import { type Request, type Response } from 'express';
+import { Types } from 'mongoose';
 
 const runAgentTurnMock = jest.fn();
 
@@ -56,14 +57,19 @@ describe('handleAgentChat', () => {
 
   it('returns the agent turn on success', async () => {
     runAgentTurnMock.mockResolvedValue({ reply: 'Done', actions: [] });
+    const userId = new Types.ObjectId();
     const req = {
       body: { messages: [{ role: 'user', text: 'list my groups' }] },
+      userId,
     } as Request;
     const res = createMockResponse();
 
     await handleAgentChat(req, res);
 
-    expect(runAgentTurnMock).toHaveBeenCalledWith([{ role: 'user', text: 'list my groups' }]);
+    expect(runAgentTurnMock).toHaveBeenCalledWith(
+      [{ role: 'user', text: 'list my groups' }],
+      userId,
+    );
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ reply: 'Done', actions: [] });
   });
