@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import { Types } from 'mongoose';
 
 const executeToolMock = jest.fn<(...args: unknown[]) => Promise<Record<string, unknown>>>();
 const generateContentMock = jest.fn();
@@ -26,9 +25,6 @@ await jest.unstable_mockModule('../src/config/env.js', () => ({
 
 const { runAgentTurn } = await import('../src/services/agent/agent-service.js');
 
-const testUserId = new Types.ObjectId('507f1f77bcf86cd799439011');
-const toolContext = { userId: testUserId };
-
 describe('runAgentTurn', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -39,9 +35,9 @@ describe('runAgentTurn', () => {
       groups: [{ name: 'Alpha' }, { name: 'Beta' }],
     });
 
-    const turn = await runAgentTurn([{ role: 'user', text: 'מה הקבוצות שלי?' }], testUserId);
+    const turn = await runAgentTurn([{ role: 'user', text: 'מה הקבוצות שלי?' }]);
 
-    expect(executeToolMock).toHaveBeenCalledWith('list_groups', {}, toolContext);
+    expect(executeToolMock).toHaveBeenCalledWith('list_groups', {});
     expect(generateContentMock).not.toHaveBeenCalled();
     expect(turn.reply).toBe("יש לך 2 קבוצות: 'Alpha', 'Beta'.");
     expect(turn.actions).toEqual([
@@ -60,16 +56,11 @@ describe('runAgentTurn', () => {
       name: 'Study Buddies',
     });
 
-    const turn = await runAgentTurn(
-      [{ role: 'user', text: 'create a group named Study Buddies' }],
-      testUserId,
-    );
+    const turn = await runAgentTurn([
+      { role: 'user', text: 'create a group named Study Buddies' },
+    ]);
 
-    expect(executeToolMock).toHaveBeenCalledWith(
-      'create_group',
-      { name: 'Study Buddies' },
-      toolContext,
-    );
+    expect(executeToolMock).toHaveBeenCalledWith('create_group', { name: 'Study Buddies' });
     expect(generateContentMock).not.toHaveBeenCalled();
     expect(turn.reply).toBe("Created a new group named 'Study Buddies' (id: group-1).");
   });
@@ -77,7 +68,7 @@ describe('runAgentTurn', () => {
   it('returns a localized tool error for deterministic actions', async () => {
     executeToolMock.mockResolvedValue({ error: 'Database is not connected' });
 
-    const turn = await runAgentTurn([{ role: 'user', text: 'list my groups' }], testUserId);
+    const turn = await runAgentTurn([{ role: 'user', text: 'list my groups' }]);
 
     expect(turn.reply).toBe('Could not complete the action: Database is not connected');
   });
@@ -88,7 +79,7 @@ describe('runAgentTurn', () => {
       text: 'What should the group be called?',
     });
 
-    const turn = await runAgentTurn([{ role: 'user', text: 'create a group please' }], testUserId);
+    const turn = await runAgentTurn([{ role: 'user', text: 'create a group please' }]);
 
     expect(generateContentMock).toHaveBeenCalled();
     expect(executeToolMock).not.toHaveBeenCalled();
@@ -112,20 +103,15 @@ describe('runAgentTurn', () => {
       groupName: 'Alpha',
     });
 
-    const turn = await runAgentTurn(
-      [{ role: 'user', text: 'invite dana to Alpha group' }],
-      testUserId,
-    );
+    const turn = await runAgentTurn([
+      { role: 'user', text: 'invite dana to Alpha group' },
+    ]);
 
     expect(generateContentMock).toHaveBeenCalledTimes(2);
-    expect(executeToolMock).toHaveBeenCalledWith(
-      'invite_member',
-      {
-        groupName: 'Alpha',
-        invitee: 'dana',
-      },
-      toolContext,
-    );
+    expect(executeToolMock).toHaveBeenCalledWith('invite_member', {
+      groupName: 'Alpha',
+      invitee: 'dana',
+    });
     expect(turn.reply).toBe('Invitation sent to dana.');
     expect(turn.actions).toHaveLength(1);
   });

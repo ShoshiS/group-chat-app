@@ -1,15 +1,13 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { ConnectionService } from './core/services/connection.service';
 import { Auth } from './core/services/auth';
 import { NavBar } from './shared/nav-bar/nav-bar';
-import { AgentLauncher } from './shared/agent-launcher/agent-launcher';
 
 @Component({
   selector: 'app-root',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, NavBar, AgentLauncher],
+  imports: [RouterOutlet, NavBar],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

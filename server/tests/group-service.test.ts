@@ -1,22 +1,23 @@
 import { jest } from '@jest/globals';
-import { Types } from 'mongoose';
 
 const groupCreateMock = jest.fn();
 const groupFindByNameMock = jest.fn();
-const groupFindForUserMock = jest.fn();
 const invitationCreateMock = jest.fn();
+
+const leanMock = jest.fn();
+const sortMock = jest.fn(() => ({ lean: leanMock }));
+const findChainMock = jest.fn(() => ({ sort: sortMock }));
 
 await jest.unstable_mockModule('mongoose', () => ({
   default: {
     connection: { readyState: 1 },
   },
-  Types,
 }));
 
 await jest.unstable_mockModule('../src/models/group-model.js', () => ({
   Group: {
     create: groupCreateMock,
-    findForUser: groupFindForUserMock,
+    find: findChainMock,
     findByName: groupFindByNameMock,
   },
 }));
@@ -28,8 +29,6 @@ await jest.unstable_mockModule('../src/models/invitation-model.js', () => ({
 }));
 
 const { createGroup, inviteMember, listGroups } = await import('../src/services/group-service.js');
-
-const testUserId = new Types.ObjectId('507f1f77bcf86cd799439011');
 
 describe('group-service', () => {
   beforeEach(() => {
@@ -43,17 +42,9 @@ describe('group-service', () => {
       description: 'notes',
     });
 
-    const result = await createGroup({
-      name: '  Alpha  ',
-      description: 'notes',
-      adminId: testUserId,
-    });
+    const result = await createGroup({ name: '  Alpha  ', description: 'notes' });
 
-    expect(groupCreateMock).toHaveBeenCalledWith({
-      name: 'Alpha',
-      description: 'notes',
-      adminId: testUserId,
-    });
+    expect(groupCreateMock).toHaveBeenCalledWith({ name: 'Alpha', description: 'notes' });
     expect(result).toEqual({
       groupId: 'group-1',
       name: 'Alpha',
@@ -62,8 +53,8 @@ describe('group-service', () => {
     });
   });
 
-  it('lists groups for the authenticated user', async () => {
-    groupFindForUserMock.mockResolvedValue([
+  it('lists groups sorted by creation time', async () => {
+    leanMock.mockResolvedValue([
       {
         _id: { toString: () => 'group-1' },
         name: 'Alpha',
@@ -72,9 +63,10 @@ describe('group-service', () => {
       },
     ]);
 
-    const result = await listGroups(testUserId);
+    const result = await listGroups();
 
-    expect(groupFindForUserMock).toHaveBeenCalledWith(testUserId);
+    expect(findChainMock).toHaveBeenCalled();
+    expect(sortMock).toHaveBeenCalledWith({ createdAt: -1 });
     expect(result).toEqual({
       groups: [
         {
@@ -129,12 +121,6 @@ describe('group-service', () => {
   });
 
   it('requires a non-empty group name', async () => {
-    await expect(createGroup({ name: '   ', adminId: testUserId })).rejects.toThrow(
-      'name is required',
-    );
-  });
-
-  it('requires adminId when creating a group', async () => {
-    await expect(createGroup({ name: 'Alpha' })).rejects.toThrow('adminId is required');
+    await expect(createGroup({ name: '   ' })).rejects.toThrow('name is required');
   });
 });
