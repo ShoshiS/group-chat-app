@@ -59,7 +59,7 @@ describe('composeMessage', () => {
             parts: [
               expect.objectContaining({
                 text: expect.stringMatching(
-                  /last message was sent by Alice, not by Bob[\s\S]*If it is a question directed at you or the group, answer it clearly/,
+                  /deliver real content[\s\S]*last message was sent by Alice, not by Bob[\s\S]*Fulfill that underlying request/,
                 ),
               }),
             ],
@@ -96,7 +96,7 @@ describe('composeMessage', () => {
             parts: [
               expect.objectContaining({
                 text: expect.stringMatching(
-                  /last message was sent by Bob \(the current user\)[\s\S]*Do NOT write a reply to yourself[\s\S]*Continue the conversation instead/,
+                  /last message was sent by Bob \(the current user\)[\s\S]*deliver the actual content now[\s\S]*did something come out/,
                 ),
               }),
             ],
@@ -154,6 +154,30 @@ describe('composeMessage', () => {
     expect(generateContentMock).not.toHaveBeenCalled();
   });
 
+  it('passes substance-focused system instruction to Gemini', async () => {
+    findByGroupMock.mockResolvedValue([
+      {
+        senderId: { username: 'Alice' },
+        text: 'Write a poem about flowers',
+        attachments: [],
+      },
+    ]);
+
+    await composeMessage({
+      groupId,
+      groupName: 'Team Chat',
+      username: 'Bob',
+    });
+
+    expect(generateContentMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: expect.objectContaining({
+          systemInstruction: expect.stringContaining('never a placeholder'),
+        }),
+      }),
+    );
+  });
+
   it('uses [attachment] for messages without text', async () => {
     findByGroupMock.mockResolvedValue([
       {
@@ -180,7 +204,7 @@ describe('composeMessage', () => {
             parts: [
               expect.objectContaining({
                 text: expect.stringMatching(
-                  /Alice: \[attachment\][\s\S]*last message was sent by Bob \(the current user\)[\s\S]*Continue the conversation instead/,
+                  /Alice: \[attachment\][\s\S]*last message was sent by Bob \(the current user\)[\s\S]*deliver the actual content now/,
                 ),
               }),
             ],

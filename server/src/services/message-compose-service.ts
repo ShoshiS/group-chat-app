@@ -52,6 +52,26 @@ function toContextText(text?: string, attachments?: unknown[]): string {
   return '';
 }
 
+const COMPOSE_SYSTEM_INSTRUCTION = [
+  'You draft messages for a real group chat. The text you return is sent exactly as written.',
+  'Your message must be immediately useful — never a placeholder or promise about future work.',
+  'FORBIDDEN unless the same message also contains the full deliverable: offering to help, saying you will try,',
+  '"I\'m on it", "no problem", "sure", asking what direction they want, or any meta reply without substance.',
+  'If the conversation requests content (a poem, explanation, answer, list, suggestion, code, summary), include that content directly.',
+  'If someone says "write", "go ahead", or "did something come out?", read the full thread and deliver what was asked for.',
+  'Use reasonable assumptions instead of asking clarifying questions.',
+  'Match the conversation language.',
+  'Return ONLY the message text — no quotes, labels, or explanation.',
+].join(' ');
+
+function buildSubstanceRules(): string[] {
+  return [
+    'Critical: deliver real content, not conversation about helping.',
+    'Do NOT reply with only acknowledgments, enthusiasm, or promises.',
+    'If a task was requested earlier in the thread, fulfill it now in this message.',
+  ];
+}
+
 function formatConversation(messages: ContextMessage[]): string {
   return messages.map((message) => `${message.username}: ${message.text}`).join('\n');
 }
@@ -72,26 +92,34 @@ function buildGeneratePrompt(groupName: string, username: string, messages: Cont
     ? [
         `The last message was sent by ${username} (the current user).`,
         'Do NOT write a reply to yourself or repeat what you already said.',
-        'Continue the conversation instead: add a follow-up thought, ask a related question,',
-        'share the next useful detail, or gently move the thread forward.',
+        'Look at the FULL conversation for any request or commitment directed at the current user.',
+        'If the user previously said they would do something (write, explain, send) but only sent a placeholder,',
+        'deliver the actual content now — the poem, answer, list, or explanation that was requested.',
+        'If someone is waiting for output ("write", "go ahead", "anything yet?", "did something come out?"),',
+        'provide the complete requested content in this message.',
+        'Otherwise continue naturally with a substantive follow-up — not another empty promise.',
       ]
     : [
         `The last message was sent by ${lastMessage?.username ?? 'someone else'}, not by ${username}.`,
-        `Write a natural reply from ${username} to that last message.`,
-        'If it is a question directed at you or the group, answer it clearly.',
-        'If it is a statement, respond appropriately (acknowledge, agree, disagree politely, etc.).',
+        `Write a natural reply from ${username} to the conversation.`,
+        'Read the full thread — the last message may be a short prompt ("write", "go ahead", "well?")',
+        'referring to an earlier request. Fulfill that underlying request, not just the last word.',
+        'If they ask a question, answer it directly with specifics.',
+        'If they ask you to create something (poem, text, idea, explanation), create it fully in this message.',
+        'Do not offer to help later — do the work now.',
       ];
 
   return [
     `Group: ${groupName}`,
-    `You are helping ${username} write a group chat message.`,
+    `You are writing the next message for ${username}.`,
     '',
     'Recent conversation:',
     formatConversation(messages),
     '',
+    ...buildSubstanceRules(),
+    '',
     ...roleInstructions,
-    'Match the conversation language. Be concise and friendly.',
-    'Return ONLY the message text — no quotes, no explanation.',
+    'Be concise when a short answer suffices; use more lines when delivering requested content (e.g. a poem).',
   ].join('\n');
 }
 
@@ -114,12 +142,15 @@ function buildPolishPrompt(
     'Draft to improve:',
     draft,
     '',
+    ...buildSubstanceRules(),
+    '',
     'Rewrite the draft into a clearer, more natural, and well-phrased message.',
+    'If the draft is very short (e.g. "write", "go ahead") read the conversation and expand it into',
+    'the full substantive content that was requested — not a promise to do it.',
     'Improve structure, word choice, and tone so it fits the ongoing conversation.',
-    'You may rephrase substantially — do not limit yourself to fixing typos.',
-    'Keep the same core intent, facts, and level of formality; do not invent new information.',
+    'You may rephrase substantially and add missing content the draft implies.',
+    'Keep the same core intent; do not invent unrelated facts.',
     'Match the language of the draft and conversation.',
-    'Return ONLY the rewritten message — no quotes, no explanation.',
   ].join('\n');
 }
 
@@ -155,6 +186,9 @@ export async function composeMessage(input: ComposeMessageInput): Promise<string
   const response = await ai.models.generateContent({
     model: env.geminiModel,
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    config: {
+      systemInstruction: COMPOSE_SYSTEM_INSTRUCTION,
+    },
   });
 
   const text = normalizeOutput(response.text ?? '');
