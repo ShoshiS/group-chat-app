@@ -99,4 +99,26 @@
       text-decoration: none;
     }
   }
+
+  &__divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.25rem 0;
+    color: #64748b;
+    font-size: 0.8125rem;
+    text-transform: lowercase;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #334155;
+    }
+
+    span {
+      flex: 0 0 auto;
+    }
+  }
 }
