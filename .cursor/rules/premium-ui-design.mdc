@@ -1,9 +1,9 @@
 ---
 description: >-
   מערכת עיצוב Premium לכל האתר — צבעים, טיפוגרפיה, layout, קומפוננטות.
-  Rule זה מצטרף אוטומטית לכל שיחה שעוסקת בעיצוב, UI, CSS, SCSS, HTML, layout,
-  theming, styling, מראה ויזואלי, או שיפור UX. יש לעקוב אחריו בכל שינוי ויזואלי
-  ב-client.
+  עדיפות לשימוש מקסימלי ב-@angular/material (MUI). Rule זה מצטרף אוטומטית לכל
+  שיחה שעוסקת בעיצוב, UI, CSS, SCSS, HTML, layout, theming, styling, מראה
+  ויזואלי, או שיפור UX. יש לעקוב אחריו בכל שינוי ויזואלי ב-client.
 alwaysApply: true
 ---
 
@@ -17,11 +17,58 @@ alwaysApply: true
 ## Stack & conventions
 
 - **Framework:** Angular (standalone components)
-- **Styling:** SCSS + BEM (`.block__element--modifier`)
+- **UI library:** `@angular/material` (Material Design / MUI) — **ברירת מחדל לכל קומפוננטת UI**
+- **Styling:** SCSS + BEM (`.block__element--modifier`) — רק ל-layout, spacing, ו-premium overrides מעל MUI
 - **Icons:** `mat-icon` (Angular Material) — **לא** Font Awesome
 - **CSS approach:** SCSS variables / CSS custom properties — **לא** Tailwind
 - **Font:** Inter (weights 300–700), fallback system stack
 - **RTL:** תמיכה בעברית חובה — אל לשבור `direction: rtl` או טקסט דו-כיווני
+
+---
+
+## Angular Material (MUI) — שימוש מקסימלי
+
+**עקרון מרכזי:** לפני כל `<button>`, `<input>`, card, dialog, menu, tab, או spinner מותאם אישית —
+בדוק אם קיים קומפוננט MUI מתאים. העדף MUI על HTML + SCSS גולמי.
+
+### מיפוי קומפוננטות — MUI קודם
+
+| צורך | קומפוננט MUI | הערות |
+|------|--------------|-------|
+| כפתורים | `MatButtonModule` — `mat-button`, `mat-flat-button`, `mat-icon-button`, `mat-fab` | עיצוב premium דרך theme + SCSS overrides |
+| שדות טקסט / textarea | `MatFormFieldModule` + `MatInputModule` | `appearance="outline"` או `fill` — לא `<input>` גולמי |
+| אייקונים | `MatIconModule` — `mat-icon` | תמיד Material Icons |
+| טולטיפ | `MatTooltipModule` | לא title attribute בלבד |
+| תפריט / dropdown | `MatMenuModule` | emoji picker, status, actions |
+| טאבים / pill switcher | `MatTabsModule` או `MatButtonToggleModule` | Messages / Participants |
+| כרטיסים | `MatCardModule` | group-card, auth card, participants panel |
+| רשימות | `MatListModule` | chat list, invitations, members |
+| דיאלוג / modal | `MatDialogModule` | image preview, confirmations |
+| התראות | `MatSnackBarModule` | toast pattern — לא div מותאם |
+| טעינה | `MatProgressSpinnerModule` / `MatProgressBarModule` | |
+| toolbar / header | `MatToolbarModule` | nav-bar, chat-room header |
+| badge | `MatBadgeModule` | unread counts |
+| divider | `MatDividerModule` | auth dividers, section breaks |
+| chips / pills | `MatChipsModule` | status badges, file type pills |
+| sidenav / drawer | `MatSidenavModule` | mobile chat list, files overlay |
+| slide toggle | `MatSlideToggleModule` | settings |
+
+### איך לשלב MUI עם העיצוב Premium
+
+1. **Theme קודם** — צבעים, typography, density דרך `mat.theme()` ב-`styles.scss` (ראה למטה).
+2. **Overrides מינימליים** — SCSS/BEM רק ל-radius, shadow, frosted glass, ו-premium tokens (`var(--brand)`).
+3. **`color="primary"` / `accent` / `warn`** — מ-map ל-brand green / error red; לא hex inline ב-template.
+4. **Standalone imports** — כל feature component מייבא רק את ה-Mat modules שהוא צריך.
+5. **RTL** — `MatFormField`, `MatMenu`, `MatSidenav` תומכים ב-RTL; בדוק `dir="rtl"` על shell.
+
+### מתי מותר HTML/SCSS מותאם
+
+- Layout shell (grid/flex של 4 הפאנלים) — אין Mat equivalent ישיר
+- Message bubbles — עיצוב ייחודי; MUI Card רק כ-basis אם מתאים
+- Frosted glass / custom animations — SCSS layer מעל MUI
+- Avatar stacks, typing dots — decorative; `mat-icon` + SCSS
+
+**אל תבנה מחדש** מה ש-MUI כבר מספק: focus rings, disabled states, aria, keyboard nav.
 
 ---
 
@@ -442,17 +489,20 @@ Mobile back button: 32px circle, `--main-bg`, chevron-left.
 ## Do / Don't
 
 **Do:**
-- Use BEM naming consistently across all features
-- Centralize tokens in `styles.scss` — reference `var(--brand)` in components
+- **Prefer `@angular/material` (MUI) for every UI primitive** — buttons, inputs, cards, menus, dialogs, snackbars, spinners
+- Use BEM naming consistently across all features (mainly for layout wrappers and premium overrides on MUI)
+- Centralize tokens in `styles.scss` — reference `var(--brand)` in components and MUI theme
+- Customize MUI via global theme + targeted `::ng-deep` / host SCSS — not by replacing with raw HTML
 - Use frosted headers/footers (`--frosted-bg` + backdrop-filter) for sticky bars
-- Keep mat-icon for all icons
+- Keep `mat-icon` for all icons
 - Preserve emoji font stacks in message textareas
 - Test Hebrew/RTL in agent-chat and user-generated content
 
 **Don't:**
+- Build custom `<button>`, `<input>`, modal, or toast when an MUI component exists
 - Add Tailwind CDN or utility classes
 - Use Font Awesome
 - Hardcode dark theme colors (`#0f172a`, `#111827`) in new code
 - Use blue `#3b82f6` as primary — brand green replaces it
-- Break accessibility: always `aria-label`, `:focus-visible` rings in brand color
+- Break accessibility: MUI handles most a11y — add `aria-label` where needed; keep `:focus-visible` in brand color
 - Introduce one-off hex values when a token exists
