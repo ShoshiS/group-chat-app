@@ -72,6 +72,14 @@ export class MessageStore {
     this._messages.update((ms) => ms.filter((m) => m.id !== messageId));
   }
 
+  async compose(groupId: string, draft?: string): Promise<string> {
+    const body = draft?.trim() ? { draft: draft.trim() } : {};
+    const response = await firstValueFrom(
+      this.http.post<{ text: string }>(`${environment.apiUrl}/groups/${groupId}/messages/compose`, body),
+    );
+    return response.text;
+  }
+
   /** Called by SocketService event — message already persisted, just reflect it. */
   addRealtime(message: Message): void {
     this._messages.update((ms) => {
