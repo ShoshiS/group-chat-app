@@ -9,12 +9,29 @@
   @if (auth.currentUser(); as user) {
     <div class="profile__info">
       <div class="profile__avatar">
-        @if (user.avatar) {
-          <img [src]="user.avatar" [alt]="user.username" />
+        @if (displayAvatarUrl(); as avatarUrl) {
+          <img [src]="avatarUrl" [alt]="user.username" />
         } @else {
           <span>{{ user.username[0] | uppercase }}</span>
         }
       </div>
+
+      <div class="profile__avatar-actions">
+        <input
+          #avatarInput
+          type="file"
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          hidden
+          (change)="onAvatarPick($event)"
+        />
+        <button mat-stroked-button type="button" (click)="avatarInput.click()">
+          Change avatar
+        </button>
+        @if (avatarPreview()) {
+          <button mat-button type="button" (click)="clearPendingAvatar()">Cancel</button>
+        }
+      </div>
+
       <p class="profile__email">{{ user.email }}</p>
     </div>
 
@@ -25,7 +42,7 @@
         @if (form.controls.username.errors?.['required']) {
           <mat-error>Username is required</mat-error>
         } @else if (form.controls.username.errors?.['minlength']) {
-          <mat-error>At least 2 characters</mat-error>
+          <mat-error>At least 3 characters</mat-error>
         } @else if (form.controls.username.errors?.['maxlength']) {
           <mat-error>At most 30 characters</mat-error>
         }

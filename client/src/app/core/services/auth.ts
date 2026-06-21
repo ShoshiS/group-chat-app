@@ -56,6 +56,20 @@ export class Auth {
     return localStorage.getItem(TOKEN_KEY);
   }
 
+  async updateProfile(payload: { username: string; avatarFile?: File }): Promise<AuthUser> {
+    const body = new FormData();
+    body.append('username', payload.username);
+    if (payload.avatarFile) {
+      body.append('avatar', payload.avatarFile, payload.avatarFile.name);
+    }
+
+    const user = await firstValueFrom(
+      this.http.put<AuthUser>(`${environment.apiUrl}/auth/me`, body),
+    );
+    this.currentUser.set(user);
+    return user;
+  }
+
   private async restoreSession(): Promise<void> {
     const token = this.getToken();
     if (!token) {
