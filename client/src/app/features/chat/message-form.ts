@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -16,6 +17,7 @@ import { MessageStore } from './message';
     MatButtonModule,
     MatIconModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
   ],
@@ -31,6 +33,10 @@ export class MessageForm {
   protected readonly textControl = new FormControl('', { nonNullable: true });
   protected readonly pendingFiles = signal<File[]>([]);
   protected readonly sending = signal(false);
+  protected readonly aiPending = signal(false);
+  protected readonly aiTooltip = computed(() =>
+    this.textControl.value.trim() ? 'Improve message' : 'Suggest a reply',
+  );
 
   protected get previews(): { url: string; name: string; type: string }[] {
     return this.pendingFiles().map((f) => ({
@@ -80,5 +86,37 @@ export class MessageForm {
       event.preventDefault();
       void this.send();
     }
+  }
+
+  protected async onAiCompose(): Promise<void> {
+    if (this.aiPending() || this.sending()) {
+      return;
+    }
+
+    const draft = this.textControl.value.trim();
+    if (!draft && !this.hasTextMessages()) {
+      this.snackBar.open('No messages to reply to yet', 'OK', { duration: 3000 });
+      return;
+    }
+
+    this.aiPending.set(true);
+    try {
+      const text = await this.store.compose(this.groupId(), draft || undefined);
+      this.textControl.setValue(text);
+    } catch (err: unknown) {
+      const status = (err as { status?: number })?.status;
+      const serverError = (err as { error?: { error?: string } })?.error?.error;
+      const message =
+        status === 503
+          ? 'AI is not configured'
+          : serverError ?? 'Could not generate message';
+      this.snackBar.open(message, 'OK', { duration: 4000 });
+    } finally {
+      this.aiPending.set(false);
+    }
+  }
+
+  private hasTextMessages(): boolean {
+    return this.store.messages().some((message) => !!message.text?.trim());
   }
 }
