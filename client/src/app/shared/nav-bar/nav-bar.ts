@@ -1,3 +1,4 @@
+import { UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -11,6 +12,7 @@ import { InvitationStore } from '../../core/services/invitation';
   selector: 'app-nav-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    UpperCasePipe,
     RouterLink,
     RouterLinkActive,
     MatToolbarModule,
