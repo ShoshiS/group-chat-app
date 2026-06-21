@@ -50,6 +50,37 @@ describe('MessageForm', () => {
     expect(button).toBeTruthy();
   });
 
+  it('renders the emoji picker button', async () => {
+    const { fixture } = await setup();
+    const button = fixture.nativeElement.querySelector('[aria-label="Insert emoji"]') as HTMLElement;
+    expect(button).toBeTruthy();
+  });
+
+  it('inserts emoji at the textarea cursor', async () => {
+    const { fixture } = await setup();
+    fixture.componentInstance['textControl'].setValue('Hello');
+    fixture.detectChanges();
+
+    const textarea = fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement;
+    textarea.selectionStart = 4;
+    textarea.selectionEnd = 4;
+
+    fixture.componentInstance['insertEmoji']('👍');
+
+    expect(fixture.componentInstance['textControl'].value).toBe('Hell👍o');
+  });
+
+  it('appends emoji when textarea ref is missing', async () => {
+    const { fixture } = await setup();
+    fixture.componentInstance['textControl'].setValue('Hi');
+    (fixture.componentInstance as unknown as { messageInput: () => undefined }).messageInput =
+      () => undefined;
+
+    fixture.componentInstance['insertEmoji']('👍');
+
+    expect(fixture.componentInstance['textControl'].value).toBe('Hi👍');
+  });
+
   it('calls compose without draft in generate mode', async () => {
     composeSpy.and.resolveTo('Sure, see you then!');
     const { fixture } = await setup([

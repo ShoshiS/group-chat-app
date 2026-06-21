@@ -54,8 +54,10 @@ export async function createMessage(
       groupId,
       senderId: req.userId,
     });
-    res.status(201).json(message);
-    broadcast(req, groupId, MESSAGE_EVENTS.created, message.toJSON());
+    await message.populate('senderId', 'username avatar');
+    const payload = message.toJSON();
+    res.status(201).json(payload);
+    broadcast(req, groupId, MESSAGE_EVENTS.created, payload);
   } catch (err) {
     next(err);
   }
@@ -77,8 +79,10 @@ export async function updateMessage(
     if (attachments !== undefined) req.message!.attachments = attachments;
 
     const updated = await req.message!.save();
-    res.json(updated);
-    broadcast(req, updated.groupId.toString(), MESSAGE_EVENTS.updated, updated.toJSON());
+    await updated.populate('senderId', 'username avatar');
+    const payload = updated.toJSON();
+    res.json(payload);
+    broadcast(req, updated.groupId.toString(), MESSAGE_EVENTS.updated, payload);
   } catch (err) {
     next(err);
   }
