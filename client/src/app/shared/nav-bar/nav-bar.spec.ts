@@ -45,7 +45,13 @@ describe('NavBar', () => {
   it('shows authenticated links and username when logged in', async () => {
     const fixture = await setup({
       isLoggedIn: signal(true),
-      currentUser: signal({ id: '1', username: 'tamar', email: 't@t.com', role: 'user' }),
+      currentUser: signal({
+        id: '1',
+        username: 'tamar',
+        email: 't@t.com',
+        role: 'user',
+        avatar: 'https://example.com/avatar.jpg',
+      }),
       logout: jasmine.createSpy('logout'),
     });
     fixture.detectChanges();
@@ -56,9 +62,11 @@ describe('NavBar', () => {
     expect(compiled.textContent).toContain('Invitations');
     expect(compiled.textContent).toContain('Profile');
     expect(compiled.textContent).toContain('Logout');
+    expect(compiled.textContent).not.toContain('AI Assistant');
+    expect(compiled.querySelector('.nav-bar__avatar')).toBeTruthy();
   });
 
-  it('opens the agent panel from the nav bar', async () => {
+  it('shows avatar fallback initial when user has no avatar', async () => {
     const fixture = await setup({
       isLoggedIn: signal(true),
       currentUser: signal({ id: '1', username: 'tamar', email: 't@t.com', role: 'user' }),
@@ -67,12 +75,7 @@ describe('NavBar', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const button = Array.from(compiled.querySelectorAll('button')).find((el) =>
-      el.textContent?.includes('AI Assistant'),
-    ) as HTMLButtonElement;
-    button.click();
-    fixture.detectChanges();
-
-    expect(compiled.querySelector('app-agent-chat')).not.toBeNull();
+    const fallback = compiled.querySelector('.nav-bar__avatar-fallback');
+    expect(fallback?.textContent?.trim()).toBe('T');
   });
 });

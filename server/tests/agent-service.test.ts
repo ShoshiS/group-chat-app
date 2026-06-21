@@ -27,7 +27,6 @@ await jest.unstable_mockModule('../src/config/env.js', () => ({
 const { runAgentTurn } = await import('../src/services/agent/agent-service.js');
 
 const testUserId = new Types.ObjectId('507f1f77bcf86cd799439011');
-const toolContext = { userId: testUserId };
 
 describe('runAgentTurn', () => {
   beforeEach(() => {
@@ -41,7 +40,7 @@ describe('runAgentTurn', () => {
 
     const turn = await runAgentTurn([{ role: 'user', text: 'מה הקבוצות שלי?' }], testUserId);
 
-    expect(executeToolMock).toHaveBeenCalledWith('list_groups', {}, toolContext);
+    expect(executeToolMock).toHaveBeenCalledWith('list_groups', {}, { userId: testUserId });
     expect(generateContentMock).not.toHaveBeenCalled();
     expect(turn.reply).toBe("יש לך 2 קבוצות: 'Alpha', 'Beta'.");
     expect(turn.actions).toEqual([
@@ -68,7 +67,7 @@ describe('runAgentTurn', () => {
     expect(executeToolMock).toHaveBeenCalledWith(
       'create_group',
       { name: 'Study Buddies' },
-      toolContext,
+      { userId: testUserId },
     );
     expect(generateContentMock).not.toHaveBeenCalled();
     expect(turn.reply).toBe("Created a new group named 'Study Buddies' (id: group-1).");
@@ -124,7 +123,7 @@ describe('runAgentTurn', () => {
         groupName: 'Alpha',
         invitee: 'dana',
       },
-      toolContext,
+      { userId: testUserId },
     );
     expect(turn.reply).toBe('Invitation sent to dana.');
     expect(turn.actions).toHaveLength(1);

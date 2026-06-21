@@ -10,6 +10,8 @@ await jest.unstable_mockModule('../src/services/agent/agent-service.js', () => (
 
 const { handleAgentChat } = await import('../src/controllers/agent-controller.js');
 
+const testUserId = new Types.ObjectId('507f1f77bcf86cd799439011');
+
 function createMockResponse(): Response & {
   statusCode: number;
   body: unknown;
@@ -57,10 +59,9 @@ describe('handleAgentChat', () => {
 
   it('returns the agent turn on success', async () => {
     runAgentTurnMock.mockResolvedValue({ reply: 'Done', actions: [] });
-    const userId = new Types.ObjectId();
     const req = {
       body: { messages: [{ role: 'user', text: 'list my groups' }] },
-      userId,
+      userId: testUserId,
     } as Request;
     const res = createMockResponse();
 
@@ -68,7 +69,7 @@ describe('handleAgentChat', () => {
 
     expect(runAgentTurnMock).toHaveBeenCalledWith(
       [{ role: 'user', text: 'list my groups' }],
-      userId,
+      testUserId,
     );
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ reply: 'Done', actions: [] });

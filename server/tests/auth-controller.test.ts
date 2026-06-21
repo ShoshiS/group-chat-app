@@ -4,14 +4,21 @@ import { Types } from 'mongoose';
 
 const userCreateMock = jest.fn<(body: unknown) => Promise<unknown>>();
 const userFindByEmailMock = jest.fn<(email: string) => Promise<unknown>>();
+const userFindByGoogleIdMock = jest.fn<(googleId: string) => Promise<unknown>>();
 const userFindByIdMock = jest.fn<(id: unknown) => Promise<unknown>>();
+const userFindOneMock = jest.fn<(query: unknown) => { exec: () => Promise<unknown> }>();
 const signTokenMock = jest.fn<(userId: unknown) => string>();
+const verifyGoogleIdTokenMock = jest.fn<(credential: string) => Promise<unknown>>();
+const isGoogleAuthConfiguredMock = jest.fn<() => boolean>();
+const getGoogleClientIdMock = jest.fn<() => string>();
 
 await jest.unstable_mockModule('../src/models/user-model.js', () => ({
   User: {
     create: userCreateMock,
     findByEmail: userFindByEmailMock,
+    findByGoogleId: userFindByGoogleIdMock,
     findById: userFindByIdMock,
+    findOne: userFindOneMock,
   },
 }));
 
@@ -19,7 +26,13 @@ await jest.unstable_mockModule('../src/middleware/auth-middleware.js', () => ({
   signToken: signTokenMock,
 }));
 
-const { getMe, login, register, updateProfile } = await import(
+await jest.unstable_mockModule('../src/services/google-auth-service.js', () => ({
+  verifyGoogleIdToken: verifyGoogleIdTokenMock,
+  isGoogleAuthConfigured: isGoogleAuthConfiguredMock,
+  getGoogleClientId: getGoogleClientIdMock,
+}));
+
+const { getAuthConfig, getMe, googleAuth, login, register, updateProfile } = await import(
   '../src/controllers/auth-controller.js'
 );
 
@@ -49,6 +62,10 @@ describe('auth-controller', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     signTokenMock.mockReturnValue('signed-token');
+    isGoogleAuthConfiguredMock.mockReturnValue(true);
+    userFindOneMock.mockReturnValue({
+      exec: jest.fn<() => Promise<unknown>>().mockResolvedValue(null),
+    });
   });
 
   describe('register', () => {
@@ -192,6 +209,115 @@ describe('auth-controller', () => {
     });
   });
 
+  describe('getAuthConfig', () => {
+    it('returns the public Google client ID', async () => {
+      getGoogleClientIdMock.mockReturnValue('123.apps.googleusercontent.com');
+
+      const res = createMockResponse();
+      await getAuthConfig({} as Request, res);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual({ googleClientId: '123.apps.googleusercontent.com' });
+    });
+
+    it('returns an empty client ID when Google auth is not configured', async () => {
+      getGoogleClientIdMock.mockReturnValue('');
+
+      const res = createMockResponse();
+      await getAuthConfig({} as Request, res);
+
+      expect(res.body).toEqual({ googleClientId: '' });
+    });
+  });
+
+  describe('googleAuth', () => {
+    it('returns token and user for an existing Google account', async () => {
+      const user = {
+        _id: userId,
+        save: jest.fn<() => Promise<unknown>>(),
+        toJSON: () => ({
+          id: userId.toString(),
+          username: 'tamar',
+          email: 'tamar@example.com',
+          role: 'user',
+        }),
+      };
+      verifyGoogleIdTokenMock.mockResolvedValue({
+        googleId: 'google-subject',
+        email: 'tamar@example.com',
+        name: 'Tamar',
+      });
+      userFindByGoogleIdMock.mockResolvedValue(user);
+
+      const res = createMockResponse();
+      await googleAuth({ body: { credential: 'valid-token' } } as Request, res, next);
+
+      expect(verifyGoogleIdTokenMock).toHaveBeenCalledWith('valid-token');
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual({
+        token: 'signed-token',
+        user: {
+          id: userId.toString(),
+          username: 'tamar',
+          email: 'tamar@example.com',
+          role: 'user',
+        },
+      });
+    });
+
+    it('creates a user when the Google account is new', async () => {
+      const createdUser = {
+        _id: userId,
+        toJSON: () => ({
+          id: userId.toString(),
+          username: 'tamar',
+          email: 'tamar@example.com',
+          role: 'user',
+        }),
+      };
+      verifyGoogleIdTokenMock.mockResolvedValue({
+        googleId: 'google-subject',
+        email: 'tamar@example.com',
+        name: 'Tamar Zisman',
+        picture: 'https://example.com/avatar.jpg',
+      });
+      userFindByGoogleIdMock.mockResolvedValue(null);
+      userFindByEmailMock.mockResolvedValue(null);
+      userCreateMock.mockResolvedValue(createdUser);
+
+      const res = createMockResponse();
+      await googleAuth({ body: { credential: 'valid-token' } } as Request, res, next);
+
+      expect(userCreateMock).toHaveBeenCalledWith({
+        googleId: 'google-subject',
+        email: 'tamar@example.com',
+        username: 'tamar_zisman',
+        avatar: 'https://example.com/avatar.jpg',
+      });
+      expect(res.statusCode).toBe(200);
+    });
+
+    it('returns 503 when Google auth is not configured', async () => {
+      isGoogleAuthConfiguredMock.mockReturnValue(false);
+
+      const res = createMockResponse();
+      await googleAuth({ body: { credential: 'valid-token' } } as Request, res, next);
+
+      expect(res.statusCode).toBe(503);
+      expect(res.body).toEqual({ error: 'Google Sign-In is not configured' });
+    });
+
+    it('returns 401 for an invalid Google token', async () => {
+      verifyGoogleIdTokenMock.mockRejectedValue(new Error('Invalid Google token'));
+
+      const res = createMockResponse();
+      await googleAuth({ body: { credential: 'bad-token' } } as Request, res, next);
+
+      expect(res.statusCode).toBe(401);
+      expect(res.body).toEqual({ error: 'Invalid Google sign-in' });
+    });
+  });
+
   describe('getMe', () => {
     it('returns the authenticated user', async () => {
       const user = { id: userId.toString(), username: 'tamar' };
@@ -222,6 +348,7 @@ describe('auth-controller', () => {
     it('updates username and returns the user', async () => {
       const user = {
         username: 'oldname',
+        avatar: undefined as string | undefined,
         save: jest.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       };
       userFindByIdMock.mockResolvedValue(user);
@@ -238,6 +365,30 @@ describe('auth-controller', () => {
       expect(user.save).toHaveBeenCalled();
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual(user);
+    });
+
+    it('updates avatar and returns the user', async () => {
+      const user = {
+        username: 'tamar',
+        avatar: undefined as string | undefined,
+        save: jest.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
+      };
+      userFindByIdMock.mockResolvedValue(user);
+
+      const req = {
+        userId,
+        body: { avatar: 'https://res.cloudinary.com/demo/image/upload/v1/user-avatars/avatar.jpg' },
+      } as Request;
+      const res = createMockResponse();
+
+      await updateProfile(req, res, next);
+
+      expect(user.avatar).toBe(
+        'https://res.cloudinary.com/demo/image/upload/v1/user-avatars/avatar.jpg',
+      );
+      expect(user.username).toBe('tamar');
+      expect(user.save).toHaveBeenCalled();
+      expect(res.statusCode).toBe(200);
     });
 
     it('returns 404 when user is not found', async () => {

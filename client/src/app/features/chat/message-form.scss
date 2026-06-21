@@ -33,15 +33,21 @@
     gap: 8px;
   }
 
-  &__attach {
+  &__attach,
+  &__ai {
     cursor: pointer;
     display: flex;
     align-items: center;
     color: rgba(255, 255, 255, 0.6);
     padding: 8px;
 
-    &:hover {
+    &:hover:not(:disabled) {
       color: white;
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.5;
     }
   }
 
@@ -51,7 +57,7 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 20px;
     color: inherit;
-    font-family: inherit;
+    font-family: inherit, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
     font-size: 0.95rem;
     padding: 8px 16px;
     resize: none;

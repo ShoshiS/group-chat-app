@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { Message, type IMessage } from '../models/message-model.js';
+import { User } from '../models/user-model.js';
+import { composeMessage as composeMessageWithAi } from '../services/message-compose-service.js';
 import { MESSAGE_EVENTS, getIO } from '../sockets/index.js';
 
 /**
@@ -52,8 +54,10 @@ export async function createMessage(
       groupId,
       senderId: req.userId,
     });
-    res.status(201).json(message);
-    broadcast(req, groupId, MESSAGE_EVENTS.created, message.toJSON());
+    await message.populate('senderId', 'username avatar');
+    const payload = message.toJSON();
+    res.status(201).json(payload);
+    broadcast(req, groupId, MESSAGE_EVENTS.created, payload);
   } catch (err) {
     next(err);
   }
@@ -75,9 +79,52 @@ export async function updateMessage(
     if (attachments !== undefined) req.message!.attachments = attachments;
 
     const updated = await req.message!.save();
-    res.json(updated);
-    broadcast(req, updated.groupId.toString(), MESSAGE_EVENTS.updated, updated.toJSON());
+    await updated.populate('senderId', 'username avatar');
+    const payload = updated.toJSON();
+    res.json(payload);
+    broadcast(req, updated.groupId.toString(), MESSAGE_EVENTS.updated, payload);
   } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Suggests or polishes a chat message using Gemini and recent group history.
+ * Requires isGroupMember middleware on the route.
+ */
+export async function composeMessage(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const groupId = req.params['id'] as string;
+    const { draft } = req.body as { draft?: string };
+    const user = await User.findById(req.userId).select('username');
+
+    if (!user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const text = await composeMessageWithAi({
+      groupId,
+      groupName: req.group!.name,
+      username: user.username,
+      draft,
+    });
+
+    res.json({ text });
+  } catch (err) {
+    const message = (err as Error).message;
+    if (message.includes('GEMINI_API_KEY')) {
+      res.status(503).json({ error: message });
+      return;
+    }
+    if (message === 'No messages to reply to yet') {
+      res.status(400).json({ error: message });
+      return;
+    }
     next(err);
   }
 }

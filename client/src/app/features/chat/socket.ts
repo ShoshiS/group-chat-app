@@ -33,8 +33,8 @@ export class SocketService implements OnDestroy {
 
     this.socket.on('newMessage', (message: Message) => this.newMessage$.next(message));
     this.socket.on('messageUpdated', (message: Message) => this.messageUpdated$.next(message));
-    this.socket.on('messageDeleted', ({ messageId }: { messageId: string }) =>
-      this.messageDeleted$.next(messageId),
+    this.socket.on('messageDeleted', ({ id }: { id: string }) =>
+      this.messageDeleted$.next(id),
     );
   }
 

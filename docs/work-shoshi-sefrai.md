@@ -14,11 +14,12 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | Slice 4 — Messages + Real-time (Primary) |
-| **Branch פעיל** | `main` מעודכן · `feature/chat-realtime` |
-| **משימה עכשיו** | Messages CRUD + Socket.io + Media · יום 8 — Responsive + Docs |
+| **שלב נוכחי** | Slice 6 — גימור (Responsive mobile + Docs + Demo) |
+| **Branch פעיל** | `feature/client` |
+| **משימה עכשיו** | יום 8 — Responsive mobile + Docs + Demo |
+| **התקדמות Slice 5** | ✅ **100%** — remove member + avatar upload (תמר) |
 | **עודכן לאחרונה** | 2026-06-21 |
-| **עודכן על ידי** | תמר (סנכרון) |
+| **עודכן על ידי** | שושי |
 
 > עדכני את הטבלה + סמני ✓ בכל סוף יום.
 
@@ -199,8 +200,8 @@ Socket.io bootstrap · `group-model.ts` ✓ · `message-model.ts` ✓.
 - [x] Groups CRUD + GroupForm (add/edit) + יציאה
 - [x] צ'אט real-time + שליחת קבצים
 - [x] Profile + group avatar URL (upload מלא — יום 8)
-- [ ] isGroupAdmin + createRateLimiter — הסבר
-- [ ] Socket.io server events
+- [x] isGroupAdmin + createRateLimiter — הסבר
+- [x] Socket.io server events
 
 ---
 

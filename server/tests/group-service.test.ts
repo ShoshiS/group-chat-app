@@ -1,9 +1,10 @@
 import { jest } from '@jest/globals';
 import { Types } from 'mongoose';
 
-const groupCreateMock = jest.fn();
-const groupFindForUserMock = jest.fn();
-const createInvitationByGroupNameMock = jest.fn();
+const groupCreateMock = jest.fn<(body: unknown) => Promise<unknown>>();
+const groupFindOneMock = jest.fn<(query: unknown) => Promise<unknown>>();
+const groupFindForUserMock = jest.fn<(userId: unknown) => Promise<unknown>>();
+const invitationCreateMock = jest.fn<(body: unknown) => Promise<unknown>>();
 
 await jest.unstable_mockModule('mongoose', () => ({
   default: {
@@ -15,20 +16,16 @@ await jest.unstable_mockModule('mongoose', () => ({
 await jest.unstable_mockModule('../src/models/group-model.js', () => ({
   Group: {
     create: groupCreateMock,
+    find: jest.fn(),
+    findOne: groupFindOneMock,
     findForUser: groupFindForUserMock,
   },
 }));
 
-await jest.unstable_mockModule('../src/services/invitation-service.js', () => ({
-  InvitationError: class InvitationError extends Error {
-    constructor(
-      message: string,
-      readonly statusCode: number,
-    ) {
-      super(message);
-    }
+await jest.unstable_mockModule('../src/models/invitation-model.js', () => ({
+  Invitation: {
+    create: invitationCreateMock,
   },
-  createInvitationByGroupName: createInvitationByGroupNameMock,
 }));
 
 const { createGroup, inviteMember, listGroups } = await import('../src/services/group-service.js');
@@ -40,7 +37,7 @@ describe('group-service', () => {
     jest.clearAllMocks();
   });
 
-  it('creates a group with trimmed fields', async () => {
+  it('creates a group with trimmed fields and adminId', async () => {
     groupCreateMock.mockResolvedValue({
       _id: { toString: () => 'group-1' },
       name: 'Alpha',
@@ -66,7 +63,7 @@ describe('group-service', () => {
     });
   });
 
-  it('lists groups for the authenticated user', async () => {
+  it('lists groups for a user via findForUser', async () => {
     groupFindForUserMock.mockResolvedValue([
       {
         _id: { toString: () => 'group-1' },
@@ -92,24 +89,25 @@ describe('group-service', () => {
   });
 
   it('creates an invitation when the group exists', async () => {
-    createInvitationByGroupNameMock.mockResolvedValue({
+    groupFindOneMock.mockResolvedValue({
+      _id: { toString: () => 'group-1' },
+      name: 'Alpha',
+    });
+    invitationCreateMock.mockResolvedValue({
       _id: { toString: () => 'invite-1' },
-      groupId: { toString: () => 'group-1' },
-      groupName: 'Alpha',
-      invitee: 'dana@example.com',
       status: 'pending',
     });
 
-    const result = await inviteMember(
-      { groupName: 'Alpha', invitee: 'dana@example.com' },
-      testUserId,
-    );
+    const result = await inviteMember({ groupName: 'Alpha', invitee: 'dana@example.com' });
 
-    expect(createInvitationByGroupNameMock).toHaveBeenCalledWith({
-      groupName: 'Alpha',
-      inviteeInput: 'dana@example.com',
-      invitedById: testUserId,
-    });
+    expect(groupFindOneMock).toHaveBeenCalledWith({ name: 'Alpha' });
+    expect(invitationCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        groupName: 'Alpha',
+        invitee: 'dana@example.com',
+        status: 'pending',
+      }),
+    );
     expect(result).toEqual({
       invitationId: 'invite-1',
       groupId: 'group-1',
@@ -121,20 +119,15 @@ describe('group-service', () => {
   });
 
   it('returns a not-found payload when inviting to a missing group', async () => {
-    const { InvitationError } = await import('../src/services/invitation-service.js');
-    createInvitationByGroupNameMock.mockRejectedValue(
-      new InvitationError('Group "Missing" was not found', 404),
-    );
+    groupFindOneMock.mockResolvedValue(null);
 
-    const result = await inviteMember(
-      { groupName: 'Missing', invitee: 'dana@example.com' },
-      testUserId,
-    );
+    const result = await inviteMember({ groupName: 'Missing', invitee: 'dana@example.com' });
 
     expect(result).toEqual({
       error: 'Group "Missing" was not found',
       invited: false,
     });
+    expect(invitationCreateMock).not.toHaveBeenCalled();
   });
 
   it('requires a non-empty group name', async () => {

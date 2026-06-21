@@ -1,4 +1,5 @@
 import {
+  googleAuthBodySchema,
   loginBodySchema,
   registerBodySchema,
   updateProfileBodySchema,
@@ -90,6 +91,23 @@ describe('loginBodySchema', () => {
   });
 });
 
+describe('googleAuthBodySchema', () => {
+  it('accepts a Google credential token', () => {
+    const { error, value } = googleAuthBodySchema.validate({
+      credential: 'google-id-token',
+    });
+
+    expect(error).toBeUndefined();
+    expect(value).toEqual({ credential: 'google-id-token' });
+  });
+
+  it('rejects missing credential', () => {
+    const { error } = googleAuthBodySchema.validate({});
+
+    expect(error).toBeDefined();
+  });
+});
+
 describe('updateProfileBodySchema', () => {
   it('accepts valid username', () => {
     const { error, value } = updateProfileBodySchema.validate({ username: 'newname' });
@@ -100,6 +118,23 @@ describe('updateProfileBodySchema', () => {
 
   it('rejects username shorter than 3 characters', () => {
     const { error } = updateProfileBodySchema.validate({ username: 'ab' });
+
+    expect(error).toBeDefined();
+  });
+
+  it('accepts avatar URL only', () => {
+    const { error, value } = updateProfileBodySchema.validate({
+      avatar: 'https://res.cloudinary.com/demo/image/upload/v1/user-avatars/avatar.jpg',
+    });
+
+    expect(error).toBeUndefined();
+    expect(value).toEqual({
+      avatar: 'https://res.cloudinary.com/demo/image/upload/v1/user-avatars/avatar.jpg',
+    });
+  });
+
+  it('rejects empty body', () => {
+    const { error } = updateProfileBodySchema.validate({});
 
     expect(error).toBeDefined();
   });

@@ -6,8 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import type { Message, MessageSender } from '../../core/models/message';
+import type { Attachment, Message, MessageSender } from '../../core/models/message';
 import { Auth } from '../../core/services/auth';
+import { ImagePreview } from '../../shared/image-preview/image-preview';
 
 @Component({
   selector: 'app-message-item',
@@ -20,6 +21,7 @@ import { Auth } from '../../core/services/auth';
     MatIconModule,
     MatInputModule,
     MatTooltipModule,
+    ImagePreview,
   ],
   templateUrl: './message-item.html',
   styleUrl: './message-item.scss',
@@ -32,6 +34,7 @@ export class MessageItem {
   private readonly auth = inject(Auth);
 
   protected readonly editing = signal(false);
+  protected readonly previewImage = signal<Attachment | null>(null);
   protected readonly editControl = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required, Validators.maxLength(2000)],
@@ -69,5 +72,13 @@ export class MessageItem {
     if (confirm('Delete this message?')) {
       this.delete.emit(this.message().id);
     }
+  }
+
+  protected openImagePreview(attachment: Attachment): void {
+    this.previewImage.set(attachment);
+  }
+
+  protected closeImagePreview(): void {
+    this.previewImage.set(null);
   }
 }

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { handleAgentChat } from '../controllers/agent-controller';
-import { authMiddleware } from '../middleware/auth-middleware.js';
+import { authMiddleware } from '../middleware/auth-middleware';
 
 const router = Router();
 

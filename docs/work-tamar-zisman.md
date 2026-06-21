@@ -11,11 +11,12 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | שבוע 4 — Slice 4: Messages + Real-time (Secondary) |
-| **Slice פעיל** | Slice 4 — Messages + Real-time |
-| **Branch פעיל** | `main` מעודכן · הבא: review / `feature/chat-realtime` |
-| **משימה עכשיו** | Review Message model + Socket · MessageItem (edit/delete) |
-| **התקדמות Slice 3** | ✅ **100% + merged** · [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) |
+| **שלב נוכחי** | שבוע 6 — Slice 6: גימור (משותף) |
+| **Slice פעיל** | Slice 6 — Responsive + Docs + Demo |
+| **Branch פעיל** | `feature/client` (merge מ-`main`) |
+| **משימה עכשיו** | Responsive Desktop · `docs/server-analysis.md` |
+| **התקדמות Slice 5** | ✅ **100%** · avatar upload + admin remove member (אימות ידני) |
+| **התקדמות Slice 4** | ✅ **100%** · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (fix messageDeleted) |
 | **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר |
 
@@ -298,106 +299,84 @@ POST   /api/groups/:id/leave
 
 ---
 
-## Slice 3 — Invitations (שבוע 3) — **Primary** ✅
-
-> **סטטוס:** Slice 3 (תמר) הושלם (21.6.2026). **Merged ל-`main`** על ידי שושי — [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) (`456c349`, 20.6.2026).
+## ▶ **[שלב נוכחי]** Slice 3 — Invitations (שבוע 3) — **Primary**
 
 ### Server
 
-- [x] `server/src/models/invitation-model.ts` — status enum, Joi, `findDuplicatePending`, toJSON
-- [x] `server/src/controllers/invitation-controller.ts` — list, accept, reject, inviteToGroup, listGroupInvitations
-- [x] `server/src/routes/invitation-routes.ts` — `GET /`, `PUT /:id/accept`, `PUT /:id/reject`
-- [x] Validation: user exists, not already member, no duplicate pending invite, no self-invite
-- [x] `POST /api/groups/:id/invite` — הזמנה לפי email או username
-- [x] **בונוס:** `group-event-model.ts` + `group-timeline-service.ts` — אירועי join/leave/invite בצ'אט
-- [x] **בונוס:** `GET /api/groups/:id/members`, `GET /api/groups/:id/invitations`, `DELETE .../members/:userId`
-
-**Unit tests (14 חדשים, 88 סה"כ ב-server):**
-- `tests/invitation-model.test.ts`
-- `tests/invitation-controller.test.ts`
-- `tests/group-member-controller.test.ts`
+- [ ] `server/src/models/invitation-model.ts` (כבר קיים — Review + השלמות לפי הצורך)
+- [ ] `server/src/controllers/invitation.controller.js` — list, accept, reject, pending count
+- [ ] `server/src/routes/invitation.routes.js`
+- [ ] Validation: user exists, not already member, no duplicate pending invite
+- [ ] endpoint הזמנה ב-group controller: `POST /api/groups/:id/invite`
 
 ### Client
 
-- [x] **`InvitationStore`** + Signal — רשימת הזמנות, `pendingCount` computed
-- [x] **`InvitationList`** + **`InvitationActions`** — Accept / Reject
-- [x] Route: `/invitations` — מחובר ל-store
-- [x] Validation: confirm dialog לפני reject
-- [x] **NavBar badge** — `MatBadge` עם `pendingCount`, טעינה אוטומטית ב-login
-- [x] **בונוס:** `GroupMemberList` + `GroupInvitationActivity` בצ'אט
-- [x] **בונוס:** `ChatTimeline` + `ChatSystemEvent` — הודעות מערכת ב-chat room
-
-**Unit tests (5 חדשים, 20 סה"כ ב-client):**
-- `chat-timeline.spec.ts` + עדכון `nav-bar.spec.ts`
+- [ ] **`InvitationService`** + Signal (רשימת הזמנות, count)
+- [ ] **`InvitationListComponent`** — רשימת הזמנות pending
+- [ ] **`InvitationActionsComponent`** — כפתורי Accept / Reject
+- [ ] Route: `/invitations`
+- [ ] Validation: confirm dialog לפני reject
 
 ### תוצר
 
-- [x] הזמנה לקבוצה לפי email / username
-- [x] צפייה, קבלה ודחייה של הזמנות
-- [x] Merge ל-`main` — [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) ✅ (20.6.2026 · שושי)
-
-### Endpoints (Thunder Client)
-
-```
-GET    /api/invitations              # הזמנות pending שלי
-PUT    /api/invitations/:id/accept
-PUT    /api/invitations/:id/reject
-POST   /api/groups/:id/invite        # { "email": "user@example.com" }
-GET    /api/groups/:id/invitations   # timeline הזמנות בקבוצה
-GET    /api/groups/:id/members
-DELETE /api/groups/:id/members/:userId  # admin only
-```
+- [ ] הזמנה לקבוצה לפי email
+- [ ] צפייה, קבלה ודחייה של הזמנות
+- [ ] PR → Review על ידי שושי
 
 ---
 
-## ▶ **[שלב נוכחי]** Slice 4 — Messages + Real-time (שבועות 4–5) — **Secondary**
+## Slice 4 — Messages + Real-time (שבועות 4–5) — **Secondary** ✅
 
-> **נקודת פתיחה:** Chat + Socket.io client כבר ב-`main` ([PR #8](https://github.com/ShoshiS/group-chat-app/pull/8)). אחריות תמר: Review + MessageItem.
+> **סטטוס:** Slice 4 (תמר) הושלם (21.6.2026). Review + SocketService + MessageItem + תיקון real-time delete.
+> שרת + צ'אט client ב-`main` ([PR #5](https://github.com/ShoshiS/group-chat-app/pull/5), [PR #8](https://github.com/ShoshiS/group-chat-app/pull/8)).
+> תיקון `messageDeleted` payload: [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10).
 
 ### Server
 
-- [ ] Review: Message model + attachments schema (שושי)
-- [ ] Review + השלמת `toJSON` transform אם נדרש
+- [x] Review: Message model + attachments schema (שושי)
+- [x] Review + השלמת `toJSON` transform אם נדרש
 
 ### Client — **אחריותך העיקרית ב-Slice זה**
 
-- [ ] **`SocketService`** — חיבור socket.io-client, joinGroup, leaveGroup
-- [ ] Listeners: `newMessage`, `messageUpdated`, `messageDeleted`
-- [ ] **`MessageItemComponent`** — edit/delete הודעות שלך
-- [ ] Review: ChatRoom, MessageList, MessageForm (שושי)
-- [ ] Review: `createRateLimiter` middleware (שושי)
+- [x] **`SocketService`** — חיבור socket.io-client, joinGroup, leaveGroup
+- [x] Listeners: `newMessage`, `messageUpdated`, `messageDeleted`
+- [x] **`MessageItemComponent`** — edit/delete הודעות שלך
+- [x] Review: ChatRoom, MessageList, MessageForm (שושי)
+- [x] Review: `createRateLimiter` middleware (שושי)
 
 ### תוצר
 
-- [ ] הודעות חדשות מופיעות בזמן אמת
-- [ ] עריכה/מחיקה של הודעות עובדות
-- [ ] PR review ל-`feature/chat-realtime`
+- [x] הודעות חדשות מופיעות בזמן אמת
+- [x] עריכה/מחיקה של הודעות עובדות (כולל sync בין clients — PR #10)
+- [x] PR review ל-`feature/chat-realtime` — merged ([PR #5](https://github.com/ShoshiS/group-chat-app/pull/5))
 
 ---
 
-## Slice 5 — Admin + Profile (שבוע 5) — **Primary**
+## Slice 5 — Admin + Profile (שבוע 5) — **Primary** ✅
+
+> **סטטוס:** Slice 5 (תמר) הושלם (21.6.2026). remove member ב-`main` (שושי) · avatar upload ב-PR.
 
 ### Server
 
-- [ ] `DELETE /api/groups/:id/members/:userId` — admin only
-- [ ] `PUT /api/auth/me` + avatar upload (Multer)
-- [ ] Validation: admin cannot remove himself
+- [x] `DELETE /api/groups/:id/members/:userId` — admin only (review · ב-`main`)
+- [x] `PUT /api/auth/me` + avatar upload (Multer + Cloudinary `user-avatars/`)
+- [x] Validation: admin cannot remove himself
 
 ### Client
 
-- [ ] **`MemberManagementPanel`** — רשימת חברים + כפתור Remove (admin only)
-- [ ] Review: ProfileComponent + avatar upload (שושי)
-- [ ] **`AvatarUpload`** flow למשתמש ב-profile
+- [x] **`MemberManagementPanel`** — `GroupMemberList` ב-ChatRoom (admin only Remove)
+- [x] Review: ProfileComponent + avatar upload (שושי)
+- [x] **`AvatarUpload`** flow ב-`/profile` (`Auth.updateProfile` + FormData)
 
 ### תוצר
 
-- [ ] מנהל קבוצה יכולה להסיר חבר
-- [ ] העלאת avatar למשתמש עובדת
-- [ ] PR → Merge
+- [x] מנהל קבוצה יכולה להסיר חבר
+- [x] העלאת avatar למשתמש עובדת (אימות ידני)
+- [x] PR → Merge — [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11)
 
 ---
 
-## Slice 6 — גימור (שבוע 6) — **משותף**
+## ▶ **[שלב נוכחי]** Slice 6 — גימור (שבוע 6) — **משותף**
 
 ### אחריותך
 
@@ -436,10 +415,10 @@ DELETE /api/groups/:id/members/:userId  # admin only
 - [x] Routes מוגנים ב-authGuard
 - [x] הסבר מוכן: errorLogger (`console.error`) + authMiddleware (JWT Bearer)
 - [x] NavBar + protected routes
-- [ ] הזמנות — invite, accept, reject
-- [ ] הסרת חבר מקבוצה (admin)
-- [ ] Avatar upload
-- [ ] Real-time messages (socket client)
-- [ ] עריכה/מחיקת הודעות שלך
+- [x] הזמנות — invite, accept, reject
+- [x] הסרת חבר מקבוצה (admin)
+- [x] Avatar upload
+- [x] Real-time messages (socket client)
+- [x] עריכה/מחיקת הודעות שלך
 
 **דדליין:** י"א כסלו תשפ"ו

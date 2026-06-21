@@ -61,6 +61,7 @@
     margin: 0;
     white-space: pre-wrap;
     word-break: break-word;
+    font-family: inherit, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
   }
 
   &__edit {
@@ -76,12 +77,27 @@
     margin-top: 8px;
   }
 
+  &__image-btn {
+    display: block;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 6px;
+    line-height: 0;
+
+    &:focus-visible {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+    }
+  }
+
   &__image {
     max-width: 280px;
     max-height: 200px;
     border-radius: 6px;
     object-fit: cover;
-    cursor: pointer;
+    display: block;
   }
 
   &__audio {
