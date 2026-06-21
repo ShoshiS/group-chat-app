@@ -43,12 +43,38 @@ const upload = multer({
   limits: { fileSize: env.upload.maxFileSizeBytes },
 });
 
+const AVATAR_PARAMS = {
+  folder: 'user-avatars',
+  resource_type: 'image',
+  allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+} as unknown as CloudinaryStorageOptions['params'];
+
+const avatarStorage = new CloudinaryStorage({ cloudinary, params: AVATAR_PARAMS });
+
+function avatarFileFilter(_req: Request, file: Express.Multer.File, cb: FileFilterCallback): void {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    const err = Object.assign(new Error('Avatar must be an image'), { status: 400 });
+    cb(err as unknown as null, false);
+  }
+}
+
+const avatarUpload = multer({
+  storage: avatarStorage,
+  fileFilter: avatarFileFilter,
+  limits: { fileSize: env.upload.maxFileSizeBytes },
+});
+
 /**
  * Multer middleware that uploads up to 10 files to Cloudinary under the
  * `files` form-data field. Rejects non-image/audio/pdf types (400) and
  * files exceeding 10 MB (400). Cloudinary errors propagate via next(err).
  */
 export const uploadMessageFiles = upload.array('files', 10);
+
+/** Uploads a single profile image under the `avatar` form-data field. */
+export const uploadAvatar = avatarUpload.single('avatar');
 
 /** Maps Multer/Cloudinary files to IAttachment records stored in the DB. */
 export function filesToAttachments(files: Express.Multer.File[]): IAttachment[] {
@@ -76,6 +102,14 @@ export function mergeFileAttachments(req: Request, _res: Response, next: NextFun
     const fromFiles = filesToAttachments(files);
     const existing: IAttachment[] = Array.isArray(req.body?.attachments) ? req.body.attachments : [];
     req.body = { ...req.body, attachments: [...existing, ...fromFiles] };
+  }
+  next();
+}
+
+/** Merges an uploaded avatar URL into req.body for downstream Joi validation. */
+export function mergeAvatarIntoBody(req: Request, _res: Response, next: NextFunction): void {
+  if (req.file) {
+    req.body = { ...req.body, avatar: req.file.path };
   }
   next();
 }

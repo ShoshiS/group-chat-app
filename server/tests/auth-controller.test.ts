@@ -222,6 +222,7 @@ describe('auth-controller', () => {
     it('updates username and returns the user', async () => {
       const user = {
         username: 'oldname',
+        avatar: undefined as string | undefined,
         save: jest.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       };
       userFindByIdMock.mockResolvedValue(user);
@@ -238,6 +239,30 @@ describe('auth-controller', () => {
       expect(user.save).toHaveBeenCalled();
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual(user);
+    });
+
+    it('updates avatar and returns the user', async () => {
+      const user = {
+        username: 'tamar',
+        avatar: undefined as string | undefined,
+        save: jest.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
+      };
+      userFindByIdMock.mockResolvedValue(user);
+
+      const req = {
+        userId,
+        body: { avatar: 'https://res.cloudinary.com/demo/image/upload/v1/user-avatars/avatar.jpg' },
+      } as Request;
+      const res = createMockResponse();
+
+      await updateProfile(req, res, next);
+
+      expect(user.avatar).toBe(
+        'https://res.cloudinary.com/demo/image/upload/v1/user-avatars/avatar.jpg',
+      );
+      expect(user.username).toBe('tamar');
+      expect(user.save).toHaveBeenCalled();
+      expect(res.statusCode).toBe(200);
     });
 
     it('returns 404 when user is not found', async () => {

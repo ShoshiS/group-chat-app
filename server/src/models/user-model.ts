@@ -87,5 +87,8 @@ export const loginBodySchema = Joi.object({
 }).options({ stripUnknown: true });
 
 export const updateProfileBodySchema = Joi.object({
-  username: Joi.string().min(3).required(),
-}).options({ stripUnknown: true });
+  username: Joi.string().min(3).optional(),
+  avatar: Joi.string().uri().optional(),
+})
+  .or('username', 'avatar')
+  .options({ stripUnknown: true });
