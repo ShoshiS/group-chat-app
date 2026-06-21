@@ -45,7 +45,13 @@ describe('NavBar', () => {
   it('shows authenticated links and username when logged in', async () => {
     const fixture = await setup({
       isLoggedIn: signal(true),
-      currentUser: signal({ id: '1', username: 'tamar', email: 't@t.com', role: 'user' }),
+      currentUser: signal({
+        id: '1',
+        username: 'tamar',
+        email: 't@t.com',
+        role: 'user',
+        avatar: 'https://example.com/avatar.jpg',
+      }),
       logout: jasmine.createSpy('logout'),
     });
     fixture.detectChanges();
@@ -57,5 +63,19 @@ describe('NavBar', () => {
     expect(compiled.textContent).toContain('Profile');
     expect(compiled.textContent).toContain('Logout');
     expect(compiled.textContent).not.toContain('AI Assistant');
+    expect(compiled.querySelector('.nav-bar__avatar')).toBeTruthy();
+  });
+
+  it('shows avatar fallback initial when user has no avatar', async () => {
+    const fixture = await setup({
+      isLoggedIn: signal(true),
+      currentUser: signal({ id: '1', username: 'tamar', email: 't@t.com', role: 'user' }),
+      logout: jasmine.createSpy('logout'),
+    });
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const fallback = compiled.querySelector('.nav-bar__avatar-fallback');
+    expect(fallback?.textContent?.trim()).toBe('T');
   });
 });
