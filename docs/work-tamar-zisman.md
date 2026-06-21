@@ -11,11 +11,11 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | שבוע 4 — Slice 4: Messages + Real-time (Secondary) |
-| **Slice פעיל** | Slice 4 — Messages + Real-time |
-| **Branch פעיל** | `main` מעודכן · הבא: review / `feature/chat-realtime` |
-| **משימה עכשיו** | Review Message model + Socket · MessageItem (edit/delete) |
-| **התקדמות Slice 3** | ✅ **100% + merged** · [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) |
+| **שלב נוכחי** | שבוע 5 — Slice 5: Admin + Profile (Primary) |
+| **Slice פעיל** | Slice 5 — Admin + Profile |
+| **Branch פעיל** | `main` מעודכן · הבא: `feature/admin-profile` |
+| **משימה עכשיו** | Avatar upload · MemberManagementPanel |
+| **התקדמות Slice 4** | ✅ **100%** · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (fix messageDeleted) |
 | **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר |
 
@@ -350,32 +350,34 @@ DELETE /api/groups/:id/members/:userId  # admin only
 
 ---
 
-## ▶ **[שלב נוכחי]** Slice 4 — Messages + Real-time (שבועות 4–5) — **Secondary**
+## Slice 4 — Messages + Real-time (שבועות 4–5) — **Secondary** ✅
 
-> **נקודת פתיחה:** Chat + Socket.io client כבר ב-`main` ([PR #8](https://github.com/ShoshiS/group-chat-app/pull/8)). אחריות תמר: Review + MessageItem.
+> **סטטוס:** Slice 4 (תמר) הושלם (21.6.2026). Review + SocketService + MessageItem + תיקון real-time delete.
+> שרת + צ'אט client ב-`main` ([PR #5](https://github.com/ShoshiS/group-chat-app/pull/5), [PR #8](https://github.com/ShoshiS/group-chat-app/pull/8)).
+> תיקון `messageDeleted` payload: [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10).
 
 ### Server
 
-- [ ] Review: Message model + attachments schema (שושי)
-- [ ] Review + השלמת `toJSON` transform אם נדרש
+- [x] Review: Message model + attachments schema (שושי)
+- [x] Review + השלמת `toJSON` transform אם נדרש
 
 ### Client — **אחריותך העיקרית ב-Slice זה**
 
-- [ ] **`SocketService`** — חיבור socket.io-client, joinGroup, leaveGroup
-- [ ] Listeners: `newMessage`, `messageUpdated`, `messageDeleted`
-- [ ] **`MessageItemComponent`** — edit/delete הודעות שלך
-- [ ] Review: ChatRoom, MessageList, MessageForm (שושי)
-- [ ] Review: `createRateLimiter` middleware (שושי)
+- [x] **`SocketService`** — חיבור socket.io-client, joinGroup, leaveGroup
+- [x] Listeners: `newMessage`, `messageUpdated`, `messageDeleted`
+- [x] **`MessageItemComponent`** — edit/delete הודעות שלך
+- [x] Review: ChatRoom, MessageList, MessageForm (שושי)
+- [x] Review: `createRateLimiter` middleware (שושי)
 
 ### תוצר
 
-- [ ] הודעות חדשות מופיעות בזמן אמת
-- [ ] עריכה/מחיקה של הודעות עובדות
-- [ ] PR review ל-`feature/chat-realtime`
+- [x] הודעות חדשות מופיעות בזמן אמת
+- [x] עריכה/מחיקה של הודעות עובדות (כולל sync בין clients — PR #10)
+- [x] PR review ל-`feature/chat-realtime` — merged ([PR #5](https://github.com/ShoshiS/group-chat-app/pull/5))
 
 ---
 
-## Slice 5 — Admin + Profile (שבוע 5) — **Primary**
+## ▶ **[שלב נוכחי]** Slice 5 — Admin + Profile (שבוע 5) — **Primary**
 
 ### Server
 
@@ -436,10 +438,10 @@ DELETE /api/groups/:id/members/:userId  # admin only
 - [x] Routes מוגנים ב-authGuard
 - [x] הסבר מוכן: errorLogger (`console.error`) + authMiddleware (JWT Bearer)
 - [x] NavBar + protected routes
-- [ ] הזמנות — invite, accept, reject
+- [x] הזמנות — invite, accept, reject
 - [ ] הסרת חבר מקבוצה (admin)
 - [ ] Avatar upload
-- [ ] Real-time messages (socket client)
-- [ ] עריכה/מחיקת הודעות שלך
+- [x] Real-time messages (socket client)
+- [x] עריכה/מחיקת הודעות שלך
 
 **דדליין:** י"א כסלו תשפ"ו

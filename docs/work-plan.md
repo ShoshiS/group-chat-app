@@ -10,10 +10,10 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | Slice 4 — Messages + Real-time (שושי Primary · תמר Secondary) |
-| **Slice פעיל** | Slice 4 |
-| **Branch פעיל** | `main` מעודכן (Slice 3 merged) · שושי: `feature/chat-realtime` |
-| **משימה עכשיו** | שושי: Messages + Socket primary · תמר: Review + MessageItem |
+| **שלב נוכחי** | Slice 5 — Admin + Profile + גימור (שושי Secondary · תמר Primary) |
+| **Slice פעיל** | Slice 5 |
+| **Branch פעיל** | `main` מעודכן · תמר: `feature/admin-profile` · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (Slice 4 fix) |
+| **משימה עכשיו** | תמר: Avatar upload + MemberPanel · שושי: יום 8 — Responsive + Docs |
 | **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר |
 
@@ -295,23 +295,27 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ---
 
-### ▶ **[שלב נוכחי]** Slice 4 — Messages + Media + Real-time
+### Slice 4 — Messages + Media + Real-time — ✅ **שושי Primary · תמר Secondary**
 
-| משימה | שושי (Primary) | תמר (Secondary) |
-|---|---|---|
-| **DB** | Message model + attachments schema | Review + toJSON transform |
-| **API** | Message CRUD + Multer (image/audio/pdf) | Review |
-| **Socket.io** | Server: socket setup, room events | Client: socket service + listeners |
-| **Client Service** | MessageService + real-time Signal updates | Review |
-| **UI** | ChatRoom, MessageList, MessageForm, file preview | MessageItem (edit/delete own) |
-| **Validation** | Server: file type/size limits | Client: file picker validation |
-| **Middleware** | `createRateLimiter` (middleware creator) | Review |
+| משימה | שושי (Primary) | תמר (Secondary) | סטטוס |
+|---|---|---|---|
+| **DB** | Message model + attachments schema | Review + toJSON transform | ✅ |
+| **API** | Message CRUD + Multer (image/audio/pdf) | Review | ✅ |
+| **Socket.io** | Server: socket setup, room events | Client: socket service + listeners | ✅ |
+| **Client Service** | MessageService + real-time Signal updates | Review | ✅ |
+| **UI** | ChatRoom, MessageList, MessageForm, file preview | MessageItem (edit/delete own) | ✅ |
+| **Validation** | Server: file type/size limits | Client: file picker validation | ✅ |
+| **Middleware** | `createRateLimiter` (middleware creator) | Review | ✅ |
 
 **תוצר:** צ'אט בזמן אמת, שליחת טקסט + קבצים, עריכה/מחיקה.
 
+**PRs:** [PR #5](https://github.com/ShoshiS/group-chat-app/pull/5) (server realtime) · [PR #8](https://github.com/ShoshiS/group-chat-app/pull/8) (client chat) · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (fix `messageDeleted` payload)
+
+**Tests:** client 20/20 · אימות ידני: newMessage + messageUpdated + messageDeleted בין שני clients
+
 ---
 
-### Slice 5 — Admin Actions + Profile
+### ▶ **[שלב נוכחי]** Slice 5 — Admin Actions + Profile
 
 | משימה | תמר (Primary) | שושי (Secondary) |
 |---|---|---|
