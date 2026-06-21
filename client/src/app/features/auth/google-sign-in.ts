@@ -63,7 +63,7 @@ export class GoogleSignIn implements AfterViewInit {
   protected readonly configured = signal(false);
   protected readonly busy = signal(false);
 
-  readonly error = output<string>();
+  readonly signInError = output<string>();
 
   private readonly buttonHost = viewChild<ElementRef<HTMLElement>>('buttonHost');
   private clientId = '';
@@ -118,7 +118,7 @@ export class GoogleSignIn implements AfterViewInit {
         text: 'continue_with',
       });
     } catch {
-      this.error.emit('Google Sign-In failed to load. Please try again.');
+      this.signInError.emit('Google Sign-In failed to load. Please try again.');
     }
   }
 
@@ -135,7 +135,7 @@ export class GoogleSignIn implements AfterViewInit {
       const message =
         (err as { error?: { error?: string } })?.error?.error ??
         'Google sign-in failed. Please try again.';
-      this.error.emit(message);
+      this.signInError.emit(message);
     } finally {
       this.busy.set(false);
     }
