@@ -7,7 +7,8 @@ export type UserRole = 'user' | 'admin';
 export interface IUser {
   username: string;
   email: string;
-  password: string;
+  password?: string;
+  googleId?: string;
   avatar?: string;
   role: UserRole;
 }
@@ -18,6 +19,7 @@ export interface IUserMethods {
 
 interface UserModel extends Model<IUser, Record<string, never>, IUserMethods> {
   findByEmail(email: string): Promise<HydratedDocument<IUser, IUserMethods> | null>;
+  findByGoogleId(googleId: string): Promise<HydratedDocument<IUser, IUserMethods> | null>;
 }
 
 const SALT_ROUNDS = 10;
@@ -32,7 +34,15 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       trim: true,
       lowercase: true,
     },
-    password: { type: String, required: true, minlength: 6, select: false },
+    password: {
+      type: String,
+      required(this: IUser) {
+        return !this.googleId;
+      },
+      minlength: 6,
+      select: false,
+    },
+    googleId: { type: String, unique: true, sparse: true },
     avatar: { type: String, match: /^https?:\/\/.+/ },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
   },
@@ -58,7 +68,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 );
 
 userSchema.pre('save', async function () {
-  if (!this.isModified('password')) {
+  if (!this.isModified('password') || !this.password) {
     return;
   }
 
@@ -66,11 +76,19 @@ userSchema.pre('save', async function () {
 });
 
 userSchema.method('comparePassword', async function (candidate: string): Promise<boolean> {
+  if (!this.password) {
+    return false;
+  }
+
   return bcrypt.compare(candidate, this.password);
 });
 
 userSchema.static('findByEmail', function (email: string) {
   return this.findOne({ email: email.toLowerCase().trim() }).select('+password').exec();
+});
+
+userSchema.static('findByGoogleId', function (googleId: string) {
+  return this.findOne({ googleId }).exec();
 });
 
 export const User = model<IUser, UserModel>('User', userSchema);
@@ -86,6 +104,13 @@ export const loginBodySchema = Joi.object({
   password: Joi.string().required(),
 }).options({ stripUnknown: true });
 
-export const updateProfileBodySchema = Joi.object({
-  username: Joi.string().min(3).required(),
+export const googleAuthBodySchema = Joi.object({
+  credential: Joi.string().required(),
 }).options({ stripUnknown: true });
+
+export const updateProfileBodySchema = Joi.object({
+  username: Joi.string().min(3).optional(),
+  avatar: Joi.string().uri().optional(),
+})
+  .or('username', 'avatar')
+  .options({ stripUnknown: true });

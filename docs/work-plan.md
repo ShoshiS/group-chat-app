@@ -10,11 +10,11 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | Slice 3 — Invitations (תמר Primary · שושי Secondary) |
-| **Slice פעיל** | Slice 3 |
-| **Branch פעיל** | תמר: `feature/nav-bar` → PR · שושי: `feature/groups` |
-| **משימה עכשיו** | תמר: Invitations · שושי: GroupService + UI |
-| **עודכן לאחרונה** | 2026-06-18 |
+| **שלב נוכחי** | Slice 6 — גימור משותף (Responsive + Docs + Demo) |
+| **Slice פעיל** | Slice 6 |
+| **Branch פעיל** | `feature/admin-profile` · [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) |
+| **משימה עכשיו** | תמר: Responsive Desktop + server-analysis · שושי: Mobile + client docs |
+| **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר |
 
 > עדכנו שדה זה בכל מעבר שלב — בסוף כל שבוע עבודה לפחות.
@@ -277,47 +277,59 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ---
 
-### ▶ **[שלב נוכחי]** Slice 3 — Invitations (הזמנות)
+### Slice 3 — Invitations (הזמנות) — ✅ **תמר Primary · שושי Secondary**
 
-| משימה | תמר (Primary) | שושי (Secondary) |
-|---|---|---|
-| **DB** | Invitation model + status enum | Review |
-| **API** | invite, list, accept, reject endpoints | Review |
-| **Client Service** | InvitationService + Signal | Review |
-| **UI** | InvitationList + accept/reject buttons | Badge/count in NavBar |
-| **Validation** | Server: user exists, not already member | Client: confirm dialog |
+| משימה | תמר (Primary) | שושי (Secondary) | סטטוס |
+|---|---|---|---|
+| **DB** | Invitation model + status enum | Review | ✅ |
+| **API** | invite, list, accept, reject endpoints | Review | ✅ |
+| **Client Service** | InvitationStore + Signal | Review | ✅ |
+| **UI** | InvitationList + accept/reject buttons | Badge/count in NavBar | ✅ |
+| **Validation** | Server: user exists, not already member | Client: confirm dialog | ✅ |
 
 **תוצר:** הזמנה לקבוצה, צפייה בהזמנות, קבלה/דחייה.
 
+**PR:** [#9 — feat: Slice 3 Invitations](https://github.com/ShoshiS/group-chat-app/pull/9) · **✅ merged ל-`main`** (20.6.2026 · `456c349`)
+
+**Tests:** server 88/88 · client 20/20
+
 ---
 
-### Slice 4 — Messages + Media + Real-time
+### Slice 4 — Messages + Media + Real-time — ✅ **שושי Primary · תמר Secondary**
 
-| משימה | שושי (Primary) | תמר (Secondary) |
-|---|---|---|
-| **DB** | Message model + attachments schema | Review + toJSON transform |
-| **API** | Message CRUD + Multer (image/audio/pdf) | Review |
-| **Socket.io** | Server: socket setup, room events | Client: socket service + listeners |
-| **Client Service** | MessageService + real-time Signal updates | Review |
-| **UI** | ChatRoom, MessageList, MessageForm, file preview | MessageItem (edit/delete own) |
-| **Validation** | Server: file type/size limits | Client: file picker validation |
-| **Middleware** | `createRateLimiter` (middleware creator) | Review |
+| משימה | שושי (Primary) | תמר (Secondary) | סטטוס |
+|---|---|---|---|
+| **DB** | Message model + attachments schema | Review + toJSON transform | ✅ |
+| **API** | Message CRUD + Multer (image/audio/pdf) | Review | ✅ |
+| **Socket.io** | Server: socket setup, room events | Client: socket service + listeners | ✅ |
+| **Client Service** | MessageService + real-time Signal updates | Review | ✅ |
+| **UI** | ChatRoom, MessageList, MessageForm, file preview | MessageItem (edit/delete own) | ✅ |
+| **Validation** | Server: file type/size limits | Client: file picker validation | ✅ |
+| **Middleware** | `createRateLimiter` (middleware creator) | Review | ✅ |
 
 **תוצר:** צ'אט בזמן אמת, שליחת טקסט + קבצים, עריכה/מחיקה.
 
----
+**PRs:** [PR #5](https://github.com/ShoshiS/group-chat-app/pull/5) (server realtime) · [PR #8](https://github.com/ShoshiS/group-chat-app/pull/8) (client chat) · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (fix `messageDeleted` payload)
 
-### Slice 5 — Admin Actions + Profile
-
-| משימה | תמר (Primary) | שושי (Secondary) |
-|---|---|---|
-| **API** | DELETE member from group (admin) | Review |
-| **UI** | Member management panel in group | ProfileComponent + avatar upload |
-| **Media** | Avatar upload flow (user) | Group avatar upload |
+**Tests:** client 20/20 · אימות ידני: newMessage + messageUpdated + messageDeleted בין שני clients
 
 ---
 
-### Slice 6 — גימור משותף (שבוע אחרון)
+### Slice 5 — Admin Actions + Profile — ✅ **תמר Primary · שושי Secondary**
+
+| משימה | תמר (Primary) | שושי (Secondary) | סטטוס |
+|---|---|---|---|
+| **API** | DELETE member from group (admin) | Review | ✅ |
+| **UI** | Member management panel in group | ProfileComponent + avatar upload | ✅ |
+| **Media** | Avatar upload flow (user) | Group avatar upload | ✅ user · ⏳ group |
+
+**תוצר:** admin מסיר חבר · משתמש מעלה avatar ב-`/profile` · URL ב-Cloudinary + MongoDB.
+
+**PR:** [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) (avatar upload + profile fix)
+
+---
+
+### ▶ **[שלב נוכחי]** Slice 6 — גימור משותף (שבוע אחרון)
 
 **שתיהן — חובה:**
 
@@ -380,9 +392,9 @@ gantt
 |---|---|---|
 | 1 | Setup + Auth | תמר — **✅ הושלם + merged** · [PR #6](https://github.com/ShoshiS/group-chat-app/pull/6) |
 | 2 | Groups CRUD | שושי (Primary) · תמר: NavBar + Review |
-| 3 | Invitations | תמר |
+| 3 | Invitations | תמר — **✅ merged** · [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) |
 | 4–5 | Messages + Socket.io + Media | שושי |
-| 5 | Admin + Profile | תמר |
+| 5 | Admin + Profile | תמר — **✅ הושלם** · [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) |
 | 6 | Docs, Responsive, Demo, Deploy (Render — בונוס) | שתיהן |
 
 **דדליין הגשה:** י"א כסלו תשפ"ו (לפי מסמך הדרישות)

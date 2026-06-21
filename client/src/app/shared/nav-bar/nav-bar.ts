@@ -1,28 +1,35 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { Auth } from '../../core/services/auth';
-import { AgentChat } from '../../features/agent/agent-chat';
+import { InvitationStore } from '../../core/services/invitation';
 
 @Component({
   selector: 'app-nav-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule, AgentChat],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    MatToolbarModule,
+    MatButtonModule,
+    MatBadgeModule,
+  ],
   templateUrl: './nav-bar.html',
   styleUrl: './nav-bar.scss',
 })
 export class NavBar {
   protected readonly auth = inject(Auth);
-  protected readonly agentOpen = signal(false);
+  protected readonly invitations = inject(InvitationStore);
 
-  protected toggleAgent(): void {
-    this.agentOpen.update((open) => !open);
-  }
-
-  protected closeAgent(): void {
-    this.agentOpen.set(false);
+  constructor() {
+    effect(() => {
+      if (this.auth.isLoggedIn()) {
+        void this.invitations.load();
+      }
+    });
   }
 
   protected logout(): void {

@@ -12,19 +12,8 @@
       Invitations
     </a>
     <a mat-button routerLink="/profile" routerLinkActive="nav-bar__link--active">Profile</a>
-    <button mat-button type="button" (click)="toggleAgent()">AI Assistant</button>
     <button mat-button type="button" (click)="logout()">Logout</button>
   </mat-toolbar>
-
-  @if (agentOpen()) {
-    <aside class="nav-bar__agent-panel" aria-label="AI assistant panel">
-      <div class="nav-bar__agent-toolbar">
-        <span>AI Assistant — temporary access</span>
-        <button mat-button type="button" (click)="closeAgent()">Close</button>
-      </div>
-      <app-agent-chat />
-    </aside>
-  }
 } @else {
   <mat-toolbar class="nav-bar nav-bar--guest">
     <span class="nav-bar__brand">Group Chat</span>

@@ -46,6 +46,19 @@ export class Auth {
     this.applyAuthResponse(response);
   }
 
+  async getPublicConfig(): Promise<{ googleClientId: string }> {
+    return firstValueFrom(
+      this.http.get<{ googleClientId: string }>(`${environment.apiUrl}/auth/config`),
+    );
+  }
+
+  async loginWithGoogle(credential: string): Promise<void> {
+    const response = await firstValueFrom(
+      this.http.post<AuthResponse>(`${environment.apiUrl}/auth/google`, { credential }),
+    );
+    this.applyAuthResponse(response);
+  }
+
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     this.currentUser.set(null);
@@ -54,6 +67,20 @@ export class Auth {
 
   getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
+  }
+
+  async updateProfile(payload: { username: string; avatarFile?: File }): Promise<AuthUser> {
+    const body = new FormData();
+    body.append('username', payload.username);
+    if (payload.avatarFile) {
+      body.append('avatar', payload.avatarFile, payload.avatarFile.name);
+    }
+
+    const user = await firstValueFrom(
+      this.http.put<AuthUser>(`${environment.apiUrl}/auth/me`, body),
+    );
+    this.currentUser.set(user);
+    return user;
   }
 
   private async restoreSession(): Promise<void> {

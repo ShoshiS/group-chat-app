@@ -11,12 +11,13 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | שבוע 3 — Slice 3: Invitations (Primary) |
-| **Slice פעיל** | Slice 3 — Invitations |
-| **Branch פעיל** | `feature/nav-bar` → PR · הבא: `feature/invitations` |
-| **משימה עכשיו** | Invitation model + API + InvitationService + UI |
-| **התקדמות Slice 2** | ✅ **100% (תמר)** — NavBar merged pending · K5/M אחרי merge שושי |
-| **עודכן לאחרונה** | 2026-06-18 |
+| **שלב נוכחי** | שבוע 6 — Slice 6: גימור (משותף) |
+| **Slice פעיל** | Slice 6 — Responsive + Docs + Demo |
+| **Branch פעיל** | `feature/client` (merge מ-`main`) |
+| **משימה עכשיו** | Responsive Desktop · `docs/server-analysis.md` |
+| **התקדמות Slice 5** | ✅ **100%** · avatar upload + admin remove member (אימות ידני) |
+| **התקדמות Slice 4** | ✅ **100%** · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (fix messageDeleted) |
+| **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר |
 
 > עדכני שדה זה בכל מעבר שלב — בסוף כל שבוע עבודה לפחות.
@@ -324,52 +325,58 @@ POST   /api/groups/:id/leave
 
 ---
 
-## Slice 4 — Messages + Real-time (שבועות 4–5) — **Secondary**
+## Slice 4 — Messages + Real-time (שבועות 4–5) — **Secondary** ✅
+
+> **סטטוס:** Slice 4 (תמר) הושלם (21.6.2026). Review + SocketService + MessageItem + תיקון real-time delete.
+> שרת + צ'אט client ב-`main` ([PR #5](https://github.com/ShoshiS/group-chat-app/pull/5), [PR #8](https://github.com/ShoshiS/group-chat-app/pull/8)).
+> תיקון `messageDeleted` payload: [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10).
 
 ### Server
 
-- [ ] Review: Message model + attachments schema (שושי)
-- [ ] Review + השלמת `toJSON` transform אם נדרש
+- [x] Review: Message model + attachments schema (שושי)
+- [x] Review + השלמת `toJSON` transform אם נדרש
 
 ### Client — **אחריותך העיקרית ב-Slice זה**
 
-- [ ] **`SocketService`** — חיבור socket.io-client, joinGroup, leaveGroup
-- [ ] Listeners: `newMessage`, `messageUpdated`, `messageDeleted`
-- [ ] **`MessageItemComponent`** — edit/delete הודעות שלך
-- [ ] Review: ChatRoom, MessageList, MessageForm (שושי)
-- [ ] Review: `createRateLimiter` middleware (שושי)
+- [x] **`SocketService`** — חיבור socket.io-client, joinGroup, leaveGroup
+- [x] Listeners: `newMessage`, `messageUpdated`, `messageDeleted`
+- [x] **`MessageItemComponent`** — edit/delete הודעות שלך
+- [x] Review: ChatRoom, MessageList, MessageForm (שושי)
+- [x] Review: `createRateLimiter` middleware (שושי)
 
 ### תוצר
 
-- [ ] הודעות חדשות מופיעות בזמן אמת
-- [ ] עריכה/מחיקה של הודעות עובדות
-- [ ] PR review ל-`feature/chat-realtime`
+- [x] הודעות חדשות מופיעות בזמן אמת
+- [x] עריכה/מחיקה של הודעות עובדות (כולל sync בין clients — PR #10)
+- [x] PR review ל-`feature/chat-realtime` — merged ([PR #5](https://github.com/ShoshiS/group-chat-app/pull/5))
 
 ---
 
-## Slice 5 — Admin + Profile (שבוע 5) — **Primary**
+## Slice 5 — Admin + Profile (שבוע 5) — **Primary** ✅
+
+> **סטטוס:** Slice 5 (תמר) הושלם (21.6.2026). remove member ב-`main` (שושי) · avatar upload ב-PR.
 
 ### Server
 
-- [ ] `DELETE /api/groups/:id/members/:userId` — admin only
-- [ ] `PUT /api/auth/me` + avatar upload (Multer)
-- [ ] Validation: admin cannot remove himself
+- [x] `DELETE /api/groups/:id/members/:userId` — admin only (review · ב-`main`)
+- [x] `PUT /api/auth/me` + avatar upload (Multer + Cloudinary `user-avatars/`)
+- [x] Validation: admin cannot remove himself
 
 ### Client
 
-- [ ] **`MemberManagementPanel`** — רשימת חברים + כפתור Remove (admin only)
-- [ ] Review: ProfileComponent + avatar upload (שושי)
-- [ ] **`AvatarUpload`** flow למשתמש ב-profile
+- [x] **`MemberManagementPanel`** — `GroupMemberList` ב-ChatRoom (admin only Remove)
+- [x] Review: ProfileComponent + avatar upload (שושי)
+- [x] **`AvatarUpload`** flow ב-`/profile` (`Auth.updateProfile` + FormData)
 
 ### תוצר
 
-- [ ] מנהל קבוצה יכולה להסיר חבר
-- [ ] העלאת avatar למשתמש עובדת
-- [ ] PR → Merge
+- [x] מנהל קבוצה יכולה להסיר חבר
+- [x] העלאת avatar למשתמש עובדת (אימות ידני)
+- [x] PR → Merge — [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11)
 
 ---
 
-## Slice 6 — גימור (שבוע 6) — **משותף**
+## ▶ **[שלב נוכחי]** Slice 6 — גימור (שבוע 6) — **משותף**
 
 ### אחריותך
 
@@ -408,10 +415,10 @@ POST   /api/groups/:id/leave
 - [x] Routes מוגנים ב-authGuard
 - [x] הסבר מוכן: errorLogger (`console.error`) + authMiddleware (JWT Bearer)
 - [x] NavBar + protected routes
-- [ ] הזמנות — invite, accept, reject
-- [ ] הסרת חבר מקבוצה (admin)
-- [ ] Avatar upload
-- [ ] Real-time messages (socket client)
-- [ ] עריכה/מחיקת הודעות שלך
+- [x] הזמנות — invite, accept, reject
+- [x] הסרת חבר מקבוצה (admin)
+- [x] Avatar upload
+- [x] Real-time messages (socket client)
+- [x] עריכה/מחיקת הודעות שלך
 
 **דדליין:** י"א כסלו תשפ"ו

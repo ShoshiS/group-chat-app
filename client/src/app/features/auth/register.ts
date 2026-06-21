@@ -7,11 +7,12 @@ import {
 import { Router, RouterLink } from '@angular/router';
 
 import { Auth } from '../../core/services/auth';
+import { GoogleSignIn } from './google-sign-in';
 
 @Component({
   selector: 'app-register',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, GoogleSignIn],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -53,5 +54,9 @@ export class Register {
   protected showError(controlName: 'username' | 'email' | 'password'): boolean {
     const control = this.form.controls[controlName];
     return control.invalid && control.touched;
+  }
+
+  protected onGoogleError(message: string): void {
+    this.serverError.set(message);
   }
 }

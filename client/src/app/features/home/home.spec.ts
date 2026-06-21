@@ -17,6 +17,6 @@ describe('Home', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain('Your groups');
-    expect(compiled.textContent).toContain('AI Assistant in the nav bar');
+    expect(compiled.textContent).toContain('round AI button');
   });
 });
