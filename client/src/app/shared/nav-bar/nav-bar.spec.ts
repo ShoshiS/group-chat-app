@@ -56,23 +56,6 @@ describe('NavBar', () => {
     expect(compiled.textContent).toContain('Invitations');
     expect(compiled.textContent).toContain('Profile');
     expect(compiled.textContent).toContain('Logout');
-  });
-
-  it('opens the agent panel from the nav bar', async () => {
-    const fixture = await setup({
-      isLoggedIn: signal(true),
-      currentUser: signal({ id: '1', username: 'tamar', email: 't@t.com', role: 'user' }),
-      logout: jasmine.createSpy('logout'),
-    });
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const button = Array.from(compiled.querySelectorAll('button')).find((el) =>
-      el.textContent?.includes('AI Assistant'),
-    ) as HTMLButtonElement;
-    button.click();
-    fixture.detectChanges();
-
-    expect(compiled.querySelector('app-agent-chat')).not.toBeNull();
+    expect(compiled.textContent).not.toContain('AI Assistant');
   });
 });

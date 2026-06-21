@@ -1,4 +1,5 @@
 import {
+  googleAuthBodySchema,
   loginBodySchema,
   registerBodySchema,
   updateProfileBodySchema,
@@ -85,6 +86,23 @@ describe('loginBodySchema', () => {
     const { error } = loginBodySchema.validate({
       email: 'tamar@example.com',
     });
+
+    expect(error).toBeDefined();
+  });
+});
+
+describe('googleAuthBodySchema', () => {
+  it('accepts a Google credential token', () => {
+    const { error, value } = googleAuthBodySchema.validate({
+      credential: 'google-id-token',
+    });
+
+    expect(error).toBeUndefined();
+    expect(value).toEqual({ credential: 'google-id-token' });
+  });
+
+  it('rejects missing credential', () => {
+    const { error } = googleAuthBodySchema.validate({});
 
     expect(error).toBeDefined();
   });

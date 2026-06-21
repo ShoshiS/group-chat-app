@@ -46,6 +46,19 @@ export class Auth {
     this.applyAuthResponse(response);
   }
 
+  async getPublicConfig(): Promise<{ googleClientId: string }> {
+    return firstValueFrom(
+      this.http.get<{ googleClientId: string }>(`${environment.apiUrl}/auth/config`),
+    );
+  }
+
+  async loginWithGoogle(credential: string): Promise<void> {
+    const response = await firstValueFrom(
+      this.http.post<AuthResponse>(`${environment.apiUrl}/auth/google`, { credential }),
+    );
+    this.applyAuthResponse(response);
+  }
+
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     this.currentUser.set(null);
