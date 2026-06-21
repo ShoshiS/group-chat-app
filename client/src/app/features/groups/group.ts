@@ -69,4 +69,18 @@ export class GroupStore {
   getById(id: string): Group | undefined {
     return this._groups().find((g) => g.id === id);
   }
+
+  /** Returns a cached group or fetches it from the API (e.g. after a direct URL refresh). */
+  async fetchById(id: string): Promise<Group> {
+    const cached = this.getById(id);
+    if (cached) return cached;
+
+    const group = await firstValueFrom(
+      this.http.get<Group>(`${environment.apiUrl}/groups/${id}`),
+    );
+    this._groups.update((gs) =>
+      gs.some((g) => g.id === id) ? gs.map((g) => (g.id === id ? group : g)) : [...gs, group],
+    );
+    return group;
+  }
 }

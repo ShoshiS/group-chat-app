@@ -13,5 +13,3 @@ export interface AgentTurn {
   reply: string;
   actions: AgentAction[];
 }
-
-export const HEBREW_CHAR = /[\u0590-\u05FF]/;

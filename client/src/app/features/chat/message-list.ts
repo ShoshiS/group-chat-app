@@ -1,9 +1,11 @@
 import {
-  AfterViewChecked,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  effect,
   inject,
+  Injector,
   input,
   viewChild,
 } from '@angular/core';
@@ -19,19 +21,21 @@ import { MessageItem } from './message-item';
   templateUrl: './message-list.html',
   styleUrl: './message-list.scss',
 })
-export class MessageList implements AfterViewChecked {
+export class MessageList {
   protected readonly store = inject(MessageStore);
+  private readonly injector = inject(Injector);
   readonly groupId = input.required<string>();
 
   private readonly listRef = viewChild<ElementRef<HTMLElement>>('messageList');
   private prevLength = 0;
 
-  ngAfterViewChecked(): void {
-    const msgs = this.store.messages();
-    if (msgs.length !== this.prevLength) {
-      this.scrollToBottom();
-      this.prevLength = msgs.length;
-    }
+  constructor() {
+    effect(() => {
+      const length = this.store.messages().length;
+      if (length === this.prevLength) return;
+      this.prevLength = length;
+      afterNextRender(() => this.scrollToBottom(), { injector: this.injector });
+    });
   }
 
   protected async updateMessage(event: { id: string; text: string }): Promise<void> {
