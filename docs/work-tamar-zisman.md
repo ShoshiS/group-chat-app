@@ -11,10 +11,11 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | שבוע 5 — Slice 5: Admin + Profile (Primary) |
-| **Slice פעיל** | Slice 5 — Admin + Profile |
-| **Branch פעיל** | `main` מעודכן · הבא: `feature/admin-profile` |
-| **משימה עכשיו** | Avatar upload · MemberManagementPanel |
+| **שלב נוכחי** | שבוע 6 — Slice 6: גימור (משותף) |
+| **Slice פעיל** | Slice 6 — Responsive + Docs + Demo |
+| **Branch פעיל** | `feature/admin-profile` · PR pending merge |
+| **משימה עכשיו** | Responsive Desktop · `docs/server-analysis.md` |
+| **התקדמות Slice 5** | ✅ **100%** · avatar upload + admin remove member (אימות ידני) |
 | **התקדמות Slice 4** | ✅ **100%** · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (fix messageDeleted) |
 | **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר |
@@ -377,29 +378,31 @@ DELETE /api/groups/:id/members/:userId  # admin only
 
 ---
 
-## ▶ **[שלב נוכחי]** Slice 5 — Admin + Profile (שבוע 5) — **Primary**
+## Slice 5 — Admin + Profile (שבוע 5) — **Primary** ✅
+
+> **סטטוס:** Slice 5 (תמר) הושלם (21.6.2026). remove member ב-`main` (שושי) · avatar upload ב-PR.
 
 ### Server
 
-- [ ] `DELETE /api/groups/:id/members/:userId` — admin only
-- [ ] `PUT /api/auth/me` + avatar upload (Multer)
-- [ ] Validation: admin cannot remove himself
+- [x] `DELETE /api/groups/:id/members/:userId` — admin only (review · ב-`main`)
+- [x] `PUT /api/auth/me` + avatar upload (Multer + Cloudinary `user-avatars/`)
+- [x] Validation: admin cannot remove himself
 
 ### Client
 
-- [ ] **`MemberManagementPanel`** — רשימת חברים + כפתור Remove (admin only)
-- [ ] Review: ProfileComponent + avatar upload (שושי)
-- [ ] **`AvatarUpload`** flow למשתמש ב-profile
+- [x] **`MemberManagementPanel`** — `GroupMemberList` ב-ChatRoom (admin only Remove)
+- [x] Review: ProfileComponent + avatar upload (שושי)
+- [x] **`AvatarUpload`** flow ב-`/profile` (`Auth.updateProfile` + FormData)
 
 ### תוצר
 
-- [ ] מנהל קבוצה יכולה להסיר חבר
-- [ ] העלאת avatar למשתמש עובדת
+- [x] מנהל קבוצה יכולה להסיר חבר
+- [x] העלאת avatar למשתמש עובדת (אימות ידני)
 - [ ] PR → Merge
 
 ---
 
-## Slice 6 — גימור (שבוע 6) — **משותף**
+## ▶ **[שלב נוכחי]** Slice 6 — גימור (שבוע 6) — **משותף**
 
 ### אחריותך
 
@@ -439,8 +442,8 @@ DELETE /api/groups/:id/members/:userId  # admin only
 - [x] הסבר מוכן: errorLogger (`console.error`) + authMiddleware (JWT Bearer)
 - [x] NavBar + protected routes
 - [x] הזמנות — invite, accept, reject
-- [ ] הסרת חבר מקבוצה (admin)
-- [ ] Avatar upload
+- [x] הסרת חבר מקבוצה (admin)
+- [x] Avatar upload
 - [x] Real-time messages (socket client)
 - [x] עריכה/מחיקת הודעות שלך
 
