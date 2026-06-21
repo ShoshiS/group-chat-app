@@ -1,10 +1,10 @@
 import { Router } from 'express';
 
 import { handleAgentChat } from '../controllers/agent-controller';
+import { authMiddleware } from '../middleware/auth-middleware';
 
 const router = Router();
 
-// TODO: protect with authMiddleware once the Auth slice exists.
-router.post('/chat', handleAgentChat);
+router.post('/chat', authMiddleware, handleAgentChat);
 
 export default router;

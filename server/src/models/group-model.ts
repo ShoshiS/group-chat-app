@@ -7,6 +7,8 @@ export interface IGroup {
   adminId: Types.ObjectId;
   members: Types.ObjectId[];
   avatar?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface GroupModel extends Model<IGroup> {
