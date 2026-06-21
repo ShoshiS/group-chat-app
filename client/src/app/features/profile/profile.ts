@@ -47,7 +47,7 @@ export class Profile implements OnInit {
   protected readonly form = new FormGroup({
     username: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(3), Validators.maxLength(30)],
+      validators: [Validators.required, Validators.minLength(2), Validators.maxLength(30)],
     }),
   });
 
@@ -72,14 +72,12 @@ export class Profile implements OnInit {
     }
 
     if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
-      this.snackBar.open('Avatar must be a JPEG, PNG, GIF, or WebP image', 'OK', {
-        duration: 4000,
-      });
+      this.snackBar.open('Use a JPEG, PNG, GIF, or WebP image', 'OK', { duration: 3000 });
       return;
     }
 
     if (file.size > MAX_AVATAR_SIZE) {
-      this.snackBar.open('Avatar must be 10 MB or smaller', 'OK', { duration: 4000 });
+      this.snackBar.open('Image must be 10 MB or smaller', 'OK', { duration: 3000 });
       return;
     }
 
@@ -87,12 +85,6 @@ export class Profile implements OnInit {
     this.pendingAvatar = file;
     this.previewObjectUrl = URL.createObjectURL(file);
     this.avatarPreview.set(this.previewObjectUrl);
-  }
-
-  protected clearPendingAvatar(): void {
-    this.clearPreview();
-    this.pendingAvatar = null;
-    this.avatarPreview.set(null);
   }
 
   protected async save(): Promise<void> {
