@@ -14,9 +14,10 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | Slice 4 — Messages + Real-time (Primary) |
-| **Branch פעיל** | `main` מעודכן · `feature/chat-realtime` |
-| **משימה עכשיו** | Messages CRUD + Socket.io + Media · יום 8 — Responsive + Docs |
+| **שלב נוכחי** | Slice 5 — Admin + Profile (תמר Primary) · יום 8 — גימור |
+| **Branch פעיל** | `main` מעודכן · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (Slice 4 fix) |
+| **משימה עכשיו** | יום 8 — Responsive + Docs + Demo |
+| **התקדמות Slice 4** | ✅ **100%** — Messages + Socket + Chat client |
 | **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר (סנכרון) |
 
@@ -199,8 +200,8 @@ Socket.io bootstrap · `group-model.ts` ✓ · `message-model.ts` ✓.
 - [x] Groups CRUD + GroupForm (add/edit) + יציאה
 - [x] צ'אט real-time + שליחת קבצים
 - [x] Profile + group avatar URL (upload מלא — יום 8)
-- [ ] isGroupAdmin + createRateLimiter — הסבר
-- [ ] Socket.io server events
+- [x] isGroupAdmin + createRateLimiter — הסבר
+- [x] Socket.io server events
 
 ---
 
