@@ -15,7 +15,7 @@
 | | |
 |---|---|
 | **שלב נוכחי** | Slice 6 — גימור (Responsive + Docs + Demo) |
-| **Branch פעיל** | `feature/admin-profile` · PR pending (תמר · avatar upload) |
+| **Branch פעיל** | `feature/admin-profile` · [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) |
 | **משימה עכשיו** | יום 8 — Responsive + Docs + Demo |
 | **התקדמות Slice 5** | ✅ **100%** — remove member + avatar upload (תמר) |
 | **עודכן לאחרונה** | 2026-06-21 |

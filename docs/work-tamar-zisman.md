@@ -13,7 +13,7 @@
 |---|---|
 | **שלב נוכחי** | שבוע 6 — Slice 6: גימור (משותף) |
 | **Slice פעיל** | Slice 6 — Responsive + Docs + Demo |
-| **Branch פעיל** | `feature/admin-profile` · PR pending merge |
+| **Branch פעיל** | `feature/admin-profile` · [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) |
 | **משימה עכשיו** | Responsive Desktop · `docs/server-analysis.md` |
 | **התקדמות Slice 5** | ✅ **100%** · avatar upload + admin remove member (אימות ידני) |
 | **התקדמות Slice 4** | ✅ **100%** · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (fix messageDeleted) |
@@ -398,7 +398,7 @@ DELETE /api/groups/:id/members/:userId  # admin only
 
 - [x] מנהל קבוצה יכולה להסיר חבר
 - [x] העלאת avatar למשתמש עובדת (אימות ידני)
-- [ ] PR → Merge
+- [x] PR → Merge — [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11)
 
 ---
 
