@@ -1,0 +1,18 @@
+.group-member-list {
+  &__status {
+    margin: 0;
+    padding: 12px 16px;
+    color: #94a3b8;
+  }
+
+  mat-list-item {
+    height: auto;
+    min-height: 48px;
+  }
+
+  &__badge {
+    margin-left: 8px;
+    font-size: 0.75rem;
+    color: #93c5fd;
+  }
+}

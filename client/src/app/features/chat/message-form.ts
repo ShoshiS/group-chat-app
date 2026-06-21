@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,8 +30,14 @@ export class MessageForm {
   private readonly snackBar = inject(MatSnackBar);
 
   protected readonly textControl = new FormControl('', { nonNullable: true });
+  private readonly draftText = toSignal(this.textControl.valueChanges, { initialValue: '' });
   protected readonly pendingFiles = signal<File[]>([]);
   protected readonly sending = signal(false);
+  protected readonly canSend = computed(
+    () =>
+      !this.sending() &&
+      (this.draftText().trim().length > 0 || this.pendingFiles().length > 0),
+  );
 
   protected get previews(): { url: string; name: string; type: string }[] {
     return this.pendingFiles().map((f) => ({
@@ -59,6 +66,8 @@ export class MessageForm {
   }
 
   protected async send(): Promise<void> {
+    if (this.sending()) return;
+
     const text = this.textControl.value.trim();
     const files = this.pendingFiles();
     if (!text && !files.length) return;

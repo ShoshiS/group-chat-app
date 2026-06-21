@@ -18,6 +18,39 @@
     font-size: 1.1rem;
   }
 
+  &__spacer {
+    flex: 1;
+  }
+
+  &__invite {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+
+    mat-form-field {
+      flex: 1;
+      margin: 0;
+    }
+  }
+
+  &__panel {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+  }
+
+  &__panel-title {
+    margin: 0;
+    padding: 12px 16px 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
   &__messages {
     flex: 1;
     overflow-y: auto;

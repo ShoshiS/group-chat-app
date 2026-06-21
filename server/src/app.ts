@@ -7,6 +7,7 @@ import { errorHandler } from './middleware/error-middleware.js';
 import agentRouter from './routes/agent.js';
 import authRoutes from './routes/auth-routes.js';
 import groupRoutes from './routes/group-routes.js';
+import invitationRoutes from './routes/invitation-routes.js';
 import { groupMessageRouter, messageRouter } from './routes/message-routes.js';
 
 /**
@@ -33,6 +34,7 @@ export function createApp(): Express {
   });
 
   app.use('/api/groups', groupRoutes);
+  app.use('/api/invitations', invitationRoutes);
   app.use('/api/groups/:id/messages', groupMessageRouter);
   app.use('/api/messages', messageRouter);
 

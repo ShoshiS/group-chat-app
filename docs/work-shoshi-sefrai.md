@@ -14,11 +14,11 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | יום 8 — גימור: Responsive mobile + Docs + Demo + PR סופי |
-| **Branch פעיל** | `feature/client` |
-| **משימה עכשיו** | יום 8 — Responsive mobile + Docs + Demo |
-| **עודכן לאחרונה** | 2026-06-18 |
-| **עודכן על ידי** | שושי |
+| **שלב נוכחי** | Slice 4 — Messages + Real-time (Primary) |
+| **Branch פעיל** | `main` מעודכן · `feature/chat-realtime` |
+| **משימה עכשיו** | Messages CRUD + Socket.io + Media · יום 8 — Responsive + Docs |
+| **עודכן לאחרונה** | 2026-06-21 |
+| **עודכן על ידי** | תמר (סנכרון) |
 
 > עדכני את הטבלה + סמני ✓ בכל סוף יום.
 

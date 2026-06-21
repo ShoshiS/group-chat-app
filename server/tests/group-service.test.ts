@@ -1,8 +1,8 @@
 import { jest } from '@jest/globals';
+import { Types } from 'mongoose';
 
 const groupCreateMock = jest.fn();
-const groupFindByNameMock = jest.fn();
-const invitationCreateMock = jest.fn();
+const createInvitationByGroupNameMock = jest.fn();
 
 const leanMock = jest.fn();
 const sortMock = jest.fn(() => ({ lean: leanMock }));
@@ -12,23 +12,31 @@ await jest.unstable_mockModule('mongoose', () => ({
   default: {
     connection: { readyState: 1 },
   },
+  Types,
 }));
 
 await jest.unstable_mockModule('../src/models/group-model.js', () => ({
   Group: {
     create: groupCreateMock,
     find: findChainMock,
-    findByName: groupFindByNameMock,
   },
 }));
 
-await jest.unstable_mockModule('../src/models/invitation-model.js', () => ({
-  Invitation: {
-    create: invitationCreateMock,
+await jest.unstable_mockModule('../src/services/invitation-service.js', () => ({
+  InvitationError: class InvitationError extends Error {
+    constructor(
+      message: string,
+      readonly statusCode: number,
+    ) {
+      super(message);
+    }
   },
+  createInvitationByGroupName: createInvitationByGroupNameMock,
 }));
 
 const { createGroup, inviteMember, listGroups } = await import('../src/services/group-service.js');
+
+const testUserId = new Types.ObjectId('507f1f77bcf86cd799439011');
 
 describe('group-service', () => {
   beforeEach(() => {
@@ -80,24 +88,24 @@ describe('group-service', () => {
   });
 
   it('creates an invitation when the group exists', async () => {
-    groupFindByNameMock.mockResolvedValue({
-      _id: { toString: () => 'group-1' },
-      name: 'Alpha',
-    });
-    invitationCreateMock.mockResolvedValue({
+    createInvitationByGroupNameMock.mockResolvedValue({
       _id: { toString: () => 'invite-1' },
+      groupId: { toString: () => 'group-1' },
+      groupName: 'Alpha',
+      invitee: 'dana@example.com',
       status: 'pending',
     });
 
-    const result = await inviteMember({ groupName: 'Alpha', invitee: 'dana@example.com' });
-
-    expect(invitationCreateMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        groupName: 'Alpha',
-        invitee: 'dana@example.com',
-        status: 'pending',
-      }),
+    const result = await inviteMember(
+      { groupName: 'Alpha', invitee: 'dana@example.com' },
+      testUserId,
     );
+
+    expect(createInvitationByGroupNameMock).toHaveBeenCalledWith({
+      groupName: 'Alpha',
+      inviteeInput: 'dana@example.com',
+      invitedById: testUserId,
+    });
     expect(result).toEqual({
       invitationId: 'invite-1',
       groupId: 'group-1',
@@ -109,15 +117,20 @@ describe('group-service', () => {
   });
 
   it('returns a not-found payload when inviting to a missing group', async () => {
-    groupFindByNameMock.mockResolvedValue(null);
+    const { InvitationError } = await import('../src/services/invitation-service.js');
+    createInvitationByGroupNameMock.mockRejectedValue(
+      new InvitationError('Group "Missing" was not found', 404),
+    );
 
-    const result = await inviteMember({ groupName: 'Missing', invitee: 'dana@example.com' });
+    const result = await inviteMember(
+      { groupName: 'Missing', invitee: 'dana@example.com' },
+      testUserId,
+    );
 
     expect(result).toEqual({
       error: 'Group "Missing" was not found',
       invited: false,
     });
-    expect(invitationCreateMock).not.toHaveBeenCalled();
   });
 
   it('requires a non-empty group name', async () => {

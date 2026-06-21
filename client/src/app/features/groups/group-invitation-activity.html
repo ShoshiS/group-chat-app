@@ -1,0 +1,39 @@
+<section class="group-invitation-activity">
+  @if (loading()) {
+    <p class="group-invitation-activity__status">Loading activity…</p>
+  } @else {
+    @if (pendingActivities().length > 0) {
+      <div class="group-invitation-activity__block">
+        <h3 class="group-invitation-activity__title">Pending invitations</h3>
+        <ul class="group-invitation-activity__list">
+          @for (activity of pendingActivities(); track activity.id) {
+            <li class="group-invitation-activity__item group-invitation-activity__item--pending">
+              <mat-icon aria-hidden="true">{{ icon(activity) }}</mat-icon>
+              <span>{{ label(activity) }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <div class="group-invitation-activity__block">
+      <h3 class="group-invitation-activity__title">Recent activity</h3>
+      @if (recentActivities().length === 0) {
+        <p class="group-invitation-activity__status">No join or decline activity yet.</p>
+      } @else {
+        <ul class="group-invitation-activity__list">
+          @for (activity of recentActivities(); track activity.id) {
+            <li
+              class="group-invitation-activity__item"
+              [class.group-invitation-activity__item--accepted]="activity.status === 'accepted'"
+              [class.group-invitation-activity__item--rejected]="activity.status === 'rejected'"
+            >
+              <mat-icon aria-hidden="true">{{ icon(activity) }}</mat-icon>
+              <span>{{ label(activity) }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</section>

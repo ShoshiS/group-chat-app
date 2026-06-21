@@ -50,7 +50,14 @@
       @for (att of message().attachments!; track att.url) {
         @switch (att.type) {
           @case ('image') {
-            <img class="message-item__image" [src]="att.url" [alt]="att.originalName" />
+            <button
+              type="button"
+              class="message-item__image-btn"
+              [attr.aria-label]="'View ' + att.originalName"
+              (click)="openImagePreview(att)"
+            >
+              <img class="message-item__image" [src]="att.url" [alt]="att.originalName" />
+            </button>
           }
           @case ('audio') {
             <audio controls [src]="att.url" class="message-item__audio">
@@ -58,7 +65,13 @@
             </audio>
           }
           @case ('pdf') {
-            <a [href]="att.url" target="_blank" rel="noopener" class="message-item__pdf">
+            <a
+              [href]="att.url"
+              target="_blank"
+              rel="noopener"
+              class="message-item__pdf"
+              (click)="onPdfClick(att, $event)"
+            >
               <mat-icon>picture_as_pdf</mat-icon>
               {{ att.originalName }}
             </a>
@@ -66,5 +79,13 @@
         }
       }
     </div>
+  }
+
+  @if (previewImage(); as image) {
+    <app-image-preview
+      [url]="image.url"
+      [filename]="image.originalName"
+      (closed)="closeImagePreview()"
+    />
   }
 </article>

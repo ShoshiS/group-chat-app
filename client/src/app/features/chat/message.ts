@@ -57,7 +57,7 @@ export class MessageStore {
     const msg = await firstValueFrom(
       this.http.post<Message>(`${environment.apiUrl}/groups/${groupId}/messages`, body),
     );
-    this._messages.update((ms) => [...ms, msg]);
+    this.addRealtime(msg);
   }
 
   async update(messageId: string, text: string): Promise<void> {
@@ -74,10 +74,19 @@ export class MessageStore {
 
   /** Called by SocketService event — message already persisted, just reflect it. */
   addRealtime(message: Message): void {
+    const normalized = this.normalizeMessage(message);
     this._messages.update((ms) => {
-      if (ms.some((m) => m.id === message.id)) return ms;
-      return [...ms, message];
+      if (ms.some((m) => m.id === normalized.id)) return ms;
+      return [...ms, normalized];
     });
+  }
+
+  /** Ensures a consistent `id` whether the payload came from HTTP or Socket.io. */
+  private normalizeMessage(message: Message): Message {
+    const raw = message as Message & { _id?: string };
+    if (raw.id) return message;
+    if (raw._id) return { ...message, id: raw._id };
+    return message;
   }
 
   updateRealtime(message: Message): void {

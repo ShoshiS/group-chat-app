@@ -62,6 +62,28 @@ export function filesToAttachments(files: Express.Multer.File[]): IAttachment[] 
       type = 'pdf';
     }
     // multer-storage-cloudinary stores the Cloudinary secure_url in file.path
+  // #region agent log
+  if (type === 'pdf') {
+    fetch('http://127.0.0.1:7436/ingest/d8a133c7-0636-453c-a4ac-ce2726dc7d38', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '947029' },
+      body: JSON.stringify({
+        sessionId: '947029',
+        location: 'upload-middleware.ts:filesToAttachments',
+        message: 'PDF uploaded to Cloudinary',
+        data: {
+          mimetype: file.mimetype,
+          path: file.path,
+          filename: file.filename,
+          originalname: file.originalname,
+          size: file.size,
+        },
+        timestamp: Date.now(),
+        hypothesisId: 'A',
+      }),
+    }).catch(() => {});
+  }
+  // #endregion
     return { type, url: file.path, originalName: file.originalname };
   });
 }
@@ -74,8 +96,9 @@ export function mergeFileAttachments(req: Request, _res: Response, next: NextFun
   const files = req.files;
   if (Array.isArray(files) && files.length > 0) {
     const fromFiles = filesToAttachments(files);
-    const existing: IAttachment[] = Array.isArray(req.body?.attachments) ? req.body.attachments : [];
-    req.body = { ...req.body, attachments: [...existing, ...fromFiles] };
+    const body = req.body && typeof req.body === 'object' ? req.body : {};
+    const existing: IAttachment[] = Array.isArray(body.attachments) ? body.attachments : [];
+    req.body = { ...body, attachments: [...existing, ...fromFiles] };
   }
   next();
 }

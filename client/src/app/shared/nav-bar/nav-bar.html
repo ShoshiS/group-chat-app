@@ -8,7 +8,14 @@
     }
 
     <a mat-button routerLink="/groups" routerLinkActive="nav-bar__link--active">Groups</a>
-    <a mat-button routerLink="/invitations" routerLinkActive="nav-bar__link--active">
+    <a
+      mat-button
+      routerLink="/invitations"
+      routerLinkActive="nav-bar__link--active"
+      [matBadge]="invitations.pendingCount() || null"
+      matBadgeColor="accent"
+      [matBadgeHidden]="invitations.pendingCount() === 0"
+    >
       Invitations
     </a>
     <a mat-button routerLink="/profile" routerLinkActive="nav-bar__link--active">Profile</a>
