@@ -277,7 +277,7 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ---
 
-### Slice 3 — Invitations (הזמנות) — ✅ **תמר · merged**
+### Slice 3 — Invitations (הזמנות) — ✅ **תמר Primary · שושי Secondary**
 
 | משימה | תמר (Primary) | שושי (Secondary) | סטטוס |
 |---|---|---|---|

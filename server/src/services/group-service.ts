@@ -1,10 +1,7 @@
 import mongoose, { Types } from 'mongoose';
 
 import { Group } from '../models/group-model';
-import {
-  InvitationError,
-  createInvitationByGroupName,
-} from './invitation-service';
+import { Invitation } from '../models/invitation-model';
 
 export interface ToolResult {
   [key: string]: unknown;
@@ -66,36 +63,32 @@ export async function listGroups(userId: Types.ObjectId): Promise<ToolResult> {
   };
 }
 
-export async function inviteMember(
-  args: Record<string, unknown>,
-  invitedById: Types.ObjectId,
-): Promise<ToolResult> {
+export async function inviteMember(args: Record<string, unknown>): Promise<ToolResult> {
   assertDbConnected();
 
   const groupName = asString(args.groupName, 'groupName');
   const invitee = asString(args.invitee, 'invitee');
 
-  try {
-    const invitation = await createInvitationByGroupName({
-      groupName,
-      inviteeInput: invitee,
-      invitedById,
-    });
-
-    return {
-      invitationId: invitation._id.toString(),
-      groupId: invitation.groupId.toString(),
-      groupName: invitation.groupName,
-      invitee: invitation.invitee,
-      status: invitation.status,
-      invited: true,
-    };
-  } catch (err) {
-    if (err instanceof InvitationError) {
-      return { error: err.message, invited: false };
-    }
-    throw err;
+  const group = await Group.findOne({ name: groupName });
+  if (!group) {
+    return { error: `Group "${groupName}" was not found`, invited: false };
   }
+
+  const invitation = await Invitation.create({
+    groupId: group._id,
+    groupName: group.name,
+    invitee,
+    status: 'pending',
+  });
+
+  return {
+    invitationId: invitation._id.toString(),
+    groupId: group._id.toString(),
+    groupName: group.name,
+    invitee,
+    status: invitation.status,
+    invited: true,
+  };
 }
 
 export async function getAllGroupsForApi(): Promise<ToolResult[]> {

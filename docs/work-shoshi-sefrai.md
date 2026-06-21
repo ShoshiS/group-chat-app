@@ -14,12 +14,12 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | Slice 6 — גימור (Responsive + Docs + Demo) |
-| **Branch פעיל** | `feature/admin-profile` · [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) |
-| **משימה עכשיו** | יום 8 — Responsive + Docs + Demo |
+| **שלב נוכחי** | Slice 6 — גימור (Responsive mobile + Docs + Demo) |
+| **Branch פעיל** | `feature/client` |
+| **משימה עכשיו** | יום 8 — Responsive mobile + Docs + Demo |
 | **התקדמות Slice 5** | ✅ **100%** — remove member + avatar upload (תמר) |
 | **עודכן לאחרונה** | 2026-06-21 |
-| **עודכן על ידי** | תמר (סנכרון) |
+| **עודכן על ידי** | שושי |
 
 > עדכני את הטבלה + סמני ✓ בכל סוף יום.
 

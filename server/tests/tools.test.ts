@@ -13,7 +13,7 @@ await jest.unstable_mockModule('../src/services/group-service.js', () => ({
 
 const { executeTool } = await import('../src/services/agent/tools.js');
 
-const context = { userId: new Types.ObjectId('507f1f77bcf86cd799439011') };
+const testContext = { userId: new Types.ObjectId('507f1f77bcf86cd799439011') };
 
 describe('executeTool', () => {
   beforeEach(() => {
@@ -21,25 +21,28 @@ describe('executeTool', () => {
   });
 
   it('returns an error for unknown tools', async () => {
-    const result = await executeTool('unknown_tool', {}, context);
+    const result = await executeTool('unknown_tool', {}, testContext);
     expect(result).toEqual({ error: 'Unknown tool: unknown_tool' });
   });
 
-  it('delegates to create_group', async () => {
+  it('delegates to create_group with adminId from context', async () => {
     createGroupMock.mockResolvedValue({ created: true, groupId: '1', name: 'Alpha' });
 
-    const result = await executeTool('create_group', { name: 'Alpha' }, context);
+    const result = await executeTool('create_group', { name: 'Alpha' }, testContext);
 
-    expect(createGroupMock).toHaveBeenCalledWith({ name: 'Alpha', adminId: context.userId });
+    expect(createGroupMock).toHaveBeenCalledWith({
+      name: 'Alpha',
+      adminId: testContext.userId,
+    });
     expect(result).toEqual({ created: true, groupId: '1', name: 'Alpha' });
   });
 
-  it('delegates to list_groups', async () => {
+  it('delegates to list_groups with userId from context', async () => {
     listGroupsMock.mockResolvedValue({ groups: [{ name: 'Alpha' }] });
 
-    const result = await executeTool('list_groups', {}, context);
+    const result = await executeTool('list_groups', {}, testContext);
 
-    expect(listGroupsMock).toHaveBeenCalledWith(context.userId);
+    expect(listGroupsMock).toHaveBeenCalledWith(testContext.userId);
     expect(result).toEqual({ groups: [{ name: 'Alpha' }] });
   });
 
@@ -52,23 +55,20 @@ describe('executeTool', () => {
         groupName: 'Alpha',
         invitee: 'dana@example.com',
       },
-      context,
+      testContext,
     );
 
-    expect(inviteMemberMock).toHaveBeenCalledWith(
-      {
-        groupName: 'Alpha',
-        invitee: 'dana@example.com',
-      },
-      context.userId,
-    );
+    expect(inviteMemberMock).toHaveBeenCalledWith({
+      groupName: 'Alpha',
+      invitee: 'dana@example.com',
+    });
     expect(result).toEqual({ invited: true, invitee: 'dana@example.com' });
   });
 
   it('returns tool errors instead of throwing', async () => {
     createGroupMock.mockRejectedValue(new Error('Database is not connected'));
 
-    const result = await executeTool('create_group', { name: 'Alpha' }, context);
+    const result = await executeTool('create_group', { name: 'Alpha' }, testContext);
 
     expect(result).toEqual({ error: 'Database is not connected' });
   });

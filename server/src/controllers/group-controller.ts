@@ -1,10 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
-import { Types } from 'mongoose';
 
 import { Group } from '../models/group-model.js';
-import { User } from '../models/user-model.js';
 import { getAllGroupsForApi } from '../services/group-service.js';
-import { createMemberRemovedEvent } from '../services/group-timeline-service.js';
 
 /** Lists all groups — used by the agent to verify group records in MongoDB. */
 export async function listGroups(_req: Request, res: Response): Promise<void> {
@@ -41,31 +38,6 @@ export function getGroupById(req: Request, res: Response): void {
   res.json(req.group);
 }
 
-/** Returns member profiles for a group. Requires isGroupMember middleware. */
-export async function getGroupMembers(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
-  try {
-    const group = req.group!;
-    const users = await User.find({ _id: { $in: group.members } })
-      .select('username email')
-      .sort({ username: 1 });
-
-    res.json(
-      users.map((user) => ({
-        id: user._id.toString(),
-        username: user.username,
-        email: user.email,
-        isAdmin: group.adminId.equals(user._id),
-      })),
-    );
-  } catch (err) {
-    next(err);
-  }
-}
-
 /** Updates group fields. Requires isGroupAdmin middleware on the route. */
 export async function updateGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -91,48 +63,6 @@ export async function deleteGroup(req: Request, res: Response, next: NextFunctio
   try {
     await req.group!.deleteOne();
     res.status(204).send();
-  } catch (err) {
-    next(err);
-  }
-}
-
-/** Removes a member from the group. Requires isGroupAdmin middleware. */
-export async function removeMember(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
-  try {
-    const userId = req.params['userId'];
-    if (typeof userId !== 'string' || !Types.ObjectId.isValid(userId)) {
-      res.status(400).json({ error: 'Invalid user id' });
-      return;
-    }
-
-    const targetId = new Types.ObjectId(userId);
-    const group = req.group!;
-
-    if (group.adminId.equals(targetId)) {
-      res.status(403).json({ error: 'Cannot remove the group admin' });
-      return;
-    }
-
-    const isMember = group.members.some((memberId) => memberId.equals(targetId));
-    if (!isMember) {
-      res.status(404).json({ error: 'User is not a member of this group' });
-      return;
-    }
-
-    const removedUser = await User.findById(targetId).select('username');
-    group.members = group.members.filter((memberId) => !memberId.equals(targetId));
-    const updated = await group.save();
-
-    await createMemberRemovedEvent({
-      groupId: group._id,
-      memberUsername: removedUser?.username ?? 'Member',
-    });
-
-    res.json(updated);
   } catch (err) {
     next(err);
   }
