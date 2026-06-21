@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { MessageStore } from './message';
+import { EmojiPicker } from '../../shared/emoji-picker/emoji-picker';
 
 @Component({
   selector: 'app-message-form',
@@ -20,6 +21,7 @@ import { MessageStore } from './message';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
+    EmojiPicker,
   ],
   templateUrl: './message-form.html',
   styleUrl: './message-form.scss',
@@ -37,6 +39,8 @@ export class MessageForm {
   protected readonly aiTooltip = computed(() =>
     this.textControl.value.trim() ? 'Improve message' : 'Suggest a reply',
   );
+
+  private readonly messageInput = viewChild<ElementRef<HTMLTextAreaElement>>('messageInput');
 
   protected get previews(): { url: string; name: string; type: string }[] {
     return this.pendingFiles().map((f) => ({
@@ -86,6 +90,27 @@ export class MessageForm {
       event.preventDefault();
       void this.send();
     }
+  }
+
+  protected insertEmoji(emoji: string): void {
+    const textarea = this.messageInput()?.nativeElement;
+    const current = this.textControl.value;
+
+    if (!textarea) {
+      this.textControl.setValue(current + emoji);
+      return;
+    }
+
+    const start = textarea.selectionStart ?? current.length;
+    const end = textarea.selectionEnd ?? start;
+    const next = current.slice(0, start) + emoji + current.slice(end);
+    this.textControl.setValue(next);
+
+    queueMicrotask(() => {
+      textarea.focus();
+      const pos = start + emoji.length;
+      textarea.setSelectionRange(pos, pos);
+    });
   }
 
   protected async onAiCompose(): Promise<void> {

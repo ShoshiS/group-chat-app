@@ -45,7 +45,10 @@
       }
     </button>
 
+    <app-emoji-picker (emojiSelected)="insertEmoji($event)" />
+
     <textarea
+      #messageInput
       class="message-form__textarea"
       [formControl]="textControl"
       placeholder="Type a message… (Enter to send, Shift+Enter for new line)"

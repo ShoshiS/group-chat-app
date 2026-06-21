@@ -1,0 +1,25 @@
+<button
+  type="button"
+  mat-icon-button
+  class="emoji-picker__trigger"
+  [matMenuTriggerFor]="emojiMenu"
+  matTooltip="Insert emoji"
+  aria-label="Insert emoji"
+>
+  <mat-icon>mood</mat-icon>
+</button>
+
+<mat-menu #emojiMenu="matMenu" class="emoji-picker__menu" xPosition="before">
+  <div class="emoji-picker__grid">
+    @for (emoji of emojis; track emoji) {
+      <button
+        type="button"
+        class="emoji-picker__cell"
+        [attr.aria-label]="'Insert ' + emoji"
+        (click)="select(emoji)"
+      >
+        {{ emoji }}
+      </button>
+    }
+  </div>
+</mat-menu>
