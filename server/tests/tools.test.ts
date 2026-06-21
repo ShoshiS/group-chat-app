@@ -48,13 +48,10 @@ describe('executeTool', () => {
       invitee: 'dana@example.com',
     });
 
-    expect(inviteMemberMock).toHaveBeenCalledWith(
-      {
-        groupName: 'Alpha',
-        invitee: 'dana@example.com',
-      },
-      context.userId,
-    );
+    expect(inviteMemberMock).toHaveBeenCalledWith({
+      groupName: 'Alpha',
+      invitee: 'dana@example.com',
+    });
     expect(result).toEqual({ invited: true, invitee: 'dana@example.com' });
   });
 

@@ -30,28 +30,6 @@ export async function getMessages(req: Request, res: Response, next: NextFunctio
       limit: typeof limit === 'string' ? Number(limit) : undefined,
     });
 
-    // #region agent log
-    const pdfAttachments = messages.flatMap((m) =>
-      (m.attachments ?? [])
-        .filter((a) => a.type === 'pdf')
-        .map((a) => ({ messageId: m._id.toString(), url: a.url, originalName: a.originalName })),
-    );
-    if (pdfAttachments.length) {
-      fetch('http://127.0.0.1:7436/ingest/d8a133c7-0636-453c-a4ac-ce2726dc7d38', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '947029' },
-        body: JSON.stringify({
-          sessionId: '947029',
-          location: 'message-controller.ts:getMessages',
-          message: 'PDF attachments in API response',
-          data: { groupId: req.params['id'], pdfAttachments },
-          timestamp: Date.now(),
-          hypothesisId: 'B-C',
-        }),
-      }).catch(() => {});
-    }
-    // #endregion
-
     res.json(messages);
   } catch (err) {
     next(err);
@@ -74,10 +52,8 @@ export async function createMessage(
       groupId,
       senderId: req.userId,
     });
-    await message.populate('senderId', 'username avatar');
-    const payload = message.toJSON();
-    res.status(201).json(payload);
-    broadcast(req, groupId, MESSAGE_EVENTS.created, payload);
+    res.status(201).json(message);
+    broadcast(req, groupId, MESSAGE_EVENTS.created, message.toJSON());
   } catch (err) {
     next(err);
   }
@@ -99,7 +75,6 @@ export async function updateMessage(
     if (attachments !== undefined) req.message!.attachments = attachments;
 
     const updated = await req.message!.save();
-    await updated.populate('senderId', 'username avatar');
     res.json(updated);
     broadcast(req, updated.groupId.toString(), MESSAGE_EVENTS.updated, updated.toJSON());
   } catch (err) {

@@ -10,11 +10,11 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | Slice 4 — Messages + Real-time (שושי Primary · תמר Secondary) |
-| **Slice פעיל** | Slice 4 |
-| **Branch פעיל** | `main` מעודכן (Slice 3 merged) · שושי: `feature/chat-realtime` |
-| **משימה עכשיו** | שושי: Messages + Socket primary · תמר: Review + MessageItem |
-| **עודכן לאחרונה** | 2026-06-21 |
+| **שלב נוכחי** | Slice 3 — Invitations (תמר Primary · שושי Secondary) |
+| **Slice פעיל** | Slice 3 |
+| **Branch פעיל** | תמר: `feature/nav-bar` → PR · שושי: `feature/groups` |
+| **משימה עכשיו** | תמר: Invitations · שושי: GroupService + UI |
+| **עודכן לאחרונה** | 2026-06-18 |
 | **עודכן על ידי** | תמר |
 
 > עדכנו שדה זה בכל מעבר שלב — בסוף כל שבוע עבודה לפחות.
@@ -277,25 +277,21 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ---
 
-### Slice 3 — Invitations (הזמנות) — ✅ **תמר · merged**
+### ▶ **[שלב נוכחי]** Slice 3 — Invitations (הזמנות)
 
-| משימה | תמר (Primary) | שושי (Secondary) | סטטוס |
-|---|---|---|---|
-| **DB** | Invitation model + status enum | Review | ✅ |
-| **API** | invite, list, accept, reject endpoints | Review | ✅ |
-| **Client Service** | InvitationStore + Signal | Review | ✅ |
-| **UI** | InvitationList + accept/reject buttons | Badge/count in NavBar | ✅ |
-| **Validation** | Server: user exists, not already member | Client: confirm dialog | ✅ |
+| משימה | תמר (Primary) | שושי (Secondary) |
+|---|---|---|
+| **DB** | Invitation model + status enum | Review |
+| **API** | invite, list, accept, reject endpoints | Review |
+| **Client Service** | InvitationService + Signal | Review |
+| **UI** | InvitationList + accept/reject buttons | Badge/count in NavBar |
+| **Validation** | Server: user exists, not already member | Client: confirm dialog |
 
 **תוצר:** הזמנה לקבוצה, צפייה בהזמנות, קבלה/דחייה.
 
-**PR:** [#9 — feat: Slice 3 Invitations](https://github.com/ShoshiS/group-chat-app/pull/9) · **✅ merged ל-`main`** (20.6.2026 · `456c349`)
-
-**Tests:** server 88/88 · client 20/20
-
 ---
 
-### ▶ **[שלב נוכחי]** Slice 4 — Messages + Media + Real-time
+### Slice 4 — Messages + Media + Real-time
 
 | משימה | שושי (Primary) | תמר (Secondary) |
 |---|---|---|
@@ -384,7 +380,7 @@ gantt
 |---|---|---|
 | 1 | Setup + Auth | תמר — **✅ הושלם + merged** · [PR #6](https://github.com/ShoshiS/group-chat-app/pull/6) |
 | 2 | Groups CRUD | שושי (Primary) · תמר: NavBar + Review |
-| 3 | Invitations | תמר — **✅ merged** · [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) |
+| 3 | Invitations | תמר |
 | 4–5 | Messages + Socket.io + Media | שושי |
 | 5 | Admin + Profile | תמר |
 | 6 | Docs, Responsive, Demo, Deploy (Render — בונוס) | שתיהן |

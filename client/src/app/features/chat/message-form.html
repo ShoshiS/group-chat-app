@@ -32,7 +32,7 @@
     <textarea
       class="message-form__textarea"
       [formControl]="textControl"
-      placeholder="Type a message or attach a file… (Enter to send, Shift+Enter for new line)"
+      placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
       rows="1"
       (keydown)="onKeyDown($event)"
     ></textarea>
@@ -41,7 +41,7 @@
       mat-icon-button
       type="submit"
       color="primary"
-      [disabled]="!canSend()"
+      [disabled]="sending() || (!textControl.value.trim() && !pendingFiles().length)"
       aria-label="Send"
     >
       <mat-icon>send</mat-icon>

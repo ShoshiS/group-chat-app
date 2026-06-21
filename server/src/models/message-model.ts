@@ -112,20 +112,6 @@ const validateMessage = Joi.object({
     .min(1)
     .max(10)
     .optional(),
-}).custom((value, helpers) => {
-  const hasText = Boolean(value.text?.trim());
-  const hasAttachments = (value.attachments?.length ?? 0) > 0;
-  if (!hasText && !hasAttachments) {
-    return helpers.error('any.custom', {
-      message: 'Message must contain text or at least one attachment',
-    });
-  }
-  if (hasText) {
-    value.text = value.text.trim();
-  } else {
-    delete value.text;
-  }
-  return value;
-});
+}).or('text', 'attachments');
 
 export default validateMessage;

@@ -1,10 +1,8 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import type { Group } from '../../core/models/group';
-import type { GroupTimelineItem } from '../../core/models/group-timeline';
-import type { GroupMember } from '../../core/models/group-member';
 import { environment } from '../../../environments/environment';
 
 export interface GroupPayload {
@@ -70,69 +68,5 @@ export class GroupStore {
 
   getById(id: string): Group | undefined {
     return this._groups().find((g) => g.id === id);
-  }
-
-  async fetchById(id: string): Promise<Group> {
-    const group = await firstValueFrom(
-      this.http.get<Group>(`${environment.apiUrl}/groups/${id}`),
-    );
-    this._groups.update((gs) => {
-      const index = gs.findIndex((g) => g.id === id);
-      if (index === -1) {
-        return [...gs, group];
-      }
-      return gs.map((g) => (g.id === id ? group : g));
-    });
-    return group;
-  }
-
-  async fetchMembers(groupId: string): Promise<GroupMember[]> {
-    return firstValueFrom(
-      this.http.get<GroupMember[]>(`${environment.apiUrl}/groups/${groupId}/members`),
-    );
-  }
-
-  async fetchGroupInvitations(groupId: string): Promise<GroupTimelineItem[]> {
-    return firstValueFrom(
-      this.http.get<GroupTimelineItem[]>(
-        `${environment.apiUrl}/groups/${groupId}/invitations`,
-      ),
-    );
-  }
-
-  async invite(groupId: string, email: string): Promise<void> {
-    try {
-      await firstValueFrom(
-        this.http.post(`${environment.apiUrl}/groups/${groupId}/invite`, { email }),
-      );
-    } catch (err) {
-      if (err instanceof HttpErrorResponse) {
-        const message =
-          typeof err.error === 'object' && err.error !== null && 'error' in err.error
-            ? String((err.error as { error: string }).error)
-            : 'Failed to send invitation';
-        throw new Error(message);
-      }
-      throw err;
-    }
-  }
-
-  async removeMember(groupId: string, userId: string): Promise<Group> {
-    try {
-      const updated = await firstValueFrom(
-        this.http.delete<Group>(`${environment.apiUrl}/groups/${groupId}/members/${userId}`),
-      );
-      this._groups.update((gs) => gs.map((g) => (g.id === groupId ? updated : g)));
-      return updated;
-    } catch (err) {
-      if (err instanceof HttpErrorResponse) {
-        const message =
-          typeof err.error === 'object' && err.error !== null && 'error' in err.error
-            ? String((err.error as { error: string }).error)
-            : 'Failed to remove member';
-        throw new Error(message);
-      }
-      throw err;
-    }
   }
 }

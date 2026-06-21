@@ -1,27 +1,19 @@
 <div class="message-list" #messageList>
-  @if (isLoading()) {
+  @if (store.loading()) {
     <div class="message-list__spinner">
       <mat-spinner diameter="40" />
     </div>
   } @else if (store.error()) {
     <p class="message-list__error">{{ store.error() }}</p>
-  } @else if (!timeline().length) {
+  } @else if (!store.messages().length) {
     <p class="message-list__empty">No messages yet. Say hello!</p>
   } @else {
-    @for (item of timeline(); track item.id) {
-      @if (item.kind === 'message') {
-        <app-message-item
-          [message]="item.message"
-          (update)="updateMessage($event)"
-          (delete)="deleteMessage($event)"
-        />
-      } @else {
-        <app-chat-system-event
-          [label]="item.label"
-          [status]="item.status"
-          [at]="item.at"
-        />
-      }
+    @for (msg of store.messages(); track msg.id) {
+      <app-message-item
+        [message]="msg"
+        (update)="updateMessage($event)"
+        (delete)="deleteMessage($event)"
+      />
     }
   }
 </div>
