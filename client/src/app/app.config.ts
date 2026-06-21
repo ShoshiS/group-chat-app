@@ -1,7 +1,9 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 
+import { authInterceptor } from './core/interceptors/auth-interceptor';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -9,6 +11,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient()
-  ]
+    provideAnimationsAsync(),
+    provideHttpClient(withInterceptors([authInterceptor])),
+    provideAnimationsAsync(),
+  ],
 };

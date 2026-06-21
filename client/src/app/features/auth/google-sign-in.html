@@ -1,0 +1,14 @@
+<div class="google-sign-in__divider" aria-hidden="true">
+  <span>or</span>
+</div>
+
+<div class="google-sign-in" [class.google-sign-in--busy]="busy()">
+  @if (!configured()) {
+    <p class="google-sign-in__setup-hint">
+      Google Sign-In requires a Client ID. Add to <code>server/.env</code>:
+      <code>GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com</code>
+      then restart the server.
+    </p>
+  }
+  <div #buttonHost class="google-sign-in__button" [hidden]="!configured()"></div>
+</div>

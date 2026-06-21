@@ -15,12 +15,15 @@ src/
 ├── models/       # Mongoose schemas: User, Group, Invitation, Message
 ├── routes/       # Express routers (thin — delegate to controllers)
 ├── controllers/  # request handlers (one responsibility each)
-├── middleware/   # auth, error-logger, validators, rate-limiter
-├── services/     # business logic, reusable across controllers
+├── middleware/   # auth, error-logger, validators, rate-limiter, upload (multer)
+├── services/     # business logic, reusable across controllers (e.g. r2-service)
 ├── sockets/      # Socket.io setup + room/event handlers
 └── utils/        # pure helpers
-uploads/          # multer files (images, audio, pdf) — git-ignored
 ```
+
+Attachments (images, audio, pdf) are uploaded to **Cloudflare R2** (S3-compatible) via
+`@aws-sdk/client-s3`. Multer uses `memoryStorage` (buffer → R2); MongoDB stores only
+`{ type, url, originalName }`. No local `uploads/` folder.
 
 ## Naming
 
@@ -34,7 +37,7 @@ uploads/          # multer files (images, audio, pdf) — git-ignored
 - **Layering:** `routes → controllers → services → models`. Keep routes/controllers thin.
 - **Async:** `async/await` only; wrap handlers so errors reach the error middleware (no unhandled rejections).
 - **Errors:** throw typed errors; a central error handler formats the JSON response. Never leak stack traces in production.
-- **Validation:** validate every request body/params (e.g. `express-validator`) before hitting the DB.
+- **Validation:** Joi schemas on Mongoose models + `validateBody()` middleware (`validate-middleware.ts`); validate every request body/params before hitting the DB.
 - **Auth:** JWT in `Authorization: Bearer <token>`; `authMiddleware` verifies, `isGroupAdmin` authorises.
 - **Middleware creators:** prefer factory functions: `const createRateLimiter = (max, windowMs) => (req, res, next) => {…}`.
 - **Mongoose (required per model):** at least one `pre` hook (hash password), one `static` (e.g. `findByEmail`), and `toJSON` to hide `passwordHash`.

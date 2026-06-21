@@ -1,0 +1,35 @@
+@if (auth.isLoggedIn()) {
+  <mat-toolbar class="nav-bar">
+    <span class="nav-bar__brand">Group Chat</span>
+    <span class="nav-bar__spacer"></span>
+
+    <a mat-button routerLink="/groups" routerLinkActive="nav-bar__link--active">Groups</a>
+    <a mat-button routerLink="/invitations" routerLinkActive="nav-bar__link--active">
+      Invitations
+    </a>
+    <a mat-button routerLink="/profile" routerLinkActive="nav-bar__link--active">Profile</a>
+    <button mat-button type="button" (click)="logout()">Logout</button>
+
+    @if (auth.currentUser(); as user) {
+      <span class="nav-bar__user-block">
+        <span class="nav-bar__user">{{ user.username }}</span>
+        @if (user.avatar) {
+          <img
+            class="nav-bar__avatar"
+            [src]="user.avatar"
+            [alt]="user.username + ' avatar'"
+          />
+        } @else {
+          <span class="nav-bar__avatar-fallback">{{ user.username[0] | uppercase }}</span>
+        }
+      </span>
+    }
+  </mat-toolbar>
+} @else {
+  <mat-toolbar class="nav-bar nav-bar--guest">
+    <span class="nav-bar__brand">Group Chat</span>
+    <span class="nav-bar__spacer"></span>
+    <a mat-button routerLink="/login" routerLinkActive="nav-bar__link--active">Login</a>
+    <a mat-button routerLink="/register" routerLinkActive="nav-bar__link--active">Register</a>
+  </mat-toolbar>
+}

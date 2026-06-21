@@ -1,8 +1,9 @@
-import { type Request, type Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
-import { getAllGroupsForApi } from '../services/group-service';
+import { Group } from '../models/group-model.js';
+import { getAllGroupsForApi } from '../services/group-service.js';
 
-/** Lists all groups — handy for verifying agent-created records in MongoDB. */
+/** Lists all groups — used by the agent to verify group records in MongoDB. */
 export async function listGroups(_req: Request, res: Response): Promise<void> {
   try {
     const groups = await getAllGroupsForApi();
@@ -11,9 +12,8 @@ export async function listGroups(_req: Request, res: Response): Promise<void> {
     const message = (error as Error).message;
     const status = message.includes('not connected') ? 503 : 500;
     res.status(status).json({ error: message });
-import type { NextFunction, Request, Response } from 'express';
-
-import { Group } from '../models/group-model.js';
+  }
+}
 
 export async function getMyGroups(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {

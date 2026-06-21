@@ -1,0 +1,77 @@
+.message-form {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.2);
+
+  &__previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  &__file-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    font-size: 0.8rem;
+  }
+
+  &__thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    object-fit: cover;
+  }
+
+  &__input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  &__attach,
+  &__ai {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 8px;
+
+    &:hover:not(:disabled) {
+      color: white;
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.5;
+    }
+  }
+
+  &__textarea {
+    flex: 1;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    color: inherit;
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 8px 16px;
+    resize: none;
+    outline: none;
+    field-sizing: content;
+    max-height: 120px;
+    overflow-y: auto;
+
+    &::placeholder {
+      opacity: 0.5;
+    }
+
+    &:focus {
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+  }
+}

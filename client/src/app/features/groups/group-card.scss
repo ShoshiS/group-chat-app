@@ -1,0 +1,13 @@
+.group-card {
+  width: 100%;
+
+  &__members {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  &__danger {
+    color: #f44336;
+  }
+}

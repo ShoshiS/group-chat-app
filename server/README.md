@@ -1,7 +1,8 @@
 # Server
 
-Node.js + Express + Mongoose + JWT + Multer + Socket.io. Written in **TypeScript (ESM)**;
-source runs directly with `tsx` (no build step). See [AGENTS.md](AGENTS.md) for conventions.
+Node.js + Express + Mongoose + JWT + Multer + Cloudflare R2 + Socket.io. Written in
+**TypeScript (ESM)**; source runs directly with `tsx` (no build step). See
+[AGENTS.md](AGENTS.md) for conventions.
 
 ## Setup
 
@@ -23,11 +24,13 @@ src/
 ├── routes/
 ├── controllers/
 ├── middleware/    # auth, errorLogger, rateLimiter (custom)
-├── services/
+├── services/      # business logic (e.g. r2-service — uploads to Cloudflare R2)
 ├── sockets/       # Socket.io setup + events
 └── utils/
-uploads/           # images, audio, pdf
 ```
+
+Attachments (images, audio, pdf) are streamed to **Cloudflare R2** (S3-compatible);
+MongoDB stores only the metadata (`type`, `url`, `originalName`). No local upload folder.
 
 ## API Endpoints
 

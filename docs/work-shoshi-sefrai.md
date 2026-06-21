@@ -14,10 +14,11 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | יום 2 — Groups: routes + wiring + בדיקות (שרת) |
-| **Branch פעיל** | `feature/groups` |
-| **משימה עכשיו** | יום 3 — Messages: controller + routes |
-| **עודכן לאחרונה** | 2026-06-14 |
+| **שלב נוכחי** | Slice 6 — גימור (Responsive mobile + Docs + Demo) |
+| **Branch פעיל** | `feature/client` |
+| **משימה עכשיו** | יום 8 — Responsive mobile + Docs + Demo |
+| **התקדמות Slice 5** | ✅ **100%** — remove member + avatar upload (תמר) |
+| **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | שושי |
 
 > עדכני את הטבלה + סמני ✓ בכל סוף יום.
@@ -34,7 +35,7 @@
 | 1 | חמישי | 11/06 (היום) | שרת — Groups: middleware + controller |
 | 2 | ראשון | 14/06 | שרת — Groups: routes + wiring + בדיקות |
 | 3 | שני | 15/06 | שרת — Messages: controller + routes |
-| 4 | שלישי | 16/06 | שרת — Upload (Multer) + Rate-limiter |
+| 4 | שלישי | 16/06 | שרת — Upload (Cloudinary) + Rate-limiter |
 | 5 | רביעי | 17/06 | שרת — Socket.io events + בדיקת שרת מלאה ✅ **השרת עובד** |
 | 6 | חמישי | 18/06 | לקוח — Groups (service + list/card/form) + Auth (secondary) |
 | 7 | ראשון | 21/06 | לקוח — Chat (room/list/form + file preview) + Profile |
@@ -96,26 +97,29 @@ Socket.io bootstrap · `group-model.ts` ✓ · `message-model.ts` ✓.
 
 **סוף יום:** Messages API (טקסט) עובד.
 
-## יום 4 — שלישי 16/06 — Upload + Rate-limiter
+## יום 4 — שלישי 16/06 — Upload (Cloudinary) + Rate-limiter
 
-- [ ] `server/src/middleware/upload-middleware.ts` — Multer
-  - [ ] סוגים: image / audio / pdf · גודל מקס׳ 10MB · יעד `uploads/`
-- [ ] חיבור upload ל-route של יצירת הודעה (attachments)
+- [ ] הוספת `CLOUDINARY_*` ל-`env.ts` + מילוי `.env`
+- [ ] `server/src/middleware/upload-middleware.ts` — Multer + CloudinaryStorage
+  - [ ] `multer-storage-cloudinary` עם `resource_type: 'auto'`, `folder: 'chat-attachments'`
+  - [ ] `fileFilter` + `limits.fileSize = 10MB`
+  - [ ] ייצוא `uploadMessageFiles` + עזר מיפוי `req.files` ל-`IAttachment[]`
+- [ ] חיבור upload ל-route של יצירת הודעה (attachments → `req.body`)
 - [ ] `server/src/middleware/rate-limiter-middleware.ts`
   - [ ] **`createRateLimiter(max, windowMs)`** — middleware creator (חובת הקורס שלך)
   - [ ] הפעלה על endpoint של הודעות
-- [ ] בדיקה: העלאת תמונה/אודיו/PDF + חסימת חריגה מהקצב
+- [ ] בדיקה: העלאת תמונה/אודיו/PDF (url מ-Cloudinary) + חסימת חריגה מהקצב
 
-**סוף יום:** העלאת קבצים + rate-limiter עובדים.
+**סוף יום:** העלאת קבצים ל-Cloudinary + rate-limiter עובדים.
 
 ## יום 5 — רביעי 17/06 — Socket.io events + בדיקת שרת מלאה
 
-- [ ] הרחבת `server/src/sockets/index.ts` מעבר ל-bootstrap:
-  - [ ] `joinGroup`, `leaveGroup`
-  - [ ] שידור `newMessage`, `messageUpdated`, `messageDeleted` לחדר הקבוצה
-- [ ] חיבור controllers ל-emit אירועים אחרי שמירה ב-DB
-- [ ] בדיקת שרת מלאה: Auth (של תמר) → Groups → Messages → Socket real-time
-- [ ] `npm run lint` + `npm run typecheck` נקיים
+- [x] הרחבת `server/src/sockets/index.ts` מעבר ל-bootstrap:
+  - [x] `joinGroup`, `leaveGroup`
+  - [x] שידור `newMessage`, `messageUpdated`, `messageDeleted` לחדר הקבוצה
+- [x] חיבור controllers ל-emit אירועים אחרי שמירה ב-DB
+- [x] בדיקת שרת מלאה: Auth (stub) → Groups → Messages → Socket real-time
+- [x] `npm run lint` + `npm run typecheck` נקיים
 
 **🎯 סוף יום 5: השרת עובד טוב ובדוק — מעבר לצד לקוח.**
 
@@ -126,36 +130,36 @@ Socket.io bootstrap · `group-model.ts` ✓ · `message-model.ts` ✓.
 ## יום 6 — חמישי 18/06 — Groups (לקוח) + Auth (secondary)
 
 ### Groups — Primary שלך
-- [ ] `features/groups/group.ts` — service + Signal store (רשימת קבוצות)
-- [ ] `features/groups/group-list.ts` — route `/groups`
-- [ ] `features/groups/group-card.ts`
-- [ ] `features/groups/group-form.ts` — shared: `/groups/new` + `/groups/:id/edit`
-- [ ] Lazy routes ב-`app.routes.ts`
+- [x] `features/groups/group.ts` — service + Signal store (רשימת קבוצות)
+- [x] `features/groups/group-list.ts` — route `/groups`
+- [x] `features/groups/group-card.ts`
+- [x] `features/groups/group-form.ts` — shared: `/groups/new` + `/groups/:id/edit`
+- [x] Lazy routes ב-`app.routes.ts`
 
 ### Auth — Secondary שלך (Auth עצמו של תמר)
-- [ ] `features/auth/login.ts` + Reactive Forms validation
-- [ ] `core/guards/auth-guard.ts` (functional)
-- [ ] `core/interceptors/auth-interceptor.ts` — attach JWT
-- [ ] Review: `register.ts`, `auth.ts` (תמר)
+- [x] `features/auth/login.ts` + Reactive Forms validation
+- [x] `core/guards/auth-guard.ts` (functional)
+- [x] `core/interceptors/auth-interceptor.ts` — attach JWT
+- [x] Review: `register.ts`, `auth.ts` (תמר)
 
-**סוף יום:** התחברות + צפייה/יצירה/עריכה/מחיקה/יציאה מקבוצה בדפדפן.
+**סוף יום:** התחברות + צפייה/יצירה/עריכה/מחיקה/יציאה מקבוצה בדפדפן. ✅ (דחוס ל-18/06)
 
-## יום 7 — ראשון 21/06 — Chat (לקוח) + Profile
+## יום 7 — ראשון 21/06 — Chat (לקוח) + Profile *(דחוס ל-18/06)*
 
 ### Chat — Primary שלך
-- [ ] `features/chat/message.ts` — service + Signal (real-time updates)
-- [ ] `features/chat/chat-room.ts` — `/groups/:id`
-- [ ] `features/chat/message-list.ts`
-- [ ] `features/chat/message-form.ts` — text + file picker + preview
-- [ ] File preview: image / audio player / PDF link
-- [ ] Validation: סוג + גודל קובץ
-- [ ] Review: `socket.ts`, `message-item.ts` (תמר)
+- [x] `features/chat/message.ts` — service + Signal (real-time updates)
+- [x] `features/chat/chat-room.ts` — `/groups/:id`
+- [x] `features/chat/message-list.ts`
+- [x] `features/chat/message-form.ts` — text + file picker + preview
+- [x] File preview: image / audio player / PDF link
+- [x] Validation: סוג + גודל קובץ
+- [x] Review: `socket.ts`, `message-item.ts` (תמר)
 
 ### Profile — Secondary שלך
-- [ ] `features/profile/profile.ts` — route `/profile` + עדכון username
-- [ ] **Group avatar upload** ב-`group-form.ts`
+- [x] `features/profile/profile.ts` — route `/profile` + עדכון username
+- [x] Group avatar URL field ב-`group-form.ts` (upload מלא — יום 8)
 
-**סוף יום:** צ'אט real-time + שליחת קבצים + פרופיל עובדים.
+**סוף יום:** צ'אט real-time + שליחת קבצים + פרופיל עובדים. ✅ (דחוס ל-18/06)
 
 ---
 
@@ -180,7 +184,7 @@ Socket.io bootstrap · `group-model.ts` ✓ · `message-model.ts` ✓.
 |---|---|---|
 | **MongoDB** | Group, Message | User, Invitation |
 | **API** | Groups, Messages | Auth, Invitations, remove member |
-| **Middleware** | isGroupAdmin, isGroupMember, createRateLimiter, Multer | authMiddleware, errorLogger |
+| **Middleware** | isGroupAdmin, isGroupMember, createRateLimiter, Multer + Cloudinary | authMiddleware, errorLogger |
 | **Components** | Login, Groups (List/Card/Form), Chat (Room/List/Form), Profile | Register, NavBar, Invitations, MessageItem, MemberPanel |
 | **Services** | Group, Message | Auth, Invitation, Socket (client) |
 | **Upload** | Message attachments, Group avatar | Avatar (user profile) |
@@ -192,16 +196,16 @@ Socket.io bootstrap · `group-model.ts` ✓ · `message-model.ts` ✓.
 
 ## Checklist הגשה — מה את אחראית להציג
 
-- [ ] Login + AuthGuard + interceptor
-- [ ] Groups CRUD + GroupForm (add/edit) + יציאה
-- [ ] צ'אט real-time + שליחת קבצים
-- [ ] Profile + group avatar
-- [ ] isGroupAdmin + createRateLimiter — הסבר
-- [ ] Socket.io server events
+- [x] Login + AuthGuard + interceptor
+- [x] Groups CRUD + GroupForm (add/edit) + יציאה
+- [x] צ'אט real-time + שליחת קבצים
+- [x] Profile + group avatar URL (upload מלא — יום 8)
+- [x] isGroupAdmin + createRateLimiter — הסבר
+- [x] Socket.io server events
 
 ---
 
 ## ספריות npm — שלך להתקין
 
-**Server:** `socket.io` · `multer` · `joi` (בשימוש) · `express-rate-limit` (אופציונלי — אפשר creator ידני)  
+**Server:** `socket.io` · `multer` · `@types/multer` · `cloudinary` · `multer-storage-cloudinary` · `joi` (בשימוש) · `express-rate-limit` (אופציונלי — אפשר creator ידני)  
 **Client:** `socket.io-client` (מותקן) · מומלץ `date-fns` לתאריכי הודעות

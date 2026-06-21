@@ -1,0 +1,66 @@
+<section class="profile">
+  <header class="profile__header">
+    <a mat-icon-button routerLink="/groups" aria-label="Back to groups">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <h1>Profile</h1>
+  </header>
+
+  @if (auth.currentUser(); as user) {
+    <div class="profile__info">
+      <div class="profile__avatar">
+        @if (displayAvatarUrl(); as avatarUrl) {
+          <img [src]="avatarUrl" [alt]="user.username" />
+        } @else {
+          <span>{{ user.username[0] | uppercase }}</span>
+        }
+      </div>
+
+      <div class="profile__avatar-actions">
+        <input
+          #avatarInput
+          type="file"
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          hidden
+          (change)="onAvatarPick($event)"
+        />
+        <button mat-stroked-button type="button" (click)="avatarInput.click()">
+          Change avatar
+        </button>
+        @if (avatarPreview()) {
+          <button mat-button type="button" (click)="clearPendingAvatar()">Cancel</button>
+        }
+      </div>
+
+      <p class="profile__email">{{ user.email }}</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="profile__form">
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" />
+        @if (form.controls.username.errors?.['required']) {
+          <mat-error>Username is required</mat-error>
+        } @else if (form.controls.username.errors?.['minlength']) {
+          <mat-error>At least 3 characters</mat-error>
+        } @else if (form.controls.username.errors?.['maxlength']) {
+          <mat-error>At most 30 characters</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="profile__actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+          @if (saving()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Save changes
+          }
+        </button>
+        <button mat-stroked-button type="button" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Logout
+        </button>
+      </div>
+    </form>
+  }
+</section>
