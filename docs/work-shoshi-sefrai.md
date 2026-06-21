@@ -14,10 +14,10 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | Slice 5 — Admin + Profile (תמר Primary) · יום 8 — גימור |
-| **Branch פעיל** | `main` מעודכן · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (Slice 4 fix) |
+| **שלב נוכחי** | Slice 6 — גימור (Responsive + Docs + Demo) |
+| **Branch פעיל** | `feature/admin-profile` · [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) |
 | **משימה עכשיו** | יום 8 — Responsive + Docs + Demo |
-| **התקדמות Slice 4** | ✅ **100%** — Messages + Socket + Chat client |
+| **התקדמות Slice 5** | ✅ **100%** — remove member + avatar upload (תמר) |
 | **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר (סנכרון) |
 

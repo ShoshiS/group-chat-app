@@ -84,7 +84,15 @@ export async function updateProfile(req: Request, res: Response, next: NextFunct
       return;
     }
 
-    user.username = (req.body as { username: string }).username;
+    const { username, avatar } = req.body as { username?: string; avatar?: string };
+
+    if (username !== undefined) {
+      user.username = username;
+    }
+    if (avatar !== undefined) {
+      user.avatar = avatar;
+    }
+
     await user.save();
 
     res.json(user);

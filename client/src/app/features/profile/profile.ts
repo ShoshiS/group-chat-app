@@ -8,15 +8,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
 
 import { Auth } from '../../core/services/auth';
-import { environment } from '../../../environments/environment';
+
+const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const MAX_AVATAR_SIZE = 10 * 1024 * 1024;
 
 /**
- * Profile page: displays the logged-in user's info and allows updating the username.
- * Connects to GET/PUT /api/users/:id — endpoint wired by Tamar's user slice.
+ * Profile page: displays the logged-in user's info and allows updating username and avatar.
  */
 @Component({
   selector: 'app-profile',
@@ -37,15 +36,18 @@ import { environment } from '../../../environments/environment';
 })
 export class Profile implements OnInit {
   protected readonly auth = inject(Auth);
-  private readonly http = inject(HttpClient);
   private readonly snackBar = inject(MatSnackBar);
 
   protected readonly saving = signal(false);
+  protected readonly avatarPreview = signal<string | null>(null);
+
+  private pendingAvatar: File | null = null;
+  private previewObjectUrl: string | null = null;
 
   protected readonly form = new FormGroup({
     username: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(2), Validators.maxLength(30)],
+      validators: [Validators.required, Validators.minLength(3), Validators.maxLength(30)],
     }),
   });
 
@@ -56,6 +58,43 @@ export class Profile implements OnInit {
     }
   }
 
+  protected displayAvatarUrl(): string | null {
+    return this.avatarPreview() ?? this.auth.currentUser()?.avatar ?? null;
+  }
+
+  protected onAvatarPick(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
+      this.snackBar.open('Avatar must be a JPEG, PNG, GIF, or WebP image', 'OK', {
+        duration: 4000,
+      });
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE) {
+      this.snackBar.open('Avatar must be 10 MB or smaller', 'OK', { duration: 4000 });
+      return;
+    }
+
+    this.clearPreview();
+    this.pendingAvatar = file;
+    this.previewObjectUrl = URL.createObjectURL(file);
+    this.avatarPreview.set(this.previewObjectUrl);
+  }
+
+  protected clearPendingAvatar(): void {
+    this.clearPreview();
+    this.pendingAvatar = null;
+    this.avatarPreview.set(null);
+  }
+
   protected async save(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -63,11 +102,14 @@ export class Profile implements OnInit {
     }
 
     this.saving.set(true);
-    const userId = this.auth.currentUser()?.id;
     try {
-      await firstValueFrom(
-        this.http.put(`${environment.apiUrl}/users/${userId}`, this.form.getRawValue()),
-      );
+      await this.auth.updateProfile({
+        username: this.form.controls.username.value,
+        avatarFile: this.pendingAvatar ?? undefined,
+      });
+      this.clearPreview();
+      this.pendingAvatar = null;
+      this.avatarPreview.set(null);
       this.snackBar.open('Profile updated', 'OK', { duration: 3000 });
     } catch {
       this.snackBar.open('Failed to update profile', 'OK', { duration: 3000 });
@@ -78,5 +120,12 @@ export class Profile implements OnInit {
 
   protected logout(): void {
     this.auth.logout();
+  }
+
+  private clearPreview(): void {
+    if (this.previewObjectUrl) {
+      URL.revokeObjectURL(this.previewObjectUrl);
+      this.previewObjectUrl = null;
+    }
   }
 }

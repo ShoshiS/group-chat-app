@@ -41,6 +41,13 @@
     }
   }
 
+  &__avatar-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
   &__email {
     opacity: 0.6;
     font-size: 0.9rem;

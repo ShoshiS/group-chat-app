@@ -103,4 +103,21 @@ describe('updateProfileBodySchema', () => {
 
     expect(error).toBeDefined();
   });
+
+  it('accepts avatar URL only', () => {
+    const { error, value } = updateProfileBodySchema.validate({
+      avatar: 'https://res.cloudinary.com/demo/image/upload/v1/user-avatars/avatar.jpg',
+    });
+
+    expect(error).toBeUndefined();
+    expect(value).toEqual({
+      avatar: 'https://res.cloudinary.com/demo/image/upload/v1/user-avatars/avatar.jpg',
+    });
+  });
+
+  it('rejects empty body', () => {
+    const { error } = updateProfileBodySchema.validate({});
+
+    expect(error).toBeDefined();
+  });
 });

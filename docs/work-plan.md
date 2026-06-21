@@ -10,10 +10,10 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | Slice 5 — Admin + Profile + גימור (שושי Secondary · תמר Primary) |
-| **Slice פעיל** | Slice 5 |
-| **Branch פעיל** | `main` מעודכן · תמר: `feature/admin-profile` · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (Slice 4 fix) |
-| **משימה עכשיו** | תמר: Avatar upload + MemberPanel · שושי: יום 8 — Responsive + Docs |
+| **שלב נוכחי** | Slice 6 — גימור משותף (Responsive + Docs + Demo) |
+| **Slice פעיל** | Slice 6 |
+| **Branch פעיל** | `feature/admin-profile` · [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) |
+| **משימה עכשיו** | תמר: Responsive Desktop + server-analysis · שושי: Mobile + client docs |
 | **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | תמר |
 
@@ -315,17 +315,21 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ---
 
-### ▶ **[שלב נוכחי]** Slice 5 — Admin Actions + Profile
+### Slice 5 — Admin Actions + Profile — ✅ **תמר Primary · שושי Secondary**
 
-| משימה | תמר (Primary) | שושי (Secondary) |
-|---|---|---|
-| **API** | DELETE member from group (admin) | Review |
-| **UI** | Member management panel in group | ProfileComponent + avatar upload |
-| **Media** | Avatar upload flow (user) | Group avatar upload |
+| משימה | תמר (Primary) | שושי (Secondary) | סטטוס |
+|---|---|---|---|
+| **API** | DELETE member from group (admin) | Review | ✅ |
+| **UI** | Member management panel in group | ProfileComponent + avatar upload | ✅ |
+| **Media** | Avatar upload flow (user) | Group avatar upload | ✅ user · ⏳ group |
+
+**תוצר:** admin מסיר חבר · משתמש מעלה avatar ב-`/profile` · URL ב-Cloudinary + MongoDB.
+
+**PR:** [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) (avatar upload + profile fix)
 
 ---
 
-### Slice 6 — גימור משותף (שבוע אחרון)
+### ▶ **[שלב נוכחי]** Slice 6 — גימור משותף (שבוע אחרון)
 
 **שתיהן — חובה:**
 
@@ -390,7 +394,7 @@ gantt
 | 2 | Groups CRUD | שושי (Primary) · תמר: NavBar + Review |
 | 3 | Invitations | תמר — **✅ merged** · [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) |
 | 4–5 | Messages + Socket.io + Media | שושי |
-| 5 | Admin + Profile | תמר |
+| 5 | Admin + Profile | תמר — **✅ הושלם** · [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) |
 | 6 | Docs, Responsive, Demo, Deploy (Render — בונוס) | שתיהן |
 
 **דדליין הגשה:** י"א כסלו תשפ"ו (לפי מסמך הדרישות)
