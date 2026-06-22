@@ -8,3 +8,9 @@ export interface Group {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface GroupMember {
+  id: string;
+  username: string;
+  avatar: string | null;
+}

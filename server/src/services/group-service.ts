@@ -2,6 +2,7 @@ import mongoose, { Types } from 'mongoose';
 
 import { Group } from '../models/group-model';
 import { Invitation } from '../models/invitation-model';
+import { User } from '../models/user-model';
 
 export interface ToolResult {
   [key: string]: unknown;
@@ -74,10 +75,15 @@ export async function inviteMember(args: Record<string, unknown>): Promise<ToolR
     return { error: `Group "${groupName}" was not found`, invited: false };
   }
 
+  const targetUser =
+    (await User.findByUsername(invitee)) ??
+    (invitee.includes('@') ? await User.findByEmail(invitee) : null);
+
   const invitation = await Invitation.create({
     groupId: group._id,
     groupName: group.name,
-    invitee,
+    invitee: targetUser?.username ?? invitee,
+    inviteeUserId: targetUser?._id,
     status: 'pending',
   });
 

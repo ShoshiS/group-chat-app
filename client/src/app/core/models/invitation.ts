@@ -5,8 +5,9 @@ export interface Invitation {
   groupId: string;
   groupName: string;
   invitee: string;
-  inviteeUsername: string;
-  invitedBy: string;
+  inviteeUsername?: string;
+  invitedBy?: string;
+  invitedByUsername?: string | null;
   status: InvitationStatus;
   createdAt: string;
   updatedAt: string;

@@ -1,9 +1,16 @@
 .emoji-picker {
   &__trigger {
-    color: rgba(255, 255, 255, 0.6);
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    color: var(--text-muted) !important;
 
     &:hover:not(:disabled) {
-      color: white;
+      color: var(--text-subtle) !important;
+      background: color-mix(in srgb, var(--main-bg) 80%, var(--border-default)) !important;
     }
   }
 
@@ -26,7 +33,7 @@
     width: 36px;
     height: 36px;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     background: transparent;
     cursor: pointer;
     font-size: 1.25rem;
@@ -35,7 +42,7 @@
     font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--main-bg);
     }
   }
 }

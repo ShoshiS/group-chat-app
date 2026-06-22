@@ -22,7 +22,7 @@ const groupSchema = new Schema<IGroup, GroupModel>(
     // Populated from the JWT token in auth middleware — never read from req.body
     adminId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    avatar: { type: String, match: /^https?:\/\/.+/ },
+    avatar: { type: String },
   },
   {
     timestamps: true,
@@ -68,7 +68,21 @@ export const Group = model<IGroup, GroupModel>('Group', groupSchema);
 const validateGroup = Joi.object({
   name: Joi.string().min(2).required(),
   description: Joi.string().max(500).allow('').optional(),
-  avatar: Joi.string().uri().optional(),
+  avatar: Joi.string()
+    .allow('')
+    .optional()
+    .custom((value, helpers) => {
+      if (!value || value.startsWith('icon:')) {
+        if (value && !/^icon:[a-z0-9_]+$/.test(value)) {
+          return helpers.error('any.invalid');
+        }
+        return value;
+      }
+      if (!/^https?:\/\/.+/.test(value)) {
+        return helpers.error('any.invalid');
+      }
+      return value;
+    }),
 }).options({ stripUnknown: true });
 
 export default validateGroup;

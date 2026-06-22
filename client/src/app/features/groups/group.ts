@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
-import type { Group } from '../../core/models/group';
+import type { Group, GroupMember } from '../../core/models/group';
 import { environment } from '../../../environments/environment';
 
 export interface GroupPayload {
   name: string;
   description?: string;
   avatar?: string;
+  avatarFile?: File;
 }
 
 /**
@@ -42,18 +43,38 @@ export class GroupStore {
   }
 
   async create(payload: GroupPayload): Promise<Group> {
+    const body = this.buildRequestBody(payload);
     const group = await firstValueFrom(
-      this.http.post<Group>(`${environment.apiUrl}/groups`, payload),
+      this.http.post<Group>(`${environment.apiUrl}/groups`, body),
     );
     this._groups.update((gs) => [...gs, group]);
     return group;
   }
 
   async update(id: string, payload: GroupPayload): Promise<void> {
+    const body = this.buildRequestBody(payload);
     const updated = await firstValueFrom(
-      this.http.put<Group>(`${environment.apiUrl}/groups/${id}`, payload),
+      this.http.put<Group>(`${environment.apiUrl}/groups/${id}`, body),
     );
     this._groups.update((gs) => gs.map((g) => (g.id === id ? updated : g)));
+  }
+
+  private buildRequestBody(payload: GroupPayload): FormData | Omit<GroupPayload, 'avatarFile'> {
+    if (payload.avatarFile) {
+      const form = new FormData();
+      form.append('name', payload.name);
+      if (payload.description) {
+        form.append('description', payload.description);
+      }
+      form.append('avatar', payload.avatarFile, payload.avatarFile.name);
+      return form;
+    }
+
+    return {
+      name: payload.name,
+      ...(payload.description ? { description: payload.description } : {}),
+      ...(payload.avatar !== undefined ? { avatar: payload.avatar } : {}),
+    };
   }
 
   async remove(id: string): Promise<void> {
@@ -78,9 +99,34 @@ export class GroupStore {
     const group = await firstValueFrom(
       this.http.get<Group>(`${environment.apiUrl}/groups/${id}`),
     );
-    this._groups.update((gs) =>
-      gs.some((g) => g.id === id) ? gs.map((g) => (g.id === id ? group : g)) : [...gs, group],
-    );
+    this._groups.update((groups) => {
+      const index = groups.findIndex((item) => item.id === id);
+      if (index === -1) {
+        return [...groups, group];
+      }
+      const next = [...groups];
+      next[index] = group;
+      return next;
+    });
     return group;
+  }
+
+  async invite(groupId: string, invitee: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post(`${environment.apiUrl}/groups/${groupId}/invite`, { invitee }),
+    );
+  }
+
+  async fetchMembers(groupId: string): Promise<GroupMember[]> {
+    return firstValueFrom(
+      this.http.get<GroupMember[]>(`${environment.apiUrl}/groups/${groupId}/members`),
+    );
+  }
+
+  async removeMember(groupId: string, userId: string): Promise<void> {
+    const updated = await firstValueFrom(
+      this.http.delete<Group>(`${environment.apiUrl}/groups/${groupId}/members/${userId}`),
+    );
+    this._groups.update((groups) => groups.map((group) => (group.id === groupId ? updated : group)));
   }
 }

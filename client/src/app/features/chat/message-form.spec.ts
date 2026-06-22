@@ -2,10 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZoneChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import type { Message } from '../../core/models/message';
+import { Toast } from '../../core/services/toast';
 import { MessageForm } from './message-form';
 import { MessageStore } from './message';
 
@@ -36,12 +36,10 @@ describe('MessageForm', () => {
     fixture.componentRef.setInput('groupId', 'group-1');
     fixture.detectChanges();
 
-    const snackBarOpenSpy = spyOn(
-      fixture.componentInstance['snackBar'] as MatSnackBar,
-      'open',
-    ).and.stub();
+    const toastInfoSpy = spyOn(TestBed.inject(Toast), 'info').and.stub();
+    const toastErrorSpy = spyOn(TestBed.inject(Toast), 'error').and.stub();
 
-    return { fixture, snackBarOpenSpy };
+    return { fixture, toastInfoSpy, toastErrorSpy };
   }
 
   it('renders the AI compose button', async () => {
@@ -124,19 +122,17 @@ describe('MessageForm', () => {
     expect(fixture.componentInstance['textControl'].value).toBe('I can do it tomorrow.');
   });
 
-  it('shows a snackbar when generate mode has no text messages', async () => {
-    const { fixture, snackBarOpenSpy } = await setup();
+  it('shows a toast when generate mode has no text messages', async () => {
+    const { fixture, toastInfoSpy } = await setup();
     await fixture.componentInstance['onAiCompose']();
 
     expect(composeSpy).not.toHaveBeenCalled();
-    expect(snackBarOpenSpy).toHaveBeenCalledWith('No messages to reply to yet', 'OK', {
-      duration: 3000,
-    });
+    expect(toastInfoSpy).toHaveBeenCalledWith('No messages to reply to yet');
   });
 
-  it('shows a snackbar when compose fails', async () => {
+  it('shows a toast when compose fails', async () => {
     composeSpy.and.rejectWith({ status: 500 });
-    const { fixture, snackBarOpenSpy } = await setup([
+    const { fixture, toastErrorSpy } = await setup([
       {
         id: '1',
         groupId: 'group-1',
@@ -149,8 +145,6 @@ describe('MessageForm', () => {
 
     await fixture.componentInstance['onAiCompose']();
 
-    expect(snackBarOpenSpy).toHaveBeenCalledWith('Could not generate message', 'OK', {
-      duration: 4000,
-    });
+    expect(toastErrorSpy).toHaveBeenCalledWith('Could not generate message');
   });
 });

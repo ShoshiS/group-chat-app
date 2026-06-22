@@ -1,85 +1,287 @@
-<article class="message-item" [class.message-item--own]="isOwn()">
-  <header class="message-item__header">
-    @if (sender?.avatar) {
-      <img class="message-item__avatar" [src]="sender!.avatar" [alt]="senderName" />
-    } @else {
-      <span class="message-item__avatar-fallback">{{ senderName[0] | uppercase }}</span>
-    }
-    <strong class="message-item__sender">{{ senderName }}</strong>
-    <time class="message-item__time" [matTooltip]="message().createdAt">
-      {{ message().createdAt | date: 'HH:mm' }}
-    </time>
+<div
 
-    @if (isOwn()) {
-      <div class="message-item__actions">
-        @if (message().text) {
-          <button mat-icon-button aria-label="Edit" (click)="startEdit()">
-            <mat-icon>edit</mat-icon>
-          </button>
-        }
-        <button mat-icon-button aria-label="Delete" (click)="confirmDelete()">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-    }
-  </header>
+  class="message-item"
 
-  @if (editing()) {
-    <div class="message-item__edit">
-      <input
-        matInput
-        [formControl]="editControl"
-        (keydown.enter)="submitEdit()"
-        (keydown.escape)="cancelEdit()"
-      />
-      <button mat-icon-button (click)="submitEdit()" aria-label="Save edit">
-        <mat-icon>check</mat-icon>
-      </button>
-      <button mat-icon-button (click)="cancelEdit()" aria-label="Cancel edit">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-  } @else {
-    @if (message().text) {
-      <p class="message-item__text">{{ message().text }}</p>
-    }
-  }
+  [class.message-item--own]="isOwn()"
 
-  @if (message().attachments?.length) {
-    <div class="message-item__attachments">
-      @for (att of message().attachments!; track att.url) {
-        @switch (att.type) {
-          @case ('image') {
-            <button
-              type="button"
-              class="message-item__image-btn"
-              [attr.aria-label]="'View ' + att.originalName"
-              (click)="openImagePreview(att)"
-            >
-              <img class="message-item__image" [src]="att.url" [alt]="att.originalName" />
-            </button>
-          }
-          @case ('audio') {
-            <audio controls [src]="att.url" class="message-item__audio">
-              <track kind="captions" />
-            </audio>
-          }
-          @case ('pdf') {
-            <a [href]="att.url" target="_blank" rel="noopener" class="message-item__pdf">
-              <mat-icon>picture_as_pdf</mat-icon>
-              {{ att.originalName }}
-            </a>
-          }
-        }
+  [class.message-item--grouped]="isGrouped()"
+  [class.message-item--compact-bottom]="compactBottom()"
+
+>
+
+  @if (isOwn()) {
+
+    <div class="message-item__column message-item__column--own">
+
+      @if (showMeta()) {
+
+        <span class="message-item__meta">
+
+          You, {{ message().createdAt | date: timestampFormat() }}
+
+        </span>
+
       }
+
+
+
+      <div class="message-item__bubble message-item__bubble--own">
+
+        @if (editing()) {
+
+          <div class="message-item__edit">
+
+            <input
+
+              matInput
+
+              [formControl]="editControl"
+
+              (keydown.enter)="submitEdit()"
+
+              (keydown.escape)="cancelEdit()"
+
+            />
+
+            <button mat-icon-button (click)="submitEdit()" aria-label="Save edit">
+
+              <mat-icon>check</mat-icon>
+
+            </button>
+
+            <button mat-icon-button (click)="cancelEdit()" aria-label="Cancel edit">
+
+              <mat-icon>close</mat-icon>
+
+            </button>
+
+          </div>
+
+        } @else {
+
+          @if (message().text) {
+
+            <p class="message-item__text" dir="auto">{{ message().text }}</p>
+
+          }
+
+        }
+
+
+
+        @if (message().attachments?.length) {
+
+          <div class="message-item__attachments">
+
+            @for (att of message().attachments!; track att.url) {
+
+              @switch (att.type) {
+
+                @case ('image') {
+
+                  <button
+
+                    type="button"
+
+                    class="message-item__image-btn"
+
+                    [attr.aria-label]="'View ' + att.originalName"
+
+                    (click)="openImagePreview(att)"
+
+                  >
+
+                    <img class="message-item__image" [src]="att.url" [alt]="att.originalName" />
+
+                  </button>
+
+                }
+
+                @case ('audio') {
+
+                  <audio controls [src]="att.url" class="message-item__audio">
+
+                    <track kind="captions" />
+
+                  </audio>
+
+                }
+
+                @case ('pdf') {
+
+                  <a [href]="att.url" target="_blank" rel="noopener" class="message-item__pdf">
+
+                    <mat-icon>picture_as_pdf</mat-icon>
+
+                    {{ att.originalName }}
+
+                  </a>
+
+                }
+
+              }
+
+            }
+
+          </div>
+
+        }
+
+
+
+        <div class="message-item__actions">
+
+          @if (message().text && !editing()) {
+
+            <button mat-icon-button aria-label="Edit" (click)="startEdit()">
+
+              <mat-icon>edit</mat-icon>
+
+            </button>
+
+          }
+
+          <button mat-icon-button aria-label="Delete" (click)="confirmDelete()">
+
+            <mat-icon>delete</mat-icon>
+
+          </button>
+
+        </div>
+
+      </div>
+
     </div>
+
+  } @else {
+
+    <div class="message-item__row">
+
+      @if (showMeta()) {
+
+        @if (sender?.avatar) {
+
+          <img class="message-item__avatar" [src]="sender!.avatar" [alt]="senderName" />
+
+        } @else {
+
+          <span class="message-item__avatar-fallback">{{ senderName[0] | uppercase }}</span>
+
+        }
+
+      } @else {
+
+        <span class="message-item__avatar-spacer" aria-hidden="true"></span>
+
+      }
+
+
+
+      <div class="message-item__column">
+
+        @if (showMeta()) {
+
+          <span class="message-item__meta">
+
+            {{ senderName }}, {{ message().createdAt | date: timestampFormat() }}
+
+          </span>
+
+        }
+
+
+
+        <div class="message-item__bubble">
+
+          @if (message().text) {
+
+            <p class="message-item__text" dir="auto">{{ message().text }}</p>
+
+          }
+
+
+
+          @if (message().attachments?.length) {
+
+            <div class="message-item__attachments">
+
+              @for (att of message().attachments!; track att.url) {
+
+                @switch (att.type) {
+
+                  @case ('image') {
+
+                    <button
+
+                      type="button"
+
+                      class="message-item__image-btn"
+
+                      [attr.aria-label]="'View ' + att.originalName"
+
+                      (click)="openImagePreview(att)"
+
+                    >
+
+                      <img class="message-item__image" [src]="att.url" [alt]="att.originalName" />
+
+                    </button>
+
+                  }
+
+                  @case ('audio') {
+
+                    <audio controls [src]="att.url" class="message-item__audio">
+
+                      <track kind="captions" />
+
+                    </audio>
+
+                  }
+
+                  @case ('pdf') {
+
+                    <a [href]="att.url" target="_blank" rel="noopener" class="message-item__pdf">
+
+                      <mat-icon>picture_as_pdf</mat-icon>
+
+                      {{ att.originalName }}
+
+                    </a>
+
+                  }
+
+                }
+
+              }
+
+            </div>
+
+          }
+
+        </div>
+
+      </div>
+
+    </div>
+
   }
+
+
 
   @if (previewImage(); as image) {
+
     <app-image-preview
+
       [url]="image.url"
+
       [filename]="image.originalName"
+
       (closed)="closeImagePreview()"
+
     />
+
   }
-</article>
+
+</div>
+

@@ -1,15 +1,11 @@
 import { UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { Auth } from '../../core/services/auth';
+import { Toast } from '../../core/services/toast';
 
 const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_AVATAR_SIZE = 10 * 1024 * 1024;
@@ -23,20 +19,15 @@ const MAX_AVATAR_SIZE = 10 * 1024 * 1024;
   imports: [
     UpperCasePipe,
     ReactiveFormsModule,
-    RouterLink,
-    MatButtonModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
 export class Profile implements OnInit {
   protected readonly auth = inject(Auth);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(Toast);
 
   protected readonly saving = signal(false);
   protected readonly avatarPreview = signal<string | null>(null);
@@ -72,14 +63,12 @@ export class Profile implements OnInit {
     }
 
     if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
-      this.snackBar.open('Avatar must be a JPEG, PNG, GIF, or WebP image', 'OK', {
-        duration: 4000,
-      });
+      this.toast.error('Avatar must be a JPEG, PNG, GIF, or WebP image');
       return;
     }
 
     if (file.size > MAX_AVATAR_SIZE) {
-      this.snackBar.open('Avatar must be 10 MB or smaller', 'OK', { duration: 4000 });
+      this.toast.error('Avatar must be 10 MB or smaller');
       return;
     }
 
@@ -110,16 +99,12 @@ export class Profile implements OnInit {
       this.clearPreview();
       this.pendingAvatar = null;
       this.avatarPreview.set(null);
-      this.snackBar.open('Profile updated', 'OK', { duration: 3000 });
+      this.toast.success('Profile updated');
     } catch {
-      this.snackBar.open('Failed to update profile', 'OK', { duration: 3000 });
+      this.toast.error('Failed to update profile');
     } finally {
       this.saving.set(false);
     }
-  }
-
-  protected logout(): void {
-    this.auth.logout();
   }
 
   private clearPreview(): void {

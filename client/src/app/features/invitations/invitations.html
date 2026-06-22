@@ -1,4 +1,152 @@
-<section class="page-placeholder">
-  <h1>Invitations</h1>
-  <p>Pending group invitations will appear here in Slice 3.</p>
+<section class="invitations">
+
+  <header class="invitations__header">
+
+    <div class="invitations__title-row">
+
+      <span class="invitations__accent-dot" aria-hidden="true"></span>
+
+      <h1>Invitations</h1>
+
+    </div>
+
+    <p class="invitations__subtitle">
+      @if (pendingInvitations().length === 0) {
+        Review and respond to group invitations sent to you.
+      } @else if (pendingInvitations().length === 1) {
+        You have 1 pending invitation.
+      } @else {
+        You have {{ pendingInvitations().length }} pending invitations.
+      }
+    </p>
+
+  </header>
+
+
+
+  @if (store.loading()) {
+
+    <div class="invitations__loading">
+
+      <mat-spinner diameter="40" />
+
+    </div>
+
+  } @else if (store.error()) {
+
+    <div class="invitations__error">
+
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+
+      <p>{{ store.error() }}</p>
+
+      <button type="button" class="invitations__retry" (click)="store.load()">Try again</button>
+
+    </div>
+
+  } @else if (pendingInvitations().length === 0) {
+
+    <div class="invitations__empty">
+
+      <div class="invitations__empty-icon" aria-hidden="true">
+
+        <mat-icon>mail_outline</mat-icon>
+
+      </div>
+
+      <p>No pending invitations</p>
+
+      <span class="invitations__hint">
+
+        When someone invites you to a group, it will show up here.
+
+      </span>
+
+    </div>
+
+  } @else {
+
+    <ul class="invitations__list">
+
+      @for (invitation of pendingInvitations(); track invitation.id) {
+
+        <li class="invitations__row">
+
+          <div class="invitations__row-main">
+
+            <span class="invitations__group-icon" aria-hidden="true">
+
+              <mat-icon>groups</mat-icon>
+
+            </span>
+
+            <div class="invitations__row-text">
+
+              <span class="invitations__group-name">{{ invitation.groupName }}</span>
+
+              <span class="invitations__meta">
+
+                @if (invitation.invitedByUsername) {
+
+                  Invited by {{ invitation.invitedByUsername }}
+
+                } @else {
+
+                  Group invitation
+
+                }
+
+                · {{ invitation.createdAt | date: 'MMM d, y' }}
+
+              </span>
+
+            </div>
+
+          </div>
+
+          <div class="invitations__actions">
+
+            <button
+
+              type="button"
+
+              class="invitations__btn invitations__btn--accept"
+
+              [disabled]="actingId() === invitation.id"
+
+              (click)="accept(invitation)"
+
+            >
+
+              Accept
+
+            </button>
+
+            <button
+
+              type="button"
+
+              class="invitations__btn invitations__btn--reject"
+
+              [disabled]="actingId() === invitation.id"
+
+              (click)="reject(invitation)"
+
+            >
+
+              Decline
+
+            </button>
+
+          </div>
+
+        </li>
+
+      }
+
+    </ul>
+
+  }
+
 </section>
+

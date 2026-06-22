@@ -20,6 +20,7 @@ export interface IUserMethods {
 interface UserModel extends Model<IUser, Record<string, never>, IUserMethods> {
   findByEmail(email: string): Promise<HydratedDocument<IUser, IUserMethods> | null>;
   findByGoogleId(googleId: string): Promise<HydratedDocument<IUser, IUserMethods> | null>;
+  findByUsername(username: string): Promise<HydratedDocument<IUser, IUserMethods> | null>;
 }
 
 const SALT_ROUNDS = 10;
@@ -89,6 +90,10 @@ userSchema.static('findByEmail', function (email: string) {
 
 userSchema.static('findByGoogleId', function (googleId: string) {
   return this.findOne({ googleId }).exec();
+});
+
+userSchema.static('findByUsername', function (username: string) {
+  return this.findOne({ username: username.trim() }).exec();
 });
 
 export const User = model<IUser, UserModel>('User', userSchema);

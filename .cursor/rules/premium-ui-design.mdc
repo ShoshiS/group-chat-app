@@ -1,83 +1,85 @@
 ---
 description: >-
-  מערכת עיצוב Premium לכל האתר — צבעים, טיפוגרפיה, layout, קומפוננטות.
-  עדיפות לשימוש מקסימלי ב-@angular/material (MUI). Rule זה מצטרף אוטומטית לכל
-  שיחה שעוסקת בעיצוב, UI, CSS, SCSS, HTML, layout, theming, styling, מראה
-  ויזואלי, או שיפור UX. יש לעקוב אחריו בכל שינוי ויזואלי ב-client.
+  Premium UI design system — חובה לקרוא ולעקוב בכל עבודה על עיצוב. Applies to:
+  UI, UX, styling, CSS, SCSS, SASS, HTML, templates, layout, theming, colors,
+  typography, spacing, shadows, radius, responsive, mobile, RTL, Hebrew, BEM,
+  components, navbar, sidebar, dashboard, chat bubbles, avatars, buttons, forms,
+  cards, tokens, Material theme, premium, frosted glass, animations, visual,
+  appearance, look-and-feel, mockup, wireframe, design system.
+  עברית: עיצוב, UI, UX, סטייל, CSS, SCSS, HTML, layout, צבעים, טיפוגרפיה,
+  רספונסיבי, RTL, קומפוננטות, navbar, sidebar, dashboard, bubbles, tokens,
+  מראה, ויזואלי, theme, אנימציות, ממשק, עמוד, כפתור, טופס, כרטיס, avatar.
+globs: client/**/*.{scss,css,html},**/*.{scss,css,html},**/.cursor/rules/premium-ui-design.mdc
 alwaysApply: true
 ---
 
 # Premium UI Design System — כל האתר
 
-> **הקשר אוטומטי:** Rule זה הוא מקור האמת היחיד לעיצוב הוויזואלי של האפליקציה.
-> כל עבודה על מראה, עיצוב, CSS/SCSS, HTML templates, Angular Material theme,
-> layout, responsive, אנימציות, או UX — **חייבת** לעקוב אחר המפרט הזה.
-> Reference: `modern_premium_chat_dashboard.html`.
+> **חובה:** Rule זה חייב להיות פעיל ומיושם בכל שיחה או שינוי שקשור לעיצוב, UI, CSS/SCSS, HTML, layout, UX, או מראה ויזואלי — גם אם המשתמש לא ציין rule זה במפורש.
+> **מקור אמת:** המפרט היחיד לעיצוב הוויזואלי.
+> Reference: `modern_premium_chat_dashboard.html` (HTML mock).
+> **עקרון מרכזי:** navbar **אנכי** (icon strip 70px) בכל העמודים; layout **שונה לפי סוג עמוד** — לא dashboard אחיד לכל route.
+
+---
+
+## ארכיטקטורת Layout — סקירה
+
+### היררכיה (מבחוץ פנימה)
+
+```
+Viewport (--app-bg)
+└── Card shell (max 1440px, 90vh, radius 32px, frosted border)
+    ├── [A] Icon nav strip — 70px — תמיד (logged-in)
+    └── Content area (flex-1)
+        ├── [B] Auth panel only          → login / register
+        ├── [C] Main panel only          → groups, profile, invitations
+        └── [D] Chat workspace           → groups/:id + agent
+            ├── Chat list sidebar 340px
+            ├── Main panel flex-1
+            └── Files strip 85px
+```
+
+### וарианты layout לפי route
+
+| Layout | Routes | עמודות (inline-start → inline-end) |
+|--------|--------|-------------------------------------|
+| **Auth** | `/login`, `/register` | Card shell → panel מרכזי בלבד (ללא nav strip, ללא sidebars) |
+| **Standard** | `/groups`, `/profile`, `/invitations`, `/groups/new`, `/groups/:id/edit` | Icon nav 70px + Main flex-1 |
+| **Chat workspace** | `/groups/:id` | Icon nav + Chat list 340px + Main + Files 85px |
+| **Agent** | agent-chat (בתוך shell) | Icon nav + Main flex-1 (אותם bubbles/composer כמו chat) |
+
+### מיפוי Icon nav → routes קיימים
+
+| Icon (mat-icon) | HTML mock | Route / מצב | הערות |
+|-----------------|-----------|-------------|-------|
+| `schedule` | Dashboard | disabled placeholder | opacity 0.4, `cursor: not-allowed`, tooltip "Coming soon" |
+| `check_box_outline_blank` | Tasks | `/invitations` | badge על pending count |
+| `visibility` | Views | disabled placeholder | כמו Dashboard |
+| `groups` | Chats | `/groups` | **active** כשב-chat workspace או group-list |
+| `bar_chart` | Analytics | disabled placeholder | |
+| `videocam` | Video | disabled placeholder | |
+| — | — | Profile avatar תחתון | `/profile`, status dot online |
+| — | — | Logout | icon `logout` מעל avatar או בתפריט profile |
+
+אל תוסיף Font Awesome — רק `mat-icon`.
+
+---
 
 ## Stack & conventions
 
 - **Framework:** Angular (standalone components)
-- **UI library:** `@angular/material` (Material Design / MUI) — **ברירת מחדל לכל קומפוננטת UI**
-- **Styling:** SCSS + BEM (`.block__element--modifier`) — רק ל-layout, spacing, ו-premium overrides מעל MUI
-- **Icons:** `mat-icon` (Angular Material) — **לא** Font Awesome
-- **CSS approach:** SCSS variables / CSS custom properties — **לא** Tailwind
-- **Font:** Inter (weights 300–700), fallback system stack
-- **RTL:** תמיכה בעברית חובה — אל לשבור `direction: rtl` או טקסט דו-כיווני
-
----
-
-## Angular Material (MUI) — שימוש מקסימלי
-
-**עקרון מרכזי:** לפני כל `<button>`, `<input>`, card, dialog, menu, tab, או spinner מותאם אישית —
-בדוק אם קיים קומפוננט MUI מתאים. העדף MUI על HTML + SCSS גולמי.
-
-### מיפוי קומפוננטות — MUI קודם
-
-| צורך | קומפוננט MUI | הערות |
-|------|--------------|-------|
-| כפתורים | `MatButtonModule` — `mat-button`, `mat-flat-button`, `mat-icon-button`, `mat-fab` | עיצוב premium דרך theme + SCSS overrides |
-| שדות טקסט / textarea | `MatFormFieldModule` + `MatInputModule` | `appearance="outline"` או `fill` — לא `<input>` גולמי |
-| אייקונים | `MatIconModule` — `mat-icon` | תמיד Material Icons |
-| טולטיפ | `MatTooltipModule` | לא title attribute בלבד |
-| תפריט / dropdown | `MatMenuModule` | emoji picker, status, actions |
-| טאבים / pill switcher | `MatTabsModule` או `MatButtonToggleModule` | Messages / Participants |
-| כרטיסים | `MatCardModule` | group-card, auth card, participants panel |
-| רשימות | `MatListModule` | chat list, invitations, members |
-| דיאלוג / modal | `MatDialogModule` | image preview, confirmations |
-| התראות | `MatSnackBarModule` | toast pattern — לא div מותאם |
-| טעינה | `MatProgressSpinnerModule` / `MatProgressBarModule` | |
-| toolbar / header | `MatToolbarModule` | nav-bar, chat-room header |
-| badge | `MatBadgeModule` | unread counts |
-| divider | `MatDividerModule` | auth dividers, section breaks |
-| chips / pills | `MatChipsModule` | status badges, file type pills |
-| sidenav / drawer | `MatSidenavModule` | mobile chat list, files overlay |
-| slide toggle | `MatSlideToggleModule` | settings |
-
-### איך לשלב MUI עם העיצוב Premium
-
-1. **Theme קודם** — צבעים, typography, density דרך `mat.theme()` ב-`styles.scss` (ראה למטה).
-2. **Overrides מינימליים** — SCSS/BEM רק ל-radius, shadow, frosted glass, ו-premium tokens (`var(--brand)`).
-3. **`color="primary"` / `accent` / `warn`** — מ-map ל-brand green / error red; לא hex inline ב-template.
-4. **Standalone imports** — כל feature component מייבא רק את ה-Mat modules שהוא צריך.
-5. **RTL** — `MatFormField`, `MatMenu`, `MatSidenav` תומכים ב-RTL; בדוק `dir="rtl"` על shell.
-
-### מתי מותר HTML/SCSS מותאם
-
-- Layout shell (grid/flex של 4 הפאנלים) — אין Mat equivalent ישיר
-- Message bubbles — עיצוב ייחודי; MUI Card רק כ-basis אם מתאים
-- Frosted glass / custom animations — SCSS layer מעל MUI
-- Avatar stacks, typing dots — decorative; `mat-icon` + SCSS
-
-**אל תבנה מחדש** מה ש-MUI כבר מספק: focus rings, disabled states, aria, keyboard nav.
+- **Styling:** SCSS + BEM (`.block__element--modifier`)
+- **Icons:** `mat-icon` — לא Font Awesome
+- **CSS:** SCSS variables / CSS custom properties — לא Tailwind
+- **Font:** Inter (300–700), fallback system stack
+- **Logical properties:** `inline-start/end`, `margin-inline-*`, `padding-inline-*`, `border-inline-*` — חובה ל-RTL
+- **RTL:** תמיכה מלאה בעברית — layout, bubbles, chevrons, sidebar order
 
 ---
 
 ## Theme direction — Light Premium Dashboard
 
-האתר עובר מ-dark (`#0f172a`) ל-**light premium collaborative dashboard**:
 רקע אפור רך, פאנלים לבנים, הדגשות mint-green, צללים עדינים, פינות מעוגלות.
-
-עדכן `styles.scss` — Angular Material theme:
 
 ```scss
 @use '@angular/material' as mat;
@@ -85,7 +87,7 @@ alwaysApply: true
 html {
   @include mat.theme((
     color: (
-      primary: mat.$green-palette,  // map to brand #00b074
+      primary: mat.$green-palette,  // map to --brand #00b074
       tertiary: mat.$orange-palette,
     ),
     typography: Inter,
@@ -96,21 +98,19 @@ html {
 
 body {
   color-scheme: light;
-  background-color: #eef2f5;
-  color: #334155;
+  background-color: var(--app-bg);
+  color: var(--text-body);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 ```
 
 ---
 
-## Design tokens (CSS custom properties)
-
-הגדר ב-`:root` ב-`styles.scss` (או `_tokens.scss`):
+## Design tokens
 
 ```scss
 :root {
-  // Brand — mint green
+  // Brand
   --brand: #00b074;
   --brand-light: #eefcf7;
   --brand-tint: #3eb489;
@@ -129,27 +129,27 @@ body {
   --bubble-other: #ffffff;
 
   // Text
-  --text-body: #334155;       // slate-700
-  --text-heading: #1e293b;    // slate-800
-  --text-muted: #94a3b8;      // slate-400
-  --text-subtle: #64748b;     // slate-500
+  --text-body: #334155;
+  --text-heading: #1e293b;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
 
   // Borders
   --border-light: #f1f5f9;
   --border-default: #e2e8f0;
-  --border-input: #cbd5e1;
 
   // Status
-  --status-online: #10b981;   // emerald-500
+  --status-online: #10b981;
   --status-busy: #ef4444;
   --status-away: #fbbf24;
   --status-offline: #cbd5e1;
 
-  // Semantic
-  --error: #ef4444;
-  --error-bg: #fef2f2;
-  --success: #10b981;
-  --warning: #f59e0b;
+  // Layout widths (fixed columns)
+  --nav-strip-width: 70px;
+  --chat-list-width: 340px;
+  --files-strip-width: 85px;
+  --shell-max-width: 1440px;
+  --shell-height: 90vh;
 
   // Shadows
   --shadow-premium: 0 10px 40px -10px rgba(0, 176, 116, 0.08);
@@ -165,7 +165,7 @@ body {
   --radius-2xl: 32px;
   --radius-full: 9999px;
 
-  // Spacing scale (4px base)
+  // Spacing (4px base)
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -187,156 +187,288 @@ body {
 
 ---
 
+## App shell — מבנה ומיקומים
+
+### Outer frame (`app-root`)
+
+- `body`: `--app-bg`, `min-height: 100vh`, flex center
+- Desktop: padding `var(--space-4)` … `var(--space-8)` (sm→lg breakpoints)
+- Mobile (`<768px`): padding 0, full viewport height
+
+### Card shell (`.app-shell`)
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  max-width: 1440px │ height: 90vh (100vh mobile)             │
+│  bg: card-bg │ backdrop-blur-xl │ radius: 32px (0 mobile)   │
+│  border: card-border │ shadow: shadow-card                    │
+│  display: flex │ overflow: hidden                             │
+│  ┌────┬──────────────────────────────────────────────┐       │
+│  │Nav │              Content area                   │       │
+│  │70px│         (variant per layout)                │       │
+│  └────┴──────────────────────────────────────────────┘       │
+└──────────────────────────────────────────────────────────────┘
+```
+
+- `.app-main`: `flex: 1`, `min-height: 0`, `overflow: hidden`
+
+### Icon nav strip (`.app-nav-strip`) — מחליף nav-bar אופקי
+
+**מיקום:** תמיד ב-`inline-start` של card shell (ימין ב-RTL, שמאל ב-LTR).
+
+**מבנה אנכי (top → bottom):**
+
+```
+┌─────────┐
+│  Logo   │  ← twin-shape brand + orange accent
+├─────────┤
+│         │
+│  Icons  │  ← flex-col, gap 24px, centered
+│  stack  │
+│         │
+├─────────┤
+│ Logout? │
+│ Avatar  │  ← 40px + status dot
+└─────────┘
+```
+
+| Property | Value |
+|----------|-------|
+| Width | `var(--nav-strip-width)` — 70px |
+| Background | `--panel-bg` |
+| Border | `border-inline-end: 1px solid var(--border-light)` |
+| Padding block | `var(--space-6)` |
+
+**Nav button:** 40×40px, `--radius-md`, icon `--text-muted`.
+**Hover:** brand color + `--main-bg` bg.
+**Active:** `brand/10` bg, brand icon, **3px brand bar on inline-start edge**, `--shadow-premium`.
+**Disabled placeholder:** opacity 0.4, no hover, `aria-disabled="true"`.
+
+**Logo:** 32px twin pill shapes (brand green + orange accent), rotated accent bg at 12deg.
+
+---
+
+## Layout variants — פירוט מיקומים
+
+### A. Auth layout (`login`, `register`)
+
+```
+Card shell (no nav strip)
+└── Centered auth panel (flex center, both axes)
+    └── Auth card max-width 24rem
+```
+
+- Card shell **ללא** icon nav, **ללא** sidebars
+- Auth card: white, `--shadow-card`, `--radius-2xl`, padding `--space-8`
+- שדות: light inputs; primary button brand green
+- Guest shell: אותו card frame על `--app-bg`
+
+### B. Standard layout (`/groups`, `/profile`, `/invitations`, forms)
+
+```
+Card shell
+├── Icon nav 70px
+└── Main panel (flex-1, --main-bg, overflow-y auto)
+    └── Page content (padding --space-6)
+```
+
+- **אין** chat list sidebar, **אין** files strip
+- Page header: title + actions בשורה עליונה
+- `group-list`: grid/list של group-cards בתוך main panel
+- Back navigation: chevron `arrow_back` / `chevron_left` ב-header (לא sidebar)
+
+### C. Chat workspace (`/groups/:id`)
+
+```
+Card shell
+├── Icon nav 70px
+├── Chat list sidebar 340px
+├── Main chat panel flex-1
+└── Files strip 85px
+```
+
+**זה ה-layout היחיד** עם chat list sidebar + files strip.
+
+#### Chat list sidebar (`.chat-list-sidebar`)
+
+**מיקום:** מיד אחרי icon nav, `inline-start`.
+
+| Zone | מיקום | תוכן |
+|------|-------|------|
+| Mobile header | top, md:hidden | brand dot + title + "Files Panel" toggle |
+| Profile header | top, p-6 | back btn, "Chat" title, settings btn |
+| User portrait | center | 80px avatar, status dot, name, status pill dropdown |
+| Search | px-6 | pill input, icon inline-start |
+| Section label | px-6 | "Last chats" + new chat (+) + menu (⋮) |
+| Chat items | flex-1 scroll | group/conversation rows |
+
+**Profile header row (top mini):** `[back] — "Chat" — [settings]`, justify space-between.
+
+**Status pill:** `--brand-light` bg, brand text, radius full, chevron down; dropdown centered below.
+
+**Chat list item:**
+
+```
+┌────────────────────────────────────────┐
+│ [avatar 44px]  Name (bold)      time    │
+│                subtitle         ●unread │
+└────────────────────────────────────────┘
+```
+
+- Padding 14px, radius `--radius-lg`
+- Active: `#f8fafc` bg + **3px brand border on inline-start** + `--shadow-sm`
+- Typing subtitle: brand color, italic
+- Unread: 8px brand dot inline-end
+
+**Mobile (`<768px`):** chat list ↔ main toggle; selecting chat hides list; back button in chat header.
+
+#### Main chat panel (`.chat-main`)
+
+**מיקום:** בין chat list ל-files strip, `flex: 1`, `--main-bg`.
+
+**Header (sticky top):**
+```
+[back mobile] Title + status ping    [search] [files toggle chevron]
+```
+- Frosted `--frosted-bg` + backdrop-blur
+- Title bold; status: green ping dot + muted "N members active"
+- **אין** Messages/Participants tabs (לא במ scope)
+
+**Message area:** flex-1, scroll, padding `--space-6`, gap 24px between groups.
+
+**Footer composer (sticky bottom):**
+- Frosted footer
+- Pill bar: `--main-bg`, `--shadow-inner`, max-width ~896px centered
+- `[textarea flex-1] [emoji] [attach] [send circle brand]`
+
+#### Files strip (`.files-sidebar`)
+
+**מיקום:** `inline-end`, width `var(--files-strip-width)` — 85px.
+
+**מבנה אנכי (top → bottom):**
+
+```
+┌──────────┐
+│ chevron  │  ← toggle collapse
+├──────────┤
+│ avatar   │  ← stacked -space-y-2, +N badge
+│  stack   │
+├──────────┤
+│ "Files"  │  ← label 11px uppercase tracking-wider
+├──────────┤
+│ file     │  ← vertical icon pills, gap 16px
+│ type     │
+│ buttons  │
+├──────────┤
+│ spacer   │
+└──────────┘
+```
+
+| File type | mat-icon | Background | Icon color |
+|-----------|----------|------------|------------|
+| Document | `description` | `#eff6ff` (blue-50) | `#3b82f6` |
+| Image | `image` | `#fffbeb` (amber-50) | `#f59e0b` |
+| Video | `movie` | `#ecfeff` (cyan-50) | `#06b6d4` |
+| Spreadsheet | `pie_chart` | `#fff1f2` (rose-50) | `#f43f5e` |
+| Link | `link` | `#ecfdf5` (emerald-50) | `#10b981` |
+
+- Button: 40×40px, `--radius-md`; hover: darken bg one step
+- Toggle: chevron points **inline-end** when open, collapses strip on desktop
+- Mobile: overlay drawer from inline-end, `z-40`, shadow-2xl, ~70vh height
+
+### D. Agent layout (`agent-chat`)
+
+- **אותו shell** כמו Standard: icon nav + main panel
+- Bubbles + composer: **זהים ל-chat-main** (ראה Message bubbles)
+- Header: "AI Assistant" + subtitle muted
+- RTL: hints בעברית, `dir="auto"` על bubble text
+- Pending: typing dots brand color
+
+---
+
+## RTL — מבנה ומיקומים
+
+| Element | LTR | RTL |
+|---------|-----|-----|
+| Icon nav | inline-start (left) | inline-start (right) |
+| Chat list sidebar | after nav | after nav (right side) |
+| Files strip | inline-end (right) | inline-end (left) |
+| Active nav/chat indicator bar | inline-start edge | inline-start edge (right) |
+| Own message bubble | `margin-inline-start: auto` | same — aligns inline-end |
+| Back chevron | `chevron_left` | `chevron_right` (or mirror via `[dir=rtl]`) |
+| Search icon | padding-inline-start | same logical property |
+| Scrollbar | default | default (thin, no flip needed) |
+
+- Set `dir="rtl"` on `html` or user preference; shell uses **flex row** with logical order — אל תשתמש ב-`flex-direction: row-reverse` ידני
+- Message timestamps: `"You, HH:mm"` / `"Name, HH:mm"` — שמור פסיק ופורמט
+- Agent chat + user messages: `unicode-bidi: plaintext` / `dir="auto"` on content
+
+---
+
 ## Typography
 
 | Role | Size | Weight | Color |
 |------|------|--------|-------|
-| Page title (h1) | 1.75rem | 700 | `--text-heading` |
-| Section title (h2) | 1.125rem | 700 | `--text-heading` |
-| Card title (h3/h4) | 0.875–1rem | 600–700 | `--text-heading` |
-| Body | 0.875rem (14px) | 400 | `--text-body` |
-| Label / caption | 0.75rem (12px) | 500–600 | `--text-muted` |
-| Timestamp / meta | 0.625rem (10px) | 600 | `--text-muted` |
-| Badge | 0.625rem | 700 | contextual |
-
-Letter-spacing: labels uppercase `tracking-wider` (0.05em) for section headers like "Last chats", "Files".
+| Page title | 1.75rem | 700 | `--text-heading` |
+| Section title | 1.125rem | 700 | `--text-heading` |
+| Card title | 0.875–1rem | 600–700 | `--text-heading` |
+| Body | 0.875rem | 400 | `--text-body` |
+| Label / caption | 0.75rem | 500–600 | `--text-muted` |
+| Timestamp / meta | 0.625rem | 600 | `--text-muted` |
+| Section header ("Last chats", "Files") | 0.6875rem (11px) | 700 | `--text-muted`, letter-spacing 0.05em |
 
 ---
 
-## App shell (`app.html`, `app.scss`)
+## Message bubbles
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Outer frame: --app-bg, centered, p-4..p-8 on desktop   │
-│  ┌───────────────────────────────────────────────────┐  │
-│  │ Card shell: max-w 1440px, h 90vh, radius 32px    │  │
-│  │ border card-border, shadow-card, backdrop-blur     │  │
-│  │ ┌────┬──────────┬─────────────────┬────┐         │  │
-│  │ │Nav │Chat list │   Main content   │Files│         │  │
-│  │ │70px│  340px   │     flex-1       │ 85px│         │  │
-│  │ └────┴──────────┴─────────────────┴────┘         │  │
-│  └───────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────┘
-```
+**Own (`--own`):**
+- Container: `margin-inline-start: auto`, max-width 80%, flex column align inline-end
+- Meta above bubble: 10px muted semibold — `"You, HH:mm"`
+- Bubble: `--bubble-self`, padding 12px 20px, radius 20px with **top-inline-end corner 4px** (LTR: top-right)
+- Border: `rgba(148,163,184,0.5)`
 
-- `.app-main`: flex-1, overflow hidden, min-height 0
-- Mobile (`<768px`): full screen, no outer padding, radius 0
-- Tablet (`768–1024px`): hide icon nav + files strip
-- Desktop (`≥1024px`): full 4-column layout
+**Others:**
+- Row: avatar 36px inline-start + column
+- Meta above: `"Sender, HH:mm"`
+- Bubble: white, top-inline-start corner 4px, border `--border-light`
+
+**Spacing:** 24px between message groups. No full-width card on `.message-item`.
+
+**Typing indicator:** avatar 32px + white pill, author semibold, 3 brand dots bounce (stagger 0.1s).
 
 ---
 
-## Icon navigation strip (maps to `nav-bar` refactor)
+## Buttons & inputs
 
-Width **70px**, `--panel-bg`, border-right `--border-light`.
+### Primary CTA
+Brand bg, white text, `--radius-md`, `--shadow-premium`, hover `--brand-dark`, active scale 0.97.
 
-| Element | Style |
-|---------|-------|
-| Logo | 32px twin-shape: brand green + orange-400 pill shapes, rotated accent bg |
-| Nav button | 40×40px, radius `--radius-md`, slate-400 icon |
-| Nav hover | brand color + `--main-bg` bg |
-| Nav active | `brand/10` bg, brand icon, 3px brand left bar, `--shadow-premium` |
-| Profile avatar | 40px circle, ring `brand-light/50`, online dot bottom-right |
+### Send / FAB circle
+36px, brand, white icon, hover scale 1.05, active 0.95.
 
-Icons mapping (mat-icon equivalents):
-- Dashboard → `schedule`
-- Tasks → `check_box_outline_blank`
-- Views → `visibility`
-- Chats (active) → `groups`
-- Analytics → `bar_chart`
-- Video → `videocam`
+### Ghost icon button
+32px circle, slate-400, hover `--main-bg`.
 
-Logged-in links (Groups, Invitations, Profile) → integrate into icon strip or secondary sidebar.
+### Search / composer pill
+`--main-bg`, radius full, no border; focus ring 1px brand.
+
+### Auth fields
+White card inputs, border `--border-default`, radius `--radius-md`.
 
 ---
 
-## Navigation bar (`nav-bar`) — interim / top bar variant
+## Cards & lists (Standard layout pages)
 
-If keeping horizontal toolbar until full sidebar refactor:
-- Background: `--frosted-bg` + backdrop-blur, border-bottom `--border-light`
-- Brand: semibold `--text-heading`
-- Links: slate-500, hover brand, active = brand/10 pill bg
-- User avatar: 28–40px circle, brand ring on hover
-- Guest variant: same light frosted style
+### Group card
+White, `--radius-lg`, hover `--shadow-premium`; danger action `--status-busy`.
 
----
+### Group list page
+Header: h1 + FAB extended "New Group" inline-end.
+Grid of cards; empty state centered with brand accent icon.
 
-## Buttons
-
-### Primary (CTA)
-```scss
-background: var(--brand);
-color: #fff;
-border-radius: var(--radius-md);
-padding: 12px 16px;
-font-weight: 600;
-box-shadow: var(--shadow-premium);
-&:hover { background: var(--brand-dark); }
-&:active { transform: scale(0.97); }
-&:disabled { background: var(--border-default); color: var(--text-muted); }
-```
-
-### Primary circle (send, FAB)
-36–40px circle, brand bg, white icon, hover scale 1.05, active scale 0.95.
-
-### Secondary / ghost
-Transparent, slate-400 icon, hover `--main-bg` circle (32px).
-
-### Pill tab switcher
-Container: `--main-bg`, padding 6px, radius full, inner shadow.
-Active tab: `--brand` bg, white text, shadow. Inactive: slate-500, hover slate-800.
-
-### Danger
-Text/icon `#ef4444`, hover `#fef2f2` bg. Used in group-card delete.
-
-### Icon button (32×32)
-Circle, hover `--main-bg` or slate-200. Used for attach, emoji, search, settings.
-
----
-
-## Inputs & forms
-
-### Text input / textarea (auth, search, message)
-- Background: `--main-bg` (search/auth) or transparent (inside pill composer)
-- Border: none (search/composer) or `1px solid --border-default` (auth fields)
-- Border-radius: full pill (search/composer) or `--radius-md` (auth)
-- Padding: 12px 16px (auth), 12px 20px (search with icon left)
-- Focus: ring 1px `--brand`, outline none
-- Placeholder: `--text-muted`
-
-### Auth card (`_auth-shared.scss`, login, register)
-- Centered on `--app-bg`, max-width 24rem
-- Card: white bg, `--shadow-card`, radius `--radius-2xl`, border `--border-light`
-- Fields: light inputs on white (not dark `#0f172a`)
-- Primary button: brand green (not blue `#3b82f6`)
-- Links: brand color
-- Divider: `--border-default` lines
-- Errors: `--error` on `--error-bg` subtle bg
-
-### Google sign-in button
-White bg, border `--border-default`, radius `--radius-md`, Google colors preserved in logo only.
-
----
-
-## Cards & lists
-
-### Generic card
-White bg, radius `--radius-lg`, border `--border-light`, `--shadow-sm`, padding `--space-6`.
-
-### Group card (`group-card`)
-- White card, hover `--shadow-premium`, radius `--radius-lg`
-- Title: semibold `--text-heading`
-- Members count: `--text-muted`, 0.85rem
-- Danger action: `--error`
-
-### Group list / invitations / profile
-- Page bg: `--main-bg` inside main panel
-- List items: padding 14px, radius `--radius-lg`
-- Active item: `#f8fafc` bg + 3px left `--brand` border
-- Empty state: centered, muted text, optional brand accent icon
-
-### Search bar (global pattern)
-Full-width pill, `--main-bg`, magnifying glass icon left (16px padding-left for icon), no visible border.
+### Invitations / Profile
+List rows: padding 14px, radius `--radius-lg`, hover `--main-bg`.
+Active row: `#f8fafc` + 3px brand border inline-start.
 
 ---
 
@@ -344,93 +476,29 @@ Full-width pill, `--main-bg`, magnifying glass icon left (16px padding-left for 
 
 | Size | Usage |
 |------|-------|
-| 28px | Inline / nav compact |
+| 28px | Compact inline |
+| 32px | Typing indicator |
 | 36px | Message bubbles |
 | 40px | Nav strip profile, participants |
 | 44px | Chat list items |
-| 80px | Profile header portrait |
+| 80px | Profile header in chat sidebar |
 
-- Shape: `border-radius: 50%`, `object-fit: cover`
-- Fallback: brand bg, white initial, semibold
-- Online dot: 8–12px, `--status-online`, 2px white border ring
-- Stacked avatars: negative margin `-space-y-2`, white border ring
-
-Status pill dropdown: `--brand-light` bg, brand text, radius full, chevron down.
-
-Status badges: Active = emerald-50/emerald-600, Offline = slate-50/slate-400, radius full, 10px bold.
-
----
-
-## Chat module (full spec)
-
-### Layout zones
-| Zone | Width | Background |
-|------|-------|------------|
-| Chat list sidebar | 340px | white |
-| Main chat | flex-1 | `--main-bg` |
-| Files strip | 85px | white |
-
-### Chat room header
-Frosted white, title bold, status with green ping dot + muted text.
-Tabs: Messages / Participants pill switcher.
-Actions: search icon, chevron to toggle files panel.
-
-### Message bubbles (`message-item`)
-**Own (`--own`):** right-aligned, max 80%, timestamp "You, HH:mm" above, bubble `--bubble-self`, radius 20px with top-right 4px corner, border `rgba(148,163,184,0.5)`.
-
-**Others:** avatar 36px left, timestamp above, white bubble, top-left 4px corner, border `--border-light`.
-
-Spacing between message groups: 24px. No full-width card bg on `.message-item`.
-
-### Message form
-Frosted footer, pill composer on `--main-bg` with inner shadow, transparent textarea, brand circle send button. Keep attach + AI + emoji-picker.
-
-### Message list
-Scrollable, custom thin scrollbar, empty state friendly copy.
-
-### Typing indicator
-Avatar + white pill, author name semibold, 3 brand dots bounce (stagger 0.1s).
-
-### Participants tab
-White card radius `--radius-xl`, member rows hover slate-50, role in muted 10px.
-
----
-
-## Agent chat (`agent-chat`)
-
-Same bubble patterns: user = `--bubble-self` right, assistant = white left.
-Composer: same pill pattern as message-form.
-Empty state + Hebrew hints: preserve RTL.
-Pending: typing dots in brand color.
+- Online dot: 8–12px, `--status-online`, 2px white ring, position bottom inline-end
+- Stacked avatars (files sidebar): negative margin block -8px, white border ring
+- Status pill dropdown: available / busy / away — map to `--status-*` tokens
 
 ---
 
 ## Shared components
 
-### Emoji picker (`emoji-picker`)
-White panel, `--shadow-card`, radius `--radius-lg`, grid hover `--main-bg`.
+### Emoji picker
+White panel, `--shadow-card`, `--radius-lg`, grid hover `--main-bg`.
 
-### Image preview (`image-preview`)
-Dark overlay `rgba(15,23,42,0.7)`, centered image, white close button circle.
+### Image preview
+Overlay `rgba(15,23,42,0.7)`, centered image, white close circle.
 
-### Toast (app-wide pattern)
-Fixed bottom-right, slate-900 bg, white text, brand accent icon circle, radius `--radius-xl`, slide-up animation 300ms, auto-dismiss 3s.
-
----
-
-## File type pills (files sidebar)
-
-40×40px, radius `--radius-md`, colored bg + matching icon:
-
-| Type | Background | Icon color |
-|------|------------|------------|
-| Document | blue-50 | blue-500 |
-| Image | amber-50 | amber-500 |
-| Video | cyan-50 | cyan-500 |
-| Spreadsheet | rose-50 | rose-500 |
-| Link | emerald-50 | emerald-500 |
-
-Hover: darken bg one step (e.g. blue-50 → blue-100).
+### Toast
+Fixed bottom inline-end, slate-900 bg, brand accent icon, `--radius-xl`, slide-up 300ms, dismiss 3s.
 
 ---
 
@@ -450,59 +518,53 @@ Hover: darken bg one step (e.g. blue-50 → blue-100).
 | Name | Usage | Spec |
 |------|-------|------|
 | softPulse | status ping | opacity 0.6↔1, 2s infinite |
-| bounce | typing dots | default bounce, stagger delays |
-| scale hover | buttons | scale 1.05 hover, 0.95 active |
-| slide-up | toast | translateY 96px→0, opacity 0→1 |
-| fade | dropdowns | 200ms ease |
-
-All transitions: `--transition-base` unless specified.
+| bounce | typing dots | stagger 0.1s |
+| scale | buttons | 1.05 hover, 0.95 active |
+| slide-up | toast | translateY 96px→0 |
+| panel slide | mobile sidebars | transform 300ms ease-in-out |
 
 ---
 
 ## Responsive breakpoints
 
-| Breakpoint | Behavior |
-|------------|----------|
-| `<768px` (sm) | Full-screen shell, hide icon nav, chat list ↔ chat toggle, files as overlay drawer |
-| `768–1023px` (md) | Show chat list + main, hide icon nav + files strip |
-| `≥1024px` (lg) | Full dashboard layout with all panels |
-| `≥1440px` | Max-width container centered |
+| Breakpoint | Shell | Nav strip | Chat list | Files strip |
+|------------|-------|-----------|-----------|-------------|
+| `<768px` | full viewport, no radius | hidden | toggle with main | overlay drawer |
+| `768–1023px` | 90vh, radius 32px | hidden | visible in chat layout | hidden |
+| `≥1024px` | full layout | visible | visible | visible |
+| `≥1440px` | centered max-width | visible | visible | visible |
 
-Mobile back button: 32px circle, `--main-bg`, chevron-left.
+Mobile back: 32px circle, `--main-bg`, chevron toward inline-start.
 
 ---
 
-## Page-specific notes
+## Migration notes (מ-nav-bar אופקי → shell חדש)
 
-| Page / Component | Key styling |
-|------------------|-------------|
-| `home` | Placeholder → future dashboard entry; centered card on `--main-bg` |
-| `group-list`, `group-form` | White cards, brand primary actions |
-| `profile` | Portrait 80px, status pill, white panel |
-| `invitations` | List pattern with active border-left brand |
-| `login`, `register` | Auth card spec above |
-| `connection-debug` | Match light theme; monospace for debug data ok |
-| `chat-room` | Full 3-panel chat layout |
+1. **`app.html`:** wrap `<router-outlet>` ב-`.app-shell`; `<app-nav-bar>` → `<app-nav-strip>` (vertical)
+2. **`nav-bar`:** refactor ל-icon strip — שמור auth/guest logic, badge invitations
+3. **`chat-room`:** expand ל-Layout C — הוסף chat-list-sidebar + files-sidebar components
+4. **`group-list`:** נשאר Layout B — **לא** chat list sidebar
+5. **`styles.scss`:** עדכן Material theme ל-light + Inter; הסר dark `#0f172a`
+6. **Auth pages:** wrap content ב-card shell ללא nav
 
 ---
 
 ## Do / Don't
 
 **Do:**
-- **Prefer `@angular/material` (MUI) for every UI primitive** — buttons, inputs, cards, menus, dialogs, snackbars, spinners
-- Use BEM naming consistently across all features (mainly for layout wrappers and premium overrides on MUI)
-- Centralize tokens in `styles.scss` — reference `var(--brand)` in components and MUI theme
-- Customize MUI via global theme + targeted `::ng-deep` / host SCSS — not by replacing with raw HTML
-- Use frosted headers/footers (`--frosted-bg` + backdrop-filter) for sticky bars
-- Keep `mat-icon` for all icons
-- Preserve emoji font stacks in message textareas
-- Test Hebrew/RTL in agent-chat and user-generated content
+- BEM naming; tokens מ-`:root`
+- Logical properties לכל margin/padding/border directional
+- Frosted sticky headers/footers ב-chat
+- `mat-icon` בלבד; `aria-label` + `:focus-visible` brand ring
+- שמור emoji font stacks ב-textareas
+- בדוק RTL ב-agent-chat וב-user content
 
 **Don't:**
-- Build custom `<button>`, `<input>`, modal, or toast when an MUI component exists
-- Add Tailwind CDN or utility classes
-- Use Font Awesome
-- Hardcode dark theme colors (`#0f172a`, `#111827`) in new code
-- Use blue `#3b82f6` as primary — brand green replaces it
-- Break accessibility: MUI handles most a11y — add `aria-label` where needed; keep `:focus-visible` in brand color
-- Introduce one-off hex values when a token exists
+- Tailwind CDN / utility classes
+- Font Awesome
+- Dark theme colors (`#0f172a`, `#111827`) בקוד חדש
+- Blue `#3b82f6` as primary — brand green
+- Horizontal top nav-bar ב-layout חדש
+- Chat list sidebar מחוץ ל-chat workspace route
+- Messages/Participants tabs (לא ב-scope)
+- One-off hex כשקיים token

@@ -66,6 +66,20 @@ const avatarUpload = multer({
   limits: { fileSize: env.upload.maxFileSizeBytes },
 });
 
+const GROUP_AVATAR_PARAMS = {
+  folder: 'group-avatars',
+  resource_type: 'image',
+  allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+} as unknown as CloudinaryStorageOptions['params'];
+
+const groupAvatarStorage = new CloudinaryStorage({ cloudinary, params: GROUP_AVATAR_PARAMS });
+
+const groupAvatarUpload = multer({
+  storage: groupAvatarStorage,
+  fileFilter: avatarFileFilter,
+  limits: { fileSize: env.upload.maxFileSizeBytes },
+});
+
 /**
  * Multer middleware that uploads up to 10 files to Cloudinary under the
  * `files` form-data field. Rejects non-image/audio/pdf types (400) and
@@ -75,6 +89,9 @@ export const uploadMessageFiles = upload.array('files', 10);
 
 /** Uploads a single profile image under the `avatar` form-data field. */
 export const uploadAvatar = avatarUpload.single('avatar');
+
+/** Uploads a single group image under the `avatar` form-data field. */
+export const uploadGroupAvatar = groupAvatarUpload.single('avatar');
 
 /** Maps Multer/Cloudinary files to IAttachment records stored in the DB. */
 export function filesToAttachments(files: Express.Multer.File[]): IAttachment[] {

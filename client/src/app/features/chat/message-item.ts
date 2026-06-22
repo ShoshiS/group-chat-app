@@ -1,5 +1,13 @@
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import type { Attachment, Message, MessageSender } from '../../core/models/message';
 import { Auth } from '../../core/services/auth';
+import { messageTimestampFormat } from '../../core/utils/message-time';
 import { ImagePreview } from '../../shared/image-preview/image-preview';
 
 @Component({
@@ -28,6 +37,13 @@ import { ImagePreview } from '../../shared/image-preview/image-preview';
 })
 export class MessageItem {
   readonly message = input.required<Message>();
+  readonly showMeta = input(true);
+  readonly isGrouped = input(false);
+  readonly compactBottom = input(false);
+
+  protected readonly timestampFormat = computed(() =>
+    messageTimestampFormat(this.message().createdAt),
+  );
   readonly update = output<{ id: string; text: string }>();
   readonly delete = output<string>();
 

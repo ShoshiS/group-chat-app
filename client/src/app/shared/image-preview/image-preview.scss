@@ -45,6 +45,25 @@
     display: flex;
     gap: 4px;
     flex-shrink: 0;
+
+    .mat-mdc-icon-button {
+      color: rgba(255, 255, 255, 0.92);
+
+      mat-icon {
+        color: inherit;
+      }
+
+      &:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      &:focus-visible {
+        color: #ffffff;
+        outline: 2px solid rgba(255, 255, 255, 0.6);
+        outline-offset: 2px;
+      }
+    }
   }
 
   &__image {

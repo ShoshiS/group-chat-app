@@ -1,29 +1,58 @@
 <section class="agent-chat">
-  @if (!compact()) {
-    <header class="agent-chat__header">
-      <h2>AI Assistant</h2>
-      <p>Temporary dev access — describe actions in natural language.</p>
-    </header>
-  }
-
   <div class="agent-chat__messages">
-    @if (!agent.messages().length) {
-      <p class="agent-chat__empty">
-        For example: "Create a new group named Family" or "Invite Dana to the group"
-      </p>
+    @if (!agent.messages().length && !agent.pending()) {
+      <div class="agent-chat__empty">
+        <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+        <p dir="auto">לדוגמה: "פתחי קבוצה חדשה בשם משפחה" או "הזמיני את דנה לקבוצה"</p>
+      </div>
     }
 
     @for (message of agent.messages(); track message.id) {
-      <div class="agent-chat__bubble" [class.agent-chat__bubble--user]="message.role === 'user'">
-        {{ message.text }}
-        @if (message.actionSummary) {
-          <p class="agent-chat__actions">{{ message.actionSummary }}</p>
+      <div
+        class="agent-chat__group"
+        [class.agent-chat__group--user]="message.role === 'user'"
+      >
+        @if (message.role === 'model') {
+          <span class="agent-chat__avatar" aria-hidden="true">
+            <mat-icon>smart_toy</mat-icon>
+          </span>
         }
+
+        <div class="agent-chat__content">
+          @if (message.role === 'model') {
+            <span class="agent-chat__meta">AI Assistant</span>
+          } @else {
+            <span class="agent-chat__meta">You</span>
+          }
+
+          <div
+            class="agent-chat__bubble"
+            [class.agent-chat__bubble--user]="message.role === 'user'"
+            dir="auto"
+          >
+            {{ message.text }}
+            @if (message.actionSummary) {
+              <p class="agent-chat__actions">{{ message.actionSummary }}</p>
+            }
+          </div>
+        </div>
       </div>
     }
 
     @if (agent.pending()) {
-      <div class="agent-chat__bubble agent-chat__bubble--typing">…</div>
+      <div class="agent-chat__group">
+        <span class="agent-chat__avatar" aria-hidden="true">
+          <mat-icon>smart_toy</mat-icon>
+        </span>
+        <div class="agent-chat__content">
+          <span class="agent-chat__meta">AI Assistant</span>
+          <div class="agent-chat__bubble agent-chat__bubble--typing">
+            <span class="agent-chat__dot"></span>
+            <span class="agent-chat__dot"></span>
+            <span class="agent-chat__dot"></span>
+          </div>
+        </div>
+      </div>
     }
 
     @if (agent.error(); as errorMessage) {
@@ -31,18 +60,26 @@
     }
   </div>
 
-  <div class="agent-chat__composer">
-    <input
-      type="text"
-      [value]="draftText()"
-      (input)="updateDraft($event)"
-      (keydown.enter)="submit()"
-      placeholder="Type a message…"
-      autocomplete="off"
-      aria-label="Message to the assistant"
-    />
-    <button type="button" (click)="submit()" [disabled]="!agent.canSend() || !draftText().trim()">
-      Send
-    </button>
-  </div>
+  <form class="agent-chat__composer" (submit)="$event.preventDefault(); submit()">
+    <div class="agent-chat__bar">
+      <textarea
+        class="agent-chat__input"
+        [value]="draftText()"
+        (input)="updateDraft($event)"
+        (keydown.enter)="$event.preventDefault(); submit()"
+        placeholder="כתבי הודעה…"
+        rows="1"
+        dir="auto"
+        aria-label="Message to the assistant"
+      ></textarea>
+      <button
+        type="submit"
+        class="agent-chat__send"
+        [disabled]="!agent.canSend() || !draftText().trim()"
+        aria-label="Send"
+      >
+        <mat-icon>send</mat-icon>
+      </button>
+    </div>
+  </form>
 </section>
