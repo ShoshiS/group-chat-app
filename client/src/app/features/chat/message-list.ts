@@ -1,12 +1,11 @@
 import {
-  afterNextRender,
+  AfterViewChecked,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   computed,
   effect,
   inject,
-  Injector,
   input,
   viewChild,
 } from '@angular/core';
@@ -39,9 +38,8 @@ function sameMinute(a: string, b: string): boolean {
   templateUrl: './message-list.html',
   styleUrl: './message-list.scss',
 })
-export class MessageList {
+export class MessageList implements AfterViewChecked {
   protected readonly store = inject(MessageStore);
-  private readonly injector = inject(Injector);
   readonly groupId = input.required<string>();
   readonly searchQuery = input('');
 
@@ -59,11 +57,17 @@ export class MessageList {
 
   constructor() {
     effect(() => {
-      const length = this.visibleMessages().length;
-      if (length === this.prevLength) return;
-      this.prevLength = length;
-      afterNextRender(() => this.scrollToBottom(), { injector: this.injector });
+      this.groupId();
+      this.prevLength = 0;
     });
+  }
+
+  ngAfterViewChecked(): void {
+    const msgs = this.visibleMessages();
+    if (msgs.length !== this.prevLength) {
+      this.scrollToBottom();
+      this.prevLength = msgs.length;
+    }
   }
 
   protected async updateMessage(event: { id: string; text: string }): Promise<void> {

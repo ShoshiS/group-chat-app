@@ -1,16 +1,9 @@
 <section class="agent-chat">
-  @if (!compact()) {
-    <header class="agent-chat__header">
-      <h2>AI Assistant</h2>
-      <p>Temporary dev access — describe actions in natural language.</p>
-    </header>
-  }
-
   <div class="agent-chat__messages">
     @if (!agent.messages().length && !agent.pending()) {
       <div class="agent-chat__empty">
         <mat-icon aria-hidden="true">auto_awesome</mat-icon>
-        <p dir="auto">For example: "Create a new group named Family" or "Invite Dana to the group"</p>
+        <p dir="auto">לדוגמה: "פתחי קבוצה חדשה בשם משפחה" או "הזמיני את דנה לקבוצה"</p>
       </div>
     }
 
@@ -74,7 +67,7 @@
         [value]="draftText()"
         (input)="updateDraft($event)"
         (keydown.enter)="$event.preventDefault(); submit()"
-        placeholder="Type a message…"
+        placeholder="כתבי הודעה…"
         rows="1"
         dir="auto"
         aria-label="Message to the assistant"

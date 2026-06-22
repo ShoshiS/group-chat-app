@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 import { Agent } from './agent';
@@ -24,9 +17,6 @@ import { Agent } from './agent';
 })
 export class AgentChat {
   private readonly cdr = inject(ChangeDetectorRef);
-
-  /** Hides the in-component header when embedded in the floating panel. */
-  readonly compact = input(false);
 
   protected readonly agent = inject(Agent);
   protected readonly draftText = signal('');
