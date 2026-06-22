@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 
 import { Agent } from './agent';
 
@@ -9,11 +16,15 @@ import { Agent } from './agent';
  */
 @Component({
   selector: 'app-agent-chat',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './agent-chat.html',
   styleUrl: './agent-chat.scss',
 })
 export class AgentChat {
   private readonly cdr = inject(ChangeDetectorRef);
+
+  /** Hides the in-component header when embedded in the floating panel. */
+  readonly compact = input(false);
 
   protected readonly agent = inject(Agent);
   protected readonly draftText = signal('');
