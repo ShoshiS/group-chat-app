@@ -31,19 +31,19 @@ describe('AgentChat', () => {
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    component['draftText'].set('שלום');
+    component['draftText'].set('Hello');
     component['submit']();
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('שלום');
+    expect(compiled.textContent).toContain('Hello');
 
     const request = httpMock.expectOne(`${environment.apiUrl}/agent/chat`);
-    request.flush({ reply: 'היי!', actions: [] });
+    request.flush({ reply: 'Hi!', actions: [] });
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(compiled.textContent).toContain('היי!');
+    expect(compiled.textContent).toContain('Hi!');
   });
 
   it('does not send empty drafts', () => {

@@ -7,7 +7,7 @@
   <div class="agent-chat__messages">
     @if (!agent.messages().length) {
       <p class="agent-chat__empty">
-        לדוגמה: "פתחי קבוצה חדשה בשם משפחה" או "הזמיני את דנה לקבוצה"
+        For example: "Create a new group named Family" or "Invite Dana to the group"
       </p>
     }
 
@@ -35,12 +35,12 @@
       [value]="draftText()"
       (input)="updateDraft($event)"
       (keydown.enter)="submit()"
-      placeholder="כתבי הודעה…"
+      placeholder="Type a message…"
       autocomplete="off"
       aria-label="Message to the assistant"
     />
     <button type="button" (click)="submit()" [disabled]="!agent.canSend() || !draftText().trim()">
-      שליחה
+      Send
     </button>
   </div>
 </section>

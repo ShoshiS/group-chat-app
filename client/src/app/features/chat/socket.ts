@@ -27,7 +27,7 @@ export class SocketService implements OnDestroy {
   readonly messageDeleted$ = new Subject<string>();
 
   private connect(): void {
-    if (this.socket?.connected) return;
+    if (this.socket) return;
 
     this.socket = io(environment.socketUrl, { transports: ['websocket', 'polling'] });
 

@@ -57,7 +57,10 @@ export class MessageStore {
     const msg = await firstValueFrom(
       this.http.post<Message>(`${environment.apiUrl}/groups/${groupId}/messages`, body),
     );
-    this._messages.update((ms) => [...ms, msg]);
+    this._messages.update((ms) => {
+      if (ms.some((m) => m.id === msg.id)) return ms;
+      return [...ms, msg];
+    });
   }
 
   async update(messageId: string, text: string): Promise<void> {

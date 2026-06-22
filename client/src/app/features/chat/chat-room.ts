@@ -39,8 +39,7 @@ export class ChatRoom implements OnInit, OnDestroy {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
     this.groupId.set(id);
 
-    const group = this.groupStore.getById(id);
-    if (group) this.groupName.set(group.name);
+    void this.groupStore.fetchById(id).then((group) => this.groupName.set(group.name));
 
     this.messageStore.reset();
     void this.messageStore.load(id);

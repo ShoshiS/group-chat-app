@@ -38,11 +38,11 @@ describe('runAgentTurn', () => {
       groups: [{ name: 'Alpha' }, { name: 'Beta' }],
     });
 
-    const turn = await runAgentTurn([{ role: 'user', text: 'מה הקבוצות שלי?' }], testUserId);
+    const turn = await runAgentTurn([{ role: 'user', text: 'list my groups' }], testUserId);
 
     expect(executeToolMock).toHaveBeenCalledWith('list_groups', {}, { userId: testUserId });
     expect(generateContentMock).not.toHaveBeenCalled();
-    expect(turn.reply).toBe("יש לך 2 קבוצות: 'Alpha', 'Beta'.");
+    expect(turn.reply).toBe("You have 2 groups: 'Alpha', 'Beta'.");
     expect(turn.actions).toEqual([
       {
         tool: 'list_groups',

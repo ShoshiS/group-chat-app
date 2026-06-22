@@ -9,7 +9,6 @@ import {
   formatToolError,
   getLastUserText,
   isCreateGroupIntent,
-  isHebrewConversation,
   isListGroupsIntent,
 } from './agent-intent';
 import type { AgentAction, AgentTurn, ChatMessage } from './agent-types';
@@ -24,7 +23,7 @@ const SYSTEM_INSTRUCTION = [
   'If required arguments are missing, ask one short clarifying question — do NOT call a tool yet.',
   'When listing groups, report ONLY names returned by list_groups — never add names from the conversation.',
   'When a tool returns an error field, explain that error honestly.',
-  'Always reply in the same language the user is writing in (Hebrew or English).',
+  'Always reply in English.',
   'Keep replies concise and friendly.',
 ].join(' ');
 
@@ -56,7 +55,6 @@ async function tryDeterministicTurn(
   context: AgentToolContext,
 ): Promise<AgentTurn | null> {
   const lastUser = getLastUserText(messages);
-  const hebrew = isHebrewConversation(messages);
   const actions: AgentAction[] = [];
 
   if (isListGroupsIntent(lastUser)) {
@@ -64,11 +62,11 @@ async function tryDeterministicTurn(
     actions.push({ tool: 'list_groups', args: {}, result });
 
     if (typeof result.error === 'string') {
-      return { reply: formatToolError(result.error, hebrew), actions };
+      return { reply: formatToolError(result.error), actions };
     }
 
     const groups = (result.groups as { name: string }[]) ?? [];
-    return { reply: formatListReply(groups, hebrew), actions };
+    return { reply: formatListReply(groups), actions };
   }
 
   if (isCreateGroupIntent(lastUser)) {
@@ -81,18 +79,18 @@ async function tryDeterministicTurn(
     actions.push({ tool: 'create_group', args: { name }, result });
 
     if (typeof result.error === 'string') {
-      return { reply: formatToolError(result.error, hebrew), actions };
+      return { reply: formatToolError(result.error), actions };
     }
 
     if (result.created !== true || typeof result.groupId !== 'string') {
       return {
-        reply: formatToolError('create_group did not confirm creation', hebrew),
+        reply: formatToolError('create_group did not confirm creation'),
         actions,
       };
     }
 
     return {
-      reply: formatCreateReply(String(result.name), result.groupId, hebrew),
+      reply: formatCreateReply(String(result.name), result.groupId),
       actions,
     };
   }
@@ -161,11 +159,8 @@ export async function runAgentTurn(
     contents.push({ role: 'user', parts: responseParts });
   }
 
-  const hebrew = isHebrewConversation(messages);
   return {
-    reply: hebrew
-      ? 'מצטער, לא הצלחתי להשלים את הבקשה. נסי לנסח אחרת.'
-      : 'Sorry, I could not complete that request. Please try rephrasing it.',
+    reply: 'Sorry, I could not complete that request. Please try rephrasing it.',
     actions,
   };
 }
