@@ -4,9 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { Toast } from '../../core/services/toast';
 import { MessageStore } from './message';
 import { EmojiPicker } from '../../shared/emoji-picker/emoji-picker';
 
@@ -19,7 +19,6 @@ import { EmojiPicker } from '../../shared/emoji-picker/emoji-picker';
     MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatTooltipModule,
     EmojiPicker,
   ],
@@ -30,7 +29,7 @@ export class MessageForm {
   readonly groupId = input.required<string>();
 
   protected readonly store = inject(MessageStore);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(Toast);
 
   protected readonly textControl = new FormControl('', { nonNullable: true });
   protected readonly pendingFiles = signal<File[]>([]);
@@ -56,7 +55,7 @@ export class MessageForm {
     const errors = MessageStore.validateFiles(files);
     if (errors.length) {
       const msg = errors.map((e) => `${e.file}: ${e.reason}`).join('\n');
-      this.snackBar.open(msg, 'OK', { duration: 5000 });
+      this.toast.error(msg, 5000);
       input.value = '';
       return;
     }
@@ -79,7 +78,7 @@ export class MessageForm {
       this.textControl.reset();
       this.pendingFiles.set([]);
     } catch {
-      this.snackBar.open('Failed to send message', 'OK', { duration: 3000 });
+      this.toast.error('Failed to send message');
     } finally {
       this.sending.set(false);
     }
@@ -120,7 +119,7 @@ export class MessageForm {
 
     const draft = this.textControl.value.trim();
     if (!draft && !this.hasTextMessages()) {
-      this.snackBar.open('No messages to reply to yet', 'OK', { duration: 3000 });
+      this.toast.info('No messages to reply to yet');
       return;
     }
 
@@ -135,7 +134,7 @@ export class MessageForm {
         status === 503
           ? 'AI is not configured'
           : serverError ?? 'Could not generate message';
-      this.snackBar.open(message, 'OK', { duration: 4000 });
+      this.toast.error(message);
     } finally {
       this.aiPending.set(false);
     }

@@ -1,53 +1,141 @@
-<section class="group-form">
-  <header class="group-form__header">
-    <a mat-icon-button routerLink="/groups" aria-label="Back">
-      <mat-icon>arrow_back</mat-icon>
-    </a>
-    <h1>{{ isEdit() ? 'Edit Group' : 'New Group' }}</h1>
-  </header>
-
-  <form [formGroup]="form" (ngSubmit)="submit()" class="group-form__body">
-    <mat-form-field appearance="outline">
-      <mat-label>Group name</mat-label>
-      <input matInput formControlName="name" placeholder="My awesome group" />
-      @if (form.controls.name.errors?.['required']) {
-        <mat-error>Name is required</mat-error>
-      } @else if (form.controls.name.errors?.['minlength']) {
-        <mat-error>Name must be at least 2 characters</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Description (optional)</mat-label>
-      <textarea matInput formControlName="description" rows="3" placeholder="What is this group about?"></textarea>
-      @if (form.controls.description.errors?.['maxlength']) {
-        <mat-error>Description cannot exceed 500 characters</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Avatar URL (optional)</mat-label>
-      <input matInput formControlName="avatar" placeholder="https://..." />
-      @if (form.controls.avatar.errors?.['pattern']) {
-        <mat-error>Must be a valid https:// URL</mat-error>
-      }
-    </mat-form-field>
-
-    @if (form.controls.avatar.value) {
-      <div class="group-form__preview">
-        <img [src]="form.controls.avatar.value" alt="Avatar preview" />
-      </div>
-    }
-
-    <div class="group-form__actions">
-      <a mat-stroked-button routerLink="/groups">Cancel</a>
-      <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
-        @if (saving()) {
-          <mat-spinner diameter="20" />
-        } @else {
-          {{ isEdit() ? 'Save changes' : 'Create group' }}
-        }
-      </button>
-    </div>
-  </form>
-</section>
+<section class="group-form premium-form-page">
+  <header class="group-form__header">
+    <a class="premium-back-btn" routerLink="/groups" aria-label="Back to groups">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <div class="group-form__title-block">
+      <div class="group-form__title-row">
+        <span class="group-form__accent-dot" aria-hidden="true"></span>
+        <h1>{{ isEdit() ? 'Edit Group' : 'New Group' }}</h1>
+      </div>
+      <p class="group-form__subtitle">
+        @if (isEdit()) {
+          Update your group's name, description, or avatar.
+        } @else {
+          Create a space for your team to chat together.
+        }
+      </p>
+    </div>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="group-form__card premium-form-card">
+    <div class="group-form__section">
+      <span class="premium-form-section-label">Details</span>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Group name</mat-label>
+        <mat-icon matPrefix>groups</mat-icon>
+        <input matInput formControlName="name" placeholder="My awesome group" />
+        @if (form.controls.name.errors?.['required']) {
+          <mat-error>Name is required</mat-error>
+        } @else if (form.controls.name.errors?.['minlength']) {
+          <mat-error>Name must be at least 2 characters</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Description (optional)</mat-label>
+        <mat-icon matPrefix>notes</mat-icon>
+        <textarea
+          matInput
+          formControlName="description"
+          rows="3"
+          placeholder="What is this group about?"
+        ></textarea>
+        @if (form.controls.description.errors?.['maxlength']) {
+          <mat-error>Description cannot exceed 500 characters</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="group-form__section">
+      <span class="premium-form-section-label">Avatar</span>
+
+      @if (displayAvatar(); as avatar) {
+        <div class="group-form__preview" [class.group-form__preview--empty]="avatar.type === 'none'">
+          @if (avatar.type === 'image') {
+            <img [src]="avatar.imageUrl" alt="Avatar preview" />
+          } @else if (avatar.type === 'icon') {
+            <div class="group-form__preview-icon" aria-hidden="true">
+              <mat-icon>{{ avatar.iconName }}</mat-icon>
+            </div>
+          } @else {
+            <div class="group-form__preview-placeholder" aria-hidden="true">
+              <mat-icon>groups</mat-icon>
+            </div>
+          }
+          <div class="group-form__preview-text">
+            <span class="group-form__preview-label">
+              @if (avatar.type === 'none') {
+                No avatar yet
+              } @else {
+                Preview
+              }
+            </span>
+            <span class="group-form__preview-hint">
+              @if (avatar.type === 'none') {
+                Upload an image or pick an icon below.
+              } @else {
+                This avatar will appear on the group card and chat list.
+              }
+            </span>
+          </div>
+        </div>
+      }
+
+      <div class="group-form__avatar-actions">
+        <input
+          #avatarInput
+          type="file"
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          hidden
+          (change)="onAvatarPick($event)"
+        />
+        <button
+          class="premium-btn premium-btn--outline"
+          type="button"
+          (click)="avatarInput.click()"
+        >
+          <mat-icon>photo_camera</mat-icon>
+          Upload image
+        </button>
+        @if (displayAvatar().type !== 'none') {
+          <button class="premium-btn premium-btn--ghost" type="button" (click)="clearAvatar()">
+            Remove
+          </button>
+        }
+      </div>
+
+      <div class="group-form__icon-picker">
+        <span class="group-form__icon-picker-label">Or choose an icon</span>
+        <div class="group-form__icon-grid" role="listbox" aria-label="Group icon options">
+          @for (icon of iconOptions; track icon) {
+            <button
+              type="button"
+              class="group-form__icon-btn"
+              [class.group-form__icon-btn--selected]="selectedIcon() === icon"
+              [attr.aria-selected]="selectedIcon() === icon"
+              [attr.aria-label]="icon"
+              role="option"
+              (click)="selectIcon(icon)"
+            >
+              <mat-icon>{{ icon }}</mat-icon>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="premium-form-actions">
+      <a class="premium-btn premium-btn--ghost" routerLink="/groups">Cancel</a>
+      <button class="premium-btn premium-btn--primary" type="submit" [disabled]="saving()">
+        @if (saving()) {
+          <mat-spinner diameter="18" />
+        } @else {
+          {{ isEdit() ? 'Save changes' : 'Create group' }}
+        }
+      </button>
+    </div>
+  </form>
+</section>
+

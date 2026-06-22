@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 
 import type { Group } from '../../core/models/group';
+import { parseGroupAvatar } from '../../core/utils/group-avatar';
 import { Auth } from '../../core/services/auth';
 
 @Component({
@@ -25,5 +26,9 @@ export class GroupCard {
 
   protected isAdmin(): boolean {
     return this.group().adminId === this.auth.currentUser()?.id;
+  }
+
+  protected groupAvatar() {
+    return parseGroupAvatar(this.group().avatar);
   }
 }

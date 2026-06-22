@@ -8,7 +8,8 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { Toast } from '../../core/services/toast';
 
 @Component({
   selector: 'app-image-preview',
@@ -22,7 +23,7 @@ export class ImagePreview {
   readonly filename = input.required<string>();
   readonly closed = output<void>();
 
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(Toast);
 
   @HostListener('document:keydown.escape')
   protected onEscape(): void {
@@ -42,9 +43,7 @@ export class ImagePreview {
       link.click();
       URL.revokeObjectURL(blobUrl);
     } catch {
-      this.snackBar.open('Could not download image. Opening in a new tab instead.', 'OK', {
-        duration: 4000,
-      });
+      this.toast.info('Could not download image. Opening in a new tab instead.');
       window.open(this.url(), '_blank', 'noopener');
     }
   }

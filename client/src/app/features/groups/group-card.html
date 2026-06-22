@@ -1,48 +1,57 @@
-<mat-card class="group-card">
-  @if (group().avatar) {
-    <mat-card-header>
-      <img mat-card-avatar [src]="group().avatar" [alt]="group().name + ' avatar'" />
-      <mat-card-title>{{ group().name }}</mat-card-title>
-      @if (group().description) {
-        <mat-card-subtitle>{{ group().description }}</mat-card-subtitle>
-      }
-    </mat-card-header>
-  } @else {
-    <mat-card-header>
-      <mat-card-title>{{ group().name }}</mat-card-title>
-      @if (group().description) {
-        <mat-card-subtitle>{{ group().description }}</mat-card-subtitle>
-      }
-    </mat-card-header>
-  }
-
-  <mat-card-content>
-    <p class="group-card__members">{{ group().members.length }} member(s)</p>
-  </mat-card-content>
-
-  <mat-card-actions>
-    <a mat-button [routerLink]="['/groups', group().id]" color="primary">Open Chat</a>
-
-    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More actions">
-      <mat-icon>more_vert</mat-icon>
-    </button>
-
-    <mat-menu #menu="matMenu">
-      @if (isAdmin()) {
-        <button mat-menu-item (click)="edit.emit(group())">
-          <mat-icon>edit</mat-icon>
-          <span>Edit</span>
-        </button>
-        <button mat-menu-item (click)="delete.emit(group())" class="group-card__danger">
-          <mat-icon>delete</mat-icon>
-          <span>Delete</span>
-        </button>
-      } @else {
-        <button mat-menu-item (click)="leave.emit(group())" class="group-card__danger">
-          <mat-icon>exit_to_app</mat-icon>
-          <span>Leave group</span>
-        </button>
-      }
-    </mat-menu>
-  </mat-card-actions>
-</mat-card>
+<mat-card class="group-card">
+  @if (groupAvatar(); as avatar) {
+    @if (avatar.type !== 'none') {
+      <mat-card-header>
+        @if (avatar.type === 'image') {
+          <img mat-card-avatar [src]="avatar.imageUrl" [alt]="group().name + ' avatar'" />
+        } @else {
+          <span mat-card-avatar class="group-card__icon-avatar" aria-hidden="true">
+            <mat-icon>{{ avatar.iconName }}</mat-icon>
+          </span>
+        }
+        <mat-card-title>{{ group().name }}</mat-card-title>
+        @if (group().description) {
+          <mat-card-subtitle>{{ group().description }}</mat-card-subtitle>
+        }
+      </mat-card-header>
+    } @else {
+      <mat-card-header>
+        <mat-card-title>{{ group().name }}</mat-card-title>
+        @if (group().description) {
+          <mat-card-subtitle>{{ group().description }}</mat-card-subtitle>
+        }
+      </mat-card-header>
+    }
+  }
+
+  <mat-card-content>
+    <p class="group-card__members">{{ group().members.length }} member(s)</p>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <a mat-button [routerLink]="['/groups', group().id]" color="primary">Open Chat</a>
+
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More actions">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+
+    <mat-menu #menu="matMenu" panelClass="premium-menu-panel">
+      @if (isAdmin()) {
+        <button mat-menu-item (click)="edit.emit(group())">
+          <mat-icon>edit</mat-icon>
+          <span>Edit</span>
+        </button>
+        <button mat-menu-item (click)="delete.emit(group())" class="premium-menu-panel__danger">
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
+        </button>
+      } @else {
+        <button mat-menu-item (click)="leave.emit(group())" class="premium-menu-panel__danger">
+          <mat-icon>exit_to_app</mat-icon>
+          <span>Leave group</span>
+        </button>
+      }
+    </mat-menu>
+  </mat-card-actions>
+</mat-card>
+

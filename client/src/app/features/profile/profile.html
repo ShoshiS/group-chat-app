@@ -1,22 +1,30 @@
 <section class="profile">
   <header class="profile__header">
-    <a mat-icon-button routerLink="/groups" aria-label="Back to groups">
-      <mat-icon>arrow_back</mat-icon>
-    </a>
-    <h1>Profile</h1>
+    <div class="profile__title-block">
+      <div class="profile__title-row">
+        <span class="profile__accent-dot" aria-hidden="true"></span>
+        <h1>Profile</h1>
+      </div>
+      <p class="profile__subtitle">Manage your display name and avatar.</p>
+    </div>
+
+    <button
+      class="premium-btn premium-btn--primary profile__save-top"
+      type="submit"
+      form="profile-form"
+      [disabled]="saving() || form.invalid"
+    >
+      @if (saving()) {
+        <mat-spinner diameter="18" />
+      } @else {
+        Save changes
+      }
+    </button>
   </header>
 
   @if (auth.currentUser(); as user) {
-    <div class="profile__info">
-      <div class="profile__avatar">
-        @if (displayAvatarUrl(); as avatarUrl) {
-          <img [src]="avatarUrl" [alt]="user.username" />
-        } @else {
-          <span>{{ user.username[0] | uppercase }}</span>
-        }
-      </div>
-
-      <div class="profile__avatar-actions">
+    <form id="profile-form" [formGroup]="form" (ngSubmit)="save()" class="profile__form">
+      <div class="profile__hero">
         <input
           #avatarInput
           type="file"
@@ -24,41 +32,73 @@
           hidden
           (change)="onAvatarPick($event)"
         />
-        <button mat-stroked-button type="button" (click)="avatarInput.click()">
-          Change avatar
+
+        <button
+          type="button"
+          class="profile__avatar-trigger"
+          [class.profile__avatar-trigger--pending]="avatarPreview()"
+          (click)="avatarInput.click()"
+          aria-label="Change avatar"
+        >
+          <span class="profile__avatar">
+            @if (displayAvatarUrl(); as avatarUrl) {
+              <img [src]="avatarUrl" [alt]="user.username" />
+            } @else {
+              <span>{{ user.username[0] | uppercase }}</span>
+            }
+          </span>
+          <span class="profile__avatar-overlay" aria-hidden="true">
+            <mat-icon>photo_camera</mat-icon>
+          </span>
+          <span class="profile__status-dot" aria-hidden="true"></span>
         </button>
+
+        <h2 class="profile__display-name">{{ form.controls.username.value || user.username }}</h2>
+        <p class="profile__email">{{ user.email }}</p>
+        <span class="profile__status-pill">Available</span>
+
         @if (avatarPreview()) {
-          <button mat-button type="button" (click)="clearPendingAvatar()">Cancel</button>
+          <button class="profile__undo" type="button" (click)="clearPendingAvatar()">
+            Discard photo change
+          </button>
         }
       </div>
 
-      <p class="profile__email">{{ user.email }}</p>
-    </div>
-
-    <form [formGroup]="form" (ngSubmit)="save()" class="profile__form">
-      <mat-form-field appearance="outline">
-        <mat-label>Username</mat-label>
-        <input matInput formControlName="username" />
-        @if (form.controls.username.errors?.['required']) {
-          <mat-error>Username is required</mat-error>
-        } @else if (form.controls.username.errors?.['minlength']) {
-          <mat-error>At least 3 characters</mat-error>
-        } @else if (form.controls.username.errors?.['maxlength']) {
-          <mat-error>At most 30 characters</mat-error>
+      <div class="profile__field">
+        <label class="profile__field-label" for="profile-username">Username</label>
+        <div
+          class="profile__input"
+          [class.profile__input--invalid]="
+            form.controls.username.touched && form.controls.username.invalid
+          "
+        >
+          <mat-icon aria-hidden="true">person</mat-icon>
+          <input
+            id="profile-username"
+            type="text"
+            formControlName="username"
+            autocomplete="username"
+            spellcheck="false"
+          />
+        </div>
+        @if (form.controls.username.touched && form.controls.username.errors?.['required']) {
+          <span class="profile__field-error">Username is required</span>
+        } @else if (form.controls.username.touched && form.controls.username.errors?.['minlength']) {
+          <span class="profile__field-error">At least 3 characters</span>
+        } @else if (form.controls.username.touched && form.controls.username.errors?.['maxlength']) {
+          <span class="profile__field-error">At most 30 characters</span>
+        } @else {
+          <span class="profile__field-hint">Shown to other members in group chats.</span>
         }
-      </mat-form-field>
+      </div>
 
       <div class="profile__actions">
-        <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+        <button class="premium-btn premium-btn--primary" type="submit" [disabled]="saving()">
           @if (saving()) {
-            <mat-spinner diameter="20" />
+            <mat-spinner diameter="18" />
           } @else {
             Save changes
           }
-        </button>
-        <button mat-stroked-button type="button" (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          Logout
         </button>
       </div>
     </form>

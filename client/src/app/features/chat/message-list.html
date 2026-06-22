@@ -5,12 +5,21 @@
     </div>
   } @else if (store.error()) {
     <p class="message-list__error">{{ store.error() }}</p>
-  } @else if (!store.messages().length) {
-    <p class="message-list__empty">No messages yet. Say hello!</p>
+  } @else if (!visibleMessages().length) {
+    <p class="message-list__empty">
+      @if (searchQuery()) {
+        No messages match your search
+      } @else {
+        No messages yet. Say hello!
+      }
+    </p>
   } @else {
-    @for (msg of store.messages(); track msg.id) {
+    @for (msg of visibleMessages(); track msg.id; let i = $index) {
       <app-message-item
         [message]="msg"
+        [showMeta]="showMeta(i)"
+        [isGrouped]="isGrouped(i)"
+        [compactBottom]="isFollowedByGrouped(i)"
         (update)="updateMessage($event)"
         (delete)="deleteMessage($event)"
       />
