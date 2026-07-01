@@ -5,6 +5,8 @@ const groupCreateMock = jest.fn<(body: unknown) => Promise<unknown>>();
 const groupFindOneMock = jest.fn<(query: unknown) => Promise<unknown>>();
 const groupFindForUserMock = jest.fn<(userId: unknown) => Promise<unknown>>();
 const invitationCreateMock = jest.fn<(body: unknown) => Promise<unknown>>();
+const userFindByUsernameMock = jest.fn<(username: string) => Promise<unknown>>();
+const userFindByEmailMock = jest.fn<(email: string) => Promise<unknown>>();
 
 await jest.unstable_mockModule('mongoose', () => ({
   default: {
@@ -28,6 +30,13 @@ await jest.unstable_mockModule('../src/models/invitation-model.js', () => ({
   },
 }));
 
+await jest.unstable_mockModule('../src/models/user-model.js', () => ({
+  User: {
+    findByUsername: userFindByUsernameMock,
+    findByEmail: userFindByEmailMock,
+  },
+}));
+
 const { createGroup, inviteMember, listGroups } = await import('../src/services/group-service.js');
 
 const testUserId = new Types.ObjectId('507f1f77bcf86cd799439011');
@@ -35,6 +44,8 @@ const testUserId = new Types.ObjectId('507f1f77bcf86cd799439011');
 describe('group-service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    userFindByUsernameMock.mockResolvedValue(null);
+    userFindByEmailMock.mockResolvedValue(null);
   });
 
   it('creates a group with trimmed fields and adminId', async () => {
