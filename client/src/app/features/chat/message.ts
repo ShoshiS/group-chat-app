@@ -23,29 +23,68 @@ export class MessageStore {
 
   private readonly _messages = signal<Message[]>([]);
   private readonly _loading = signal(false);
+  private readonly _loadingOlder = signal(false);
+  private readonly _hasMore = signal(true);
   private readonly _error = signal<string | null>(null);
 
   readonly messages = this._messages.asReadonly();
   readonly loading = this._loading.asReadonly();
+  readonly loadingOlder = this._loadingOlder.asReadonly();
+  readonly hasMore = this._hasMore.asReadonly();
   readonly error = this._error.asReadonly();
 
   reset(): void {
     this._messages.set([]);
     this._error.set(null);
+    this._hasMore.set(true);
   }
 
   async load(groupId: string): Promise<void> {
     this._loading.set(true);
     this._error.set(null);
+    this._hasMore.set(true);
     try {
       const msgs = await firstValueFrom(
         this.http.get<Message[]>(`${environment.apiUrl}/groups/${groupId}/messages`),
       );
       this._messages.set(msgs);
+      this._hasMore.set(msgs.length >= 50);
     } catch {
       this._error.set('Failed to load messages');
     } finally {
       this._loading.set(false);
+    }
+  }
+
+  /** Fetches the page before the oldest message currently in memory. */
+  async loadOlder(groupId: string): Promise<void> {
+    const oldest = this._messages()[0];
+    if (!oldest || this._loadingOlder() || !this._hasMore()) {
+      return;
+    }
+
+    this._loadingOlder.set(true);
+    try {
+      const older = await firstValueFrom(
+        this.http.get<Message[]>(`${environment.apiUrl}/groups/${groupId}/messages`, {
+          params: { before: oldest.id, limit: '50' },
+        }),
+      );
+      if (older.length === 0) {
+        this._hasMore.set(false);
+        return;
+      }
+
+      this._messages.update((current) => {
+        const ids = new Set(current.map((message) => message.id));
+        const unique = older.filter((message) => !ids.has(message.id));
+        return [...unique, ...current];
+      });
+      this._hasMore.set(older.length >= 50);
+    } catch {
+      // Keep existing messages; user can retry by scrolling up again.
+    } finally {
+      this._loadingOlder.set(false);
     }
   }
 

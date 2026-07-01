@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,6 +27,7 @@ import { EmojiPicker } from '../../shared/emoji-picker/emoji-picker';
 })
 export class MessageForm {
   readonly groupId = input.required<string>();
+  readonly userInteracted = output<void>();
 
   protected readonly store = inject(MessageStore);
   private readonly toast = inject(Toast);
@@ -85,10 +86,15 @@ export class MessageForm {
   }
 
   protected onKeyDown(event: KeyboardEvent): void {
+    this.notifyUserInteract();
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       void this.send();
     }
+  }
+
+  protected notifyUserInteract(): void {
+    this.userInteracted.emit();
   }
 
   protected insertEmoji(emoji: string): void {

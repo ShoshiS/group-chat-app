@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth-guard';
-import { chatEntryGuard } from './core/guards/chat-entry-guard';
 import { guestGuard } from './core/guards/guest-guard';
 
 export const routes: Routes = [
@@ -9,8 +8,8 @@ export const routes: Routes = [
   {
     path: 'groups',
     pathMatch: 'full',
-    canActivate: [authGuard, chatEntryGuard],
-    loadComponent: () => import('./features/chat/chat-entry').then((m) => m.ChatEntry),
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/chat/chat-room').then((m) => m.ChatRoom),
   },
   {
     path: 'groups/new',

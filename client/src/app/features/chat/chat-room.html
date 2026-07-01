@@ -19,15 +19,6 @@
     <div class="chat-list-sidebar__profile-header">
       <div class="chat-list-sidebar__mini-row">
         <span class="chat-list-sidebar__section-label">Chat</span>
-        <button
-          type="button"
-          mat-icon-button
-          class="chat-list-sidebar__icon-btn"
-          aria-label="Group settings"
-          [matMenuTriggerFor]="groupMenu"
-        >
-          <mat-icon>settings</mat-icon>
-        </button>
       </div>
 
       @if (auth.currentUser(); as user) {
@@ -118,6 +109,9 @@
               </span>
             </div>
           </div>
+          @if (hasUnread(group) && group.id !== groupId()) {
+            <span class="chat-list-sidebar__item-unread" aria-label="Unread messages"></span>
+          }
         </button>
         }
       }
@@ -125,6 +119,7 @@
   </aside>
 
   <main class="chat-main" [class.chat-main--mobile-hidden]="showChatList()">
+    @if (groupId()) {
     <header class="chat-main__header">
       <div class="chat-main__header-start">
         <button
@@ -187,6 +182,7 @@
           class="chat-main__action-btn"
           aria-label="More actions"
           [matMenuTriggerFor]="groupMenu"
+          (click)="dismissUnreadDivider()"
         >
           <mat-icon>more_vert</mat-icon>
         </button>
@@ -393,7 +389,6 @@
                         {{ item.senderName }}, {{ item.createdAt | date: 'HH:mm' }}
                       </span>
                     </span>
-                    <mat-icon class="chat-main__files-open" aria-hidden="true">open_in_new</mat-icon>
                   </button>
                 </li>
               }
@@ -405,12 +400,24 @@
       <app-message-list
         [groupId]="groupId()"
         [searchQuery]="messageSearch()"
+        [readBoundaryAt]="showUnreadDivider() ? readBoundaryAt() : null"
+        [currentUserId]="auth.currentUser()?.id ?? null"
         class="chat-main__messages"
+        (atBottomChange)="onMessageListAtBottom($event)"
+        (jumpToLatest)="dismissUnreadDivider()"
       />
-      <app-message-form [groupId]="groupId()" />
+      <app-message-form [groupId]="groupId()" (userInteracted)="dismissUnreadDivider()" />
+    }
+    } @else {
+      <div class="chat-main__empty">
+        <mat-icon class="chat-main__empty-icon" aria-hidden="true">forum</mat-icon>
+        <h2 class="chat-main__empty-title">Select a chat</h2>
+        <p class="chat-main__empty-text">Choose a group from the list to start messaging</p>
+      </div>
     }
   </main>
 
+  @if (groupId()) {
   <aside
     class="files-sidebar"
     [class.files-sidebar--collapsed]="!showFilesPanel()"
@@ -489,6 +496,7 @@
       </button>
     </div>
   </aside>
+  }
 </div>
 
 <mat-menu #groupMenu="matMenu" panelClass="premium-menu-panel">

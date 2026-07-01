@@ -24,6 +24,8 @@
       [formControl]="textControl"
       placeholder="Write your message..."
       rows="1"
+      (input)="notifyUserInteract()"
+      (focus)="notifyUserInteract()"
       (keydown)="onKeyDown($event)"
     ></textarea>
 
