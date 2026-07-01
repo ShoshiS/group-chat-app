@@ -7,6 +7,10 @@ export interface Group {
   avatar?: string;
   createdAt: string;
   updatedAt: string;
+  /** ISO timestamp of the latest message; falls back to createdAt when empty. */
+  lastMessageAt?: string;
+  /** ISO timestamp of the last message the user read in this group; null if never opened. */
+  lastReadAt?: string | null;
 }
 
 export interface GroupMember {

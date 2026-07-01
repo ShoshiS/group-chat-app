@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import type { Group, GroupMember } from '../../core/models/group';
+import { sortGroupsByActivity } from '../../core/utils/sort-groups';
 import { environment } from '../../../environments/environment';
 
 export interface GroupPayload {
@@ -34,7 +35,7 @@ export class GroupStore {
     this._error.set(null);
     try {
       const groups = await firstValueFrom(this.http.get<Group[]>(`${environment.apiUrl}/groups`));
-      this._groups.set(groups);
+      this._groups.set(sortGroupsByActivity(groups));
     } catch {
       this._error.set('Failed to load groups');
     } finally {
@@ -47,7 +48,7 @@ export class GroupStore {
     const group = await firstValueFrom(
       this.http.post<Group>(`${environment.apiUrl}/groups`, body),
     );
-    this._groups.update((gs) => [...gs, group]);
+    this._groups.update((gs) => sortGroupsByActivity([...gs, group]));
     return group;
   }
 
@@ -56,7 +57,9 @@ export class GroupStore {
     const updated = await firstValueFrom(
       this.http.put<Group>(`${environment.apiUrl}/groups/${id}`, body),
     );
-    this._groups.update((gs) => gs.map((g) => (g.id === id ? updated : g)));
+    this._groups.update((gs) =>
+      sortGroupsByActivity(gs.map((g) => (g.id === id ? updated : g))),
+    );
   }
 
   private buildRequestBody(payload: GroupPayload): FormData | Omit<GroupPayload, 'avatarFile'> {
@@ -102,11 +105,11 @@ export class GroupStore {
     this._groups.update((groups) => {
       const index = groups.findIndex((item) => item.id === id);
       if (index === -1) {
-        return [...groups, group];
+        return sortGroupsByActivity([...groups, group]);
       }
       const next = [...groups];
       next[index] = group;
-      return next;
+      return sortGroupsByActivity(next);
     });
     return group;
   }
@@ -127,6 +130,36 @@ export class GroupStore {
     const updated = await firstValueFrom(
       this.http.delete<Group>(`${environment.apiUrl}/groups/${groupId}/members/${userId}`),
     );
-    this._groups.update((groups) => groups.map((group) => (group.id === groupId ? updated : group)));
+    this._groups.update((groups) =>
+      sortGroupsByActivity(
+        groups.map((item) => (item.id === groupId ? updated : item)),
+      ),
+    );
+  }
+
+  /** Bumps a group to the top after a new message (real-time reorder). */
+  touchLastActivity(groupId: string, at?: string): void {
+    const timestamp = at ?? new Date().toISOString();
+    this._groups.update((groups) =>
+      sortGroupsByActivity(
+        groups.map((group) =>
+          group.id === groupId ? { ...group, lastMessageAt: timestamp } : group,
+        ),
+      ),
+    );
+  }
+
+  /** Marks messages as read up to the latest or a specific message. Returns lastReadAt ISO string. */
+  async markRead(groupId: string, messageId?: string): Promise<string> {
+    const body = messageId ? { messageId } : {};
+    const response = await firstValueFrom(
+      this.http.put<{ lastReadAt: string }>(`${environment.apiUrl}/groups/${groupId}/read`, body),
+    );
+    this._groups.update((groups) =>
+      groups.map((group) =>
+        group.id === groupId ? { ...group, lastReadAt: response.lastReadAt } : group,
+      ),
+    );
+    return response.lastReadAt;
   }
 }
