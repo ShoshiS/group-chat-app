@@ -1,8 +1,7 @@
 @if (auth.isLoggedIn()) {
   <nav class="nav-strip" aria-label="Main navigation">
     <a class="nav-strip__logo" routerLink="/groups" aria-label="Group Chat home">
-      <span class="nav-strip__logo-shape nav-strip__logo-shape--primary" aria-hidden="true"></span>
-      <span class="nav-strip__logo-shape nav-strip__logo-shape--accent" aria-hidden="true"></span>
+      <img class="nav-strip__logo-img" ngSrc="logo1.png" width="32" height="32" alt="" />
     </a>
 
     <div class="nav-strip__icons">
@@ -98,8 +97,7 @@
 } @else {
   <nav class="nav-strip nav-strip--guest" aria-label="Site">
     <a class="nav-strip__logo" routerLink="/login" aria-label="Group Chat home">
-      <span class="nav-strip__logo-shape nav-strip__logo-shape--primary" aria-hidden="true"></span>
-      <span class="nav-strip__logo-shape nav-strip__logo-shape--accent" aria-hidden="true"></span>
+      <img class="nav-strip__logo-img" ngSrc="logo1.png" width="32" height="32" alt="" />
     </a>
   </nav>
 }

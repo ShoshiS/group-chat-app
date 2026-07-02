@@ -14,9 +14,7 @@
   }
 
   &__logo {
-    position: relative;
-    width: 32px;
-    height: 32px;
+    display: flex;
     flex-shrink: 0;
     text-decoration: none;
     transition: transform var(--transition-fast);
@@ -32,22 +30,11 @@
     }
   }
 
-  &__logo-shape {
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    border-radius: var(--radius-sm);
-
-    &--primary {
-      background: var(--brand);
-      transform: rotate(-12deg) translate(-4px, -2px);
-    }
-
-    &--accent {
-      background: var(--accent-orange);
-      transform: rotate(12deg) translate(4px, 2px);
-      opacity: 0.9;
-    }
+  &__logo-img {
+    width: 32px;
+    height: 32px;
+    display: block;
+    object-fit: contain;
   }
 
   &__icons {
