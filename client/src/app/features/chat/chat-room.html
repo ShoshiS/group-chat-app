@@ -1,0 +1,534 @@
+<div class="chat-workspace">
+  <aside
+    class="chat-list-sidebar"
+    [class.chat-list-sidebar--mobile-hidden]="!showChatList()"
+  >
+    <div class="chat-list-sidebar__mobile-header">
+      <span class="chat-list-sidebar__brand-dot" aria-hidden="true"></span>
+      <span class="chat-list-sidebar__mobile-title">Collaborative Space</span>
+      <button
+        type="button"
+        class="chat-list-sidebar__files-toggle"
+        (click)="toggleFilesPanel()"
+      >
+        <mat-icon aria-hidden="true">folder_open</mat-icon>
+        Files Panel
+      </button>
+    </div>
+
+    <div class="chat-list-sidebar__profile-header">
+      <div class="chat-list-sidebar__mini-row">
+        <span class="chat-list-sidebar__section-label">Chat</span>
+      </div>
+
+      @if (auth.currentUser(); as user) {
+        <div class="chat-list-sidebar__portrait">
+          @if (user.avatar) {
+            <img
+              class="chat-list-sidebar__portrait-img"
+              [src]="user.avatar"
+              [alt]="user.username + ' avatar'"
+            />
+          } @else {
+            <span class="chat-list-sidebar__portrait-fallback">{{ user.username[0] | uppercase }}</span>
+          }
+          <span class="chat-list-sidebar__portrait-dot" aria-hidden="true"></span>
+        </div>
+        <h3 class="chat-list-sidebar__user-name">{{ user.username }}</h3>
+        <span class="chat-list-sidebar__status-pill">available</span>
+      }
+    </div>
+
+    <div class="chat-list-sidebar__search-wrap">
+      <mat-icon class="chat-list-sidebar__search-icon" aria-hidden="true">search</mat-icon>
+      <input
+        type="search"
+        class="chat-list-sidebar__search"
+        placeholder="Search"
+        [value]="chatSearch()"
+        (input)="onChatSearch($event)"
+      />
+    </div>
+
+    <div class="chat-list-sidebar__list-header">
+      <span class="chat-list-sidebar__list-label">Last chats</span>
+      <a
+        mat-icon-button
+        routerLink="/groups/new"
+        class="chat-list-sidebar__new-btn"
+        aria-label="Create new group"
+        matTooltip="New group"
+      >
+        <mat-icon>add</mat-icon>
+      </a>
+    </div>
+
+    <div class="chat-list-sidebar__list">
+      @if (groupStore.loading()) {
+        <p class="chat-list-sidebar__list-hint">Loading groups…</p>
+      } @else if (groupStore.error()) {
+        <p class="chat-list-sidebar__list-hint chat-list-sidebar__list-hint--error">
+          {{ groupStore.error() }}
+        </p>
+      } @else if (filteredGroups().length === 0) {
+        <p class="chat-list-sidebar__list-hint">
+          @if (chatSearch()) {
+            No groups match your search
+          } @else {
+            No groups yet
+          }
+        </p>
+      } @else {
+        @for (group of filteredGroups(); track group.id) {
+        <button
+          type="button"
+          class="chat-list-sidebar__item"
+          [class.chat-list-sidebar__item--active]="group.id === groupId()"
+          (click)="selectGroup(group)"
+        >
+          <div class="chat-list-sidebar__item-main">
+            @if (groupAvatar(group.avatar); as avatar) {
+              @if (avatar.type === 'image') {
+                <img
+                  class="chat-list-sidebar__item-avatar"
+                  [src]="avatar.imageUrl"
+                  [alt]="group.name + ' avatar'"
+                />
+              } @else if (avatar.type === 'icon') {
+                <span class="chat-list-sidebar__item-icon-avatar" aria-hidden="true">
+                  <mat-icon>{{ avatar.iconName }}</mat-icon>
+                </span>
+              } @else {
+                <span class="chat-list-sidebar__item-fallback">{{ group.name[0] | uppercase }}</span>
+              }
+            }
+            <div class="chat-list-sidebar__item-text">
+              <span class="chat-list-sidebar__item-name">{{ group.name }}</span>
+              <span class="chat-list-sidebar__item-subtitle">
+                {{ group.members.length }} member(s)
+              </span>
+            </div>
+          </div>
+          @if (hasUnread(group) && group.id !== groupId()) {
+            <span class="chat-list-sidebar__item-unread" aria-label="Unread messages"></span>
+          }
+        </button>
+        }
+      }
+    </div>
+  </aside>
+
+  <main class="chat-main" [class.chat-main--mobile-hidden]="showChatList()">
+    @if (groupId()) {
+    <header class="chat-main__header">
+      <div class="chat-main__header-start">
+        <button
+          type="button"
+          mat-icon-button
+          class="chat-main__back-mobile"
+          aria-label="Back to chat list"
+          (click)="backToChatList()"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <div>
+          <h2 class="chat-main__title">{{ groupName() || groupId() }}</h2>
+          <div class="chat-main__status">
+            <span class="chat-main__status-dot" aria-hidden="true"></span>
+            <span class="chat-main__status-text">{{ memberIds().length }} members</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-main__header-actions">
+        <button
+          type="button"
+          mat-icon-button
+          class="chat-main__action-btn"
+          [class.chat-main__action-btn--active]="showMembersPanel()"
+          aria-label="View members"
+          matTooltip="Members"
+          (click)="toggleMembersPanel()"
+        >
+          <mat-icon>group</mat-icon>
+        </button>
+
+        <button
+          type="button"
+          mat-icon-button
+          class="chat-main__action-btn chat-main__action-btn--desktop"
+          [class.chat-main__action-btn--active]="showMessageSearch()"
+          aria-label="Search messages"
+          matTooltip="Search messages"
+          (click)="toggleMessageSearch()"
+        >
+          <mat-icon>search</mat-icon>
+        </button>
+
+        <button
+          type="button"
+          mat-icon-button
+          class="chat-main__action-btn chat-main__action-btn--desktop"
+          aria-label="Toggle files panel"
+          matTooltip="Files panel"
+          (click)="toggleFilesPanel()"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+
+        <button
+          type="button"
+          mat-icon-button
+          class="chat-main__action-btn"
+          aria-label="More actions"
+          [matMenuTriggerFor]="groupMenu"
+          (click)="dismissUnreadDivider()"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    @if (showMessageSearch() && !showMembersPanel()) {
+      <div class="chat-main__message-search">
+        <mat-icon class="chat-main__message-search-icon" aria-hidden="true">search</mat-icon>
+        <input
+          type="search"
+          class="chat-main__message-search-input"
+          placeholder="Search messages in this group"
+          [value]="messageSearch()"
+          (input)="onMessageSearch($event)"
+        />
+        <button
+          type="button"
+          class="chat-main__message-search-close"
+          aria-label="Close message search"
+          (click)="toggleMessageSearch()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    }
+
+    @if (showMembersPanel()) {
+      <section class="chat-main__members" aria-label="Group members">
+        <div class="chat-main__members-card">
+          <div class="chat-main__members-header">
+            <h3 class="chat-main__members-title">
+              Room Members ({{ memberIds().length }})
+            </h3>
+            <button
+              type="button"
+              class="chat-main__invite-btn"
+              (click)="toggleInviteForm()"
+            >
+              <mat-icon aria-hidden="true">person_add</mat-icon>
+              Invite Partner
+            </button>
+          </div>
+
+          @if (showInviteForm()) {
+            <form
+              class="chat-main__invite-form"
+              (submit)="$event.preventDefault(); sendInvite()"
+            >
+              <input
+                class="chat-main__invite-input"
+                [formControl]="inviteControl"
+                placeholder="Username or email"
+                aria-label="Invite username or email"
+              />
+              <button
+                type="submit"
+                class="chat-main__invite-send"
+                [disabled]="inviteControl.invalid || inviteSending()"
+              >
+                Send
+              </button>
+              <button
+                type="button"
+                class="chat-main__invite-cancel"
+                (click)="toggleInviteForm()"
+              >
+                Cancel
+              </button>
+            </form>
+          }
+
+          <div class="chat-main__member-search-wrap">
+            <mat-icon class="chat-main__member-search-icon" aria-hidden="true">search</mat-icon>
+            <input
+              type="search"
+              class="chat-main__member-search"
+              placeholder="Search members"
+              [value]="memberSearch()"
+              (input)="onMemberSearch($event)"
+            />
+          </div>
+
+          @if (membersLoading()) {
+            <p class="chat-main__members-loading">Loading members…</p>
+          }
+
+          <ul class="chat-main__members-list">
+            @for (member of filteredMembers(); track member.id) {
+              <li class="chat-main__member-row">
+                <div class="chat-main__member-info">
+                  @if (member.avatar) {
+                    <img
+                      class="chat-main__member-avatar-img"
+                      [src]="member.avatar"
+                      [alt]="member.username + ' avatar'"
+                    />
+                  } @else {
+                    <span class="chat-main__member-avatar">
+                      {{ member.username[0] | uppercase }}
+                    </span>
+                  }
+                  <div>
+                    <span class="chat-main__member-name">{{ memberLabel(member) }}</span>
+                    <span class="chat-main__member-role">
+                      @if (isMemberAdmin(member.id)) {
+                        Group admin
+                      } @else {
+                        Member
+                      }
+                    </span>
+                  </div>
+                </div>
+                <div class="chat-main__member-actions">
+                  @if (isMemberAdmin(member.id)) {
+                    <span class="chat-main__member-badge chat-main__member-badge--admin">Admin</span>
+                  } @else {
+                    <span class="chat-main__member-badge">Active</span>
+                  }
+                  @if (isAdmin() && !isMemberAdmin(member.id) && auth.currentUser()?.id !== member.id) {
+                    <button
+                      type="button"
+                      class="chat-main__member-remove"
+                      aria-label="Remove {{ member.username }}"
+                      (click)="removeMember(member)"
+                    >
+                      <mat-icon>person_remove</mat-icon>
+                    </button>
+                  }
+                </div>
+              </li>
+            } @empty {
+              @if (!membersLoading()) {
+                <li class="chat-main__members-empty">
+                  @if (memberSearch()) {
+                    No members match your search
+                  } @else {
+                    No members found
+                  }
+                </li>
+              }
+            }
+          </ul>
+        </div>
+      </section>
+    } @else if (fileFilter(); as activeFilter) {
+      <section class="chat-main__files" [attr.aria-label]="fileFilterLabel()">
+        <div class="chat-main__files-card">
+          <div class="chat-main__files-header">
+            <h3 class="chat-main__files-title">{{ fileFilterLabel() }}</h3>
+            <button
+              type="button"
+              class="chat-main__files-close"
+              aria-label="Back to chat"
+              (click)="clearFileFilter()"
+            >
+              <mat-icon aria-hidden="true">close</mat-icon>
+            </button>
+          </div>
+
+          @if (messageStore.loading()) {
+            <p class="chat-main__files-empty">Loading shared files…</p>
+          } @else if (filteredSharedFiles().length === 0) {
+            <p class="chat-main__files-empty">No {{ fileFilterLabel().toLowerCase() }} shared yet</p>
+          } @else {
+            <ul class="chat-main__files-list">
+              @for (item of filteredSharedFiles(); track item.id) {
+                <li class="chat-main__files-row">
+                  <button
+                    type="button"
+                    class="chat-main__files-item"
+                    (click)="openSharedFile(item)"
+                  >
+                    @if (activeFilter === 'image') {
+                      <img
+                        class="chat-main__files-thumb"
+                        [src]="item.url"
+                        [alt]="item.name"
+                        loading="lazy"
+                      />
+                    } @else {
+                      <span
+                        class="chat-main__files-icon"
+                        [class.chat-main__files-icon--doc]="activeFilter === 'doc'"
+                        [class.chat-main__files-icon--audio]="activeFilter === 'audio'"
+                        [class.chat-main__files-icon--link]="activeFilter === 'link'"
+                      >
+                        @switch (activeFilter) {
+                          @case ('doc') {
+                            <mat-icon aria-hidden="true">description</mat-icon>
+                          }
+                          @case ('audio') {
+                            <mat-icon aria-hidden="true">audiotrack</mat-icon>
+                          }
+                          @case ('link') {
+                            <mat-icon aria-hidden="true">link</mat-icon>
+                          }
+                        }
+                      </span>
+                    }
+                    <span class="chat-main__files-meta">
+                      <span class="chat-main__files-name">{{ item.name }}</span>
+                      <span class="chat-main__files-sub">
+                        {{ item.senderName }}, {{ item.createdAt | date: 'HH:mm' }}
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </section>
+    } @else {
+      <app-message-list
+        [groupId]="groupId()"
+        [searchQuery]="messageSearch()"
+        [readBoundaryAt]="showUnreadDivider() ? readBoundaryAt() : null"
+        [currentUserId]="auth.currentUser()?.id ?? null"
+        class="chat-main__messages"
+        (atBottomChange)="onMessageListAtBottom($event)"
+        (jumpToLatest)="dismissUnreadDivider()"
+      />
+      <app-message-form [groupId]="groupId()" (userInteracted)="dismissUnreadDivider()" />
+    }
+    } @else {
+      <div class="chat-main__empty">
+        <mat-icon class="chat-main__empty-icon" aria-hidden="true">forum</mat-icon>
+        <h2 class="chat-main__empty-title">Select a chat</h2>
+        <p class="chat-main__empty-text">Choose a group from the list to start messaging</p>
+      </div>
+    }
+  </main>
+
+  @if (groupId()) {
+  <aside
+    class="files-sidebar"
+    [class.files-sidebar--collapsed]="!showFilesPanel()"
+    aria-label="Shared files"
+  >
+    <button
+      type="button"
+      class="files-sidebar__toggle"
+      aria-label="Toggle files panel"
+      (click)="toggleFilesPanel()"
+    >
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+
+    <div class="files-sidebar__avatars">
+      @for (member of filesSidebarMembers(); track member.id) {
+        @if (member.avatar) {
+          <img
+            class="files-sidebar__avatar files-sidebar__avatar-img"
+            [src]="member.avatar"
+            [alt]="member.username + ' avatar'"
+          />
+        } @else {
+          <span class="files-sidebar__avatar">{{ member.username[0] | uppercase }}</span>
+        }
+      }
+      @if (members().length > 3) {
+        <span class="files-sidebar__avatar files-sidebar__avatar--more">
+          +{{ members().length - 3 }}
+        </span>
+      }
+    </div>
+
+    <span class="files-sidebar__label">Files</span>
+
+    <div class="files-sidebar__types">
+      <button
+        type="button"
+        class="files-sidebar__type files-sidebar__type--doc"
+        [class.files-sidebar__type--active]="fileFilter() === 'doc'"
+        aria-label="Documents"
+        [attr.aria-pressed]="fileFilter() === 'doc'"
+        (click)="selectFileFilter('doc')"
+      >
+        <mat-icon>description</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="files-sidebar__type files-sidebar__type--image"
+        [class.files-sidebar__type--active]="fileFilter() === 'image'"
+        aria-label="Images"
+        [attr.aria-pressed]="fileFilter() === 'image'"
+        (click)="selectFileFilter('image')"
+      >
+        <mat-icon>image</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="files-sidebar__type files-sidebar__type--audio"
+        [class.files-sidebar__type--active]="fileFilter() === 'audio'"
+        aria-label="Audio"
+        [attr.aria-pressed]="fileFilter() === 'audio'"
+        (click)="selectFileFilter('audio')"
+      >
+        <mat-icon>audiotrack</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="files-sidebar__type files-sidebar__type--link"
+        [class.files-sidebar__type--active]="fileFilter() === 'link'"
+        aria-label="Links"
+        [attr.aria-pressed]="fileFilter() === 'link'"
+        (click)="selectFileFilter('link')"
+      >
+        <mat-icon>link</mat-icon>
+      </button>
+    </div>
+  </aside>
+  }
+</div>
+
+<mat-menu #groupMenu="matMenu" panelClass="premium-menu-panel">
+  <button mat-menu-item (click)="toggleMembersPanel()">
+    <mat-icon aria-hidden="true">group</mat-icon>
+    <span>View members</span>
+  </button>
+  <button mat-menu-item (click)="openInviteFromMenu()">
+    <mat-icon aria-hidden="true">person_add</mat-icon>
+    <span>Invite partner</span>
+  </button>
+  @if (isAdmin()) {
+    <button mat-menu-item (click)="editGroup()">
+      <mat-icon aria-hidden="true">edit</mat-icon>
+      <span>Edit group</span>
+    </button>
+    <button mat-menu-item class="premium-menu-panel__danger" (click)="deleteGroup()">
+      <mat-icon aria-hidden="true">delete</mat-icon>
+      <span>Delete group</span>
+    </button>
+  } @else {
+    <button mat-menu-item class="premium-menu-panel__danger" (click)="leaveGroup()">
+      <mat-icon aria-hidden="true">exit_to_app</mat-icon>
+      <span>Leave group</span>
+    </button>
+  }
+</mat-menu>
+
+@if (previewImage(); as image) {
+  <app-image-preview
+    [url]="image.url"
+    [filename]="image.name"
+    (closed)="closeImagePreview()"
+  />
+}

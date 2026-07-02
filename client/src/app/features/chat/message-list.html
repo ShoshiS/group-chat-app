@@ -1,0 +1,97 @@
+<div class="message-list-shell">
+  <div class="message-list" #messageList (scroll)="onScroll()">
+
+    @if (store.loadingOlder()) {
+
+      <div class="message-list__loading-older">
+
+        <mat-spinner diameter="24" />
+
+      </div>
+
+    }
+
+
+
+    @if (store.loading()) {
+
+      <div class="message-list__spinner">
+
+        <mat-spinner diameter="40" />
+
+      </div>
+
+    } @else if (store.error()) {
+
+      <p class="message-list__error">{{ store.error() }}</p>
+
+    } @else if (!visibleMessages().length) {
+
+      <p class="message-list__empty">
+
+        @if (searchQuery()) {
+
+          No messages match your search
+
+        } @else {
+
+          No messages yet. Say hello!
+
+        }
+
+      </p>
+
+    } @else {
+
+      @for (msg of visibleMessages(); track msg.id; let i = $index) {
+
+        @if (i === unreadDividerIndex()) {
+
+          <div
+            #unreadDivider
+            class="message-list__unread-divider"
+            role="separator"
+            aria-label="הודעות שלא נקראו"
+          >
+            <span class="message-list__unread-divider-wave" aria-hidden="true"></span>
+            <span class="message-list__unread-divider-label">לא נקראו</span>
+            <span class="message-list__unread-divider-wave" aria-hidden="true"></span>
+          </div>
+
+        }
+
+        <app-message-item
+
+          [message]="msg"
+
+          [showMeta]="showMeta(i)"
+
+          [isGrouped]="isGrouped(i)"
+
+          [compactBottom]="isFollowedByGrouped(i)"
+
+          (update)="updateMessage($event)"
+
+          (delete)="deleteMessage($event)"
+
+        />
+
+      }
+
+    }
+
+  </div>
+
+  @if (!atBottom() && !store.loading() && visibleMessages().length) {
+    <button
+      type="button"
+      class="message-list__jump-btn"
+      aria-label="Jump to latest message"
+      matTooltip="Jump to latest message"
+      (click)="jumpToLatestMessages()"
+    >
+      <mat-icon aria-hidden="true">keyboard_arrow_down</mat-icon>
+    </button>
+  }
+</div>
+

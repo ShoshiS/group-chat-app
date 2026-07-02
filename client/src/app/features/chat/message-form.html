@@ -1,0 +1,72 @@
+<form class="message-form" (submit)="$event.preventDefault(); send()">
+  @if (pendingFiles().length) {
+    <div class="message-form__previews">
+      @for (preview of previews; track preview.url; let i = $index) {
+        <div class="message-form__file-chip">
+          @if (preview.url) {
+            <img [src]="preview.url" [alt]="preview.name" class="message-form__thumb" />
+          } @else {
+            <mat-icon>{{ preview.type === 'application/pdf' ? 'picture_as_pdf' : 'audiotrack' }}</mat-icon>
+          }
+          <span>{{ preview.name }}</span>
+          <button type="button" mat-icon-button (click)="removeFile(i)" aria-label="Remove file">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="message-form__bar">
+    <textarea
+      #messageInput
+      class="message-form__textarea"
+      [formControl]="textControl"
+      placeholder="Write your message..."
+      rows="1"
+      (input)="notifyUserInteract()"
+      (focus)="notifyUserInteract()"
+      (keydown)="onKeyDown($event)"
+    ></textarea>
+
+    <div class="message-form__actions">
+      <app-emoji-picker (emojiSelected)="insertEmoji($event)" />
+
+      <label class="message-form__attach" matTooltip="Attach file (image, audio, PDF · max 10 MB)">
+        <mat-icon>attach_file</mat-icon>
+        <input
+          type="file"
+          accept="image/*,audio/*,application/pdf"
+          multiple
+          hidden
+          (change)="onFilePick($event)"
+        />
+      </label>
+
+      <button
+        type="button"
+        mat-icon-button
+        class="message-form__ai"
+        [matTooltip]="aiTooltip()"
+        [disabled]="aiPending() || sending()"
+        aria-label="AI compose"
+        (click)="onAiCompose()"
+      >
+        @if (aiPending()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          <mat-icon>auto_awesome</mat-icon>
+        }
+      </button>
+
+      <button
+        type="submit"
+        class="message-form__send"
+        [disabled]="sending() || (!textControl.value.trim() && !pendingFiles().length)"
+        aria-label="Send"
+      >
+        <mat-icon>send</mat-icon>
+      </button>
+    </div>
+  </div>
+</form>

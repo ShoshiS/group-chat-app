@@ -1,0 +1,171 @@
+:host {
+  display: block;
+  flex-shrink: 0;
+}
+
+.message-form {
+  flex-shrink: 0;
+  padding: var(--space-4);
+  background: var(--frosted-bg);
+  backdrop-filter: var(--frosted-blur);
+  border-top: 1px solid var(--border-light);
+
+  &__previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    max-width: 896px;
+    margin: 0 auto var(--space-2);
+  }
+
+  &__file-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-full);
+    background: var(--panel-bg);
+    font-size: 0.75rem;
+    color: var(--text-body);
+  }
+
+  &__thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+  }
+
+  &__bar {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+    max-width: 896px;
+    margin: 0 auto;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-full);
+    background: var(--main-bg);
+    box-shadow: var(--shadow-inner);
+    border: 1px solid var(--border-light);
+  }
+
+  &__textarea {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-body);
+    font-family:
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      sans-serif,
+      'Apple Color Emoji',
+      'Segoe UI Emoji',
+      'Noto Color Emoji';
+    font-size: 0.9375rem;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: var(--space-1) 0;
+    resize: none;
+    outline: none;
+    field-sizing: content;
+    max-height: 120px;
+    overflow-y: auto;
+    -webkit-font-smoothing: antialiased;
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex-shrink: 0;
+  }
+
+  &__attach,
+  &__ai {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    color: var(--text-muted) !important;
+    cursor: pointer;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover:not(:disabled) {
+      color: var(--text-subtle) !important;
+      background: color-mix(in srgb, var(--main-bg) 80%, var(--border-default)) !important;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+
+  &__attach {
+    border-radius: var(--radius-full);
+    transition:
+      color var(--transition-fast),
+      background-color var(--transition-fast);
+  }
+
+  &__send {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--brand);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-premium);
+    transition:
+      transform var(--transition-fast),
+      background-color var(--transition-fast);
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--brand-dark);
+      transform: scale(1.05);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+  }
+}

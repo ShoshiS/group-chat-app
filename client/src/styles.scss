@@ -1,1 +1,434 @@
-/* You can add global styles to this file, and also import other style files */
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+:root {
+  --brand: #00b074;
+  --brand-light: #eefcf7;
+  --brand-tint: #3eb489;
+  --brand-dark: #00905e;
+  --brand-soft-bg: #f4f7f6;
+  --accent-orange: #fb923c;
+  --accent-orange-light: #fff7ed;
+  --accent-orange-dark: #ea580c;
+
+  --app-bg: #eef2f5;
+  --panel-bg: #ffffff;
+  --main-bg: #f1f5f9;
+  --card-bg: rgba(248, 250, 252, 0.4);
+  --card-border: rgba(255, 255, 255, 0.6);
+
+  --bubble-self: #e1e3f0;
+  --bubble-other: #ffffff;
+
+  --text-body: #334155;
+  --text-heading: #1e293b;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+
+  --border-light: #f1f5f9;
+  --border-default: #e2e8f0;
+  --border-input: #cbd5e1;
+
+  --status-online: #10b981;
+  --status-busy: #ef4444;
+  --status-away: #fbbf24;
+  --status-offline: #cbd5e1;
+
+  --nav-strip-width: 70px;
+  --chat-list-width: 340px;
+  --files-strip-width: 85px;
+  --shell-max-width: 1440px;
+  --shell-height: 90vh;
+
+  --shadow-premium: 0 10px 40px -10px rgba(0, 176, 116, 0.08);
+  --shadow-card: 0 20px 50px rgba(100, 116, 139, 0.12);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 32px;
+  --radius-full: 9999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  --frosted-bg: rgba(255, 255, 255, 0.8);
+  --frosted-blur: blur(12px);
+}
+
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$green-palette,
+        tertiary: mat.$orange-palette,
+        theme-type: light,
+      ),
+      typography: Inter,
+      density: 0,
+    ),
+    (
+      surface: #ffffff,
+      surface-container: #ffffff,
+      surface-container-low: #f8fafc,
+      surface-container-high: #f1f5f9,
+      surface-container-highest: #e2e8f0,
+      on-surface: #1e293b,
+      on-surface-variant: #64748b,
+      outline: #e2e8f0,
+      outline-variant: #f1f5f9,
+      primary: #00b074,
+      on-primary: #ffffff,
+      error: #ef4444,
+    )
+  );
+
+  @include mat.menu-overrides(
+    (
+      container-color: #ffffff,
+      container-shape: 16px,
+      container-elevation-shadow: var(--shadow-card),
+      item-label-text-color: #334155,
+      item-label-text-size: 0.875rem,
+      item-label-text-weight: 500,
+      item-icon-color: #94a3b8,
+      item-hover-state-layer-color: #f1f5f9,
+      item-focus-state-layer-color: #f1f5f9,
+      divider-color: #f1f5f9,
+    )
+  );
+
+  color-scheme: light;
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--app-bg);
+  color: var(--text-body);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+// Center icons inside icon buttons and custom icon controls
+mat-icon,
+.mat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: middle;
+
+  svg {
+    display: block;
+  }
+}
+
+.mat-mdc-icon-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+
+  mat-icon,
+  .mat-icon {
+    margin: 0;
+  }
+
+  .mat-mdc-button-touch-target {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+button:not(.mat-mdc-button-base),
+a[class*='__btn'],
+button[class*='__send'],
+button[class*='__attach'],
+button[class*='__toggle'],
+button[class*='__close'],
+button[class*='__type'] {
+  mat-icon,
+  .mat-icon {
+    margin: 0;
+  }
+}
+
+.mat-mdc-menu-panel.premium-menu-panel {
+  --mat-menu-container-color: var(--panel-bg);
+  --mat-menu-container-shape: var(--radius-lg);
+  --mat-menu-container-elevation-shadow: var(--shadow-card);
+  --mat-menu-item-label-text-color: var(--text-body);
+  --mat-menu-item-label-text-size: 0.875rem;
+  --mat-menu-item-label-text-weight: 500;
+  --mat-menu-item-icon-color: var(--text-muted);
+  --mat-menu-item-hover-state-layer-color: var(--main-bg);
+  --mat-menu-item-focus-state-layer-color: var(--main-bg);
+  --mat-menu-divider-color: var(--border-light);
+
+  border: 1px solid var(--border-light) !important;
+  min-width: 200px !important;
+  overflow: hidden;
+
+  .mat-mdc-menu-content {
+    padding: var(--space-2) !important;
+  }
+
+  .mat-mdc-menu-item {
+    border-radius: var(--radius-md);
+    min-height: 44px;
+  }
+
+  .mat-mdc-menu-item.premium-menu-panel__danger {
+    --mat-menu-item-label-text-color: var(--status-busy);
+    --mat-menu-item-icon-color: var(--status-busy);
+
+    .mat-mdc-menu-item-text {
+      color: var(--status-busy);
+    }
+
+    mat-icon {
+      color: var(--status-busy) !important;
+    }
+  }
+}
+
+// Premium toast (MatSnackBar host)
+.mat-mdc-snack-bar-container.premium-toast-panel {
+  --mdc-snackbar-container-color: #0f172a;
+  --mat-snack-bar-button-color: var(--brand);
+
+  margin-block-end: var(--space-6);
+  margin-inline-end: var(--space-6);
+  padding: 0;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  animation: toast-slide-up var(--transition-slow) ease;
+
+  .mdc-snackbar__surface {
+    padding: var(--space-3) var(--space-4);
+    min-width: unset;
+    background-color: #0f172a !important;
+    border-radius: var(--radius-xl);
+    box-shadow: none;
+  }
+
+  .mdc-snackbar__label {
+    padding: 0;
+  }
+}
+
+@keyframes toast-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(96px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Shared form page patterns (group form, profile, etc.)
+.premium-form-page {
+  mat-form-field.mat-mdc-form-field {
+    --mdc-outlined-text-field-container-shape: var(--radius-md);
+    --mdc-outlined-text-field-outline-color: var(--border-default);
+    --mdc-outlined-text-field-hover-outline-color: var(--border-input);
+    --mdc-outlined-text-field-focus-outline-color: var(--brand);
+    --mdc-outlined-text-field-focus-outline-width: 1px;
+    --mdc-outlined-text-field-input-text-color: var(--text-body);
+    --mdc-outlined-text-field-label-text-color: var(--text-muted);
+    --mdc-outlined-text-field-focus-label-text-color: var(--brand);
+    --mat-form-field-container-text-size: 0.875rem;
+
+    .mat-mdc-text-field-wrapper {
+      background: var(--panel-bg);
+    }
+
+    &.mat-focused .mat-mdc-text-field-wrapper {
+      box-shadow: 0 0 0 3px rgba(0, 176, 116, 0.12);
+    }
+  }
+}
+
+.premium-form-card {
+  border-radius: var(--radius-xl);
+  background: var(--panel-bg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-card);
+}
+
+.premium-form-section-label {
+  display: block;
+  margin-block-end: var(--space-3);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.premium-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block-start: var(--space-2);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--border-light);
+}
+
+.premium-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    background: var(--brand);
+    color: #fff;
+    box-shadow: var(--shadow-premium);
+
+    &:hover:not(:disabled) {
+      background: var(--brand-dark);
+      transform: scale(1.02);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+  }
+
+  &--ghost {
+    background: var(--main-bg);
+    color: var(--text-subtle);
+
+    &:hover:not(:disabled) {
+      background: var(--border-light);
+    }
+  }
+
+  &--outline {
+    background: transparent;
+    color: var(--text-subtle);
+    border: 1px solid var(--border-default);
+
+    &:hover:not(:disabled) {
+      background: var(--main-bg);
+      border-color: var(--border-input);
+    }
+  }
+
+  &--danger-outline {
+    background: transparent;
+    color: var(--status-busy);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+
+    &:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.06);
+    }
+  }
+}
+
+.premium-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--main-bg);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: var(--border-light);
+    color: var(--text-heading);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+}
