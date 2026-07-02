@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "start:prod": "node dist/server.js",
     "start": "tsx src/server.ts",
     "connect": "tsx src/connect.ts",
