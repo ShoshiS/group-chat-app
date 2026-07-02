@@ -10,6 +10,8 @@
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start:prod": "node dist/server.js",
     "start": "tsx src/server.ts",
     "connect": "tsx src/connect.ts",
     "seed:temp": "tsx src/seed-temp.ts",
