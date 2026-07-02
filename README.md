@@ -1,5 +1,7 @@
 # Chat App — Node.js + Angular + MongoDB
 
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://group-chat-client-gikn.onrender.com)
+
 Fullstack chat application — groups, users, invitations and messages (full CRUD).
 
 **Team:** Tamar Zisman + Shoshi Sefrai
