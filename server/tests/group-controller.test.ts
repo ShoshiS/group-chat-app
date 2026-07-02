@@ -2,9 +2,30 @@ import { jest } from '@jest/globals';
 import { type Request, type Response } from 'express';
 
 const getAllGroupsForApiMock = jest.fn();
+const getMyGroupsForApiMock = jest.fn();
+
+await jest.unstable_mockModule('../src/models/group-model.js', () => ({
+  Group: {},
+}));
+
+await jest.unstable_mockModule('../src/models/invitation-model.js', () => ({
+  Invitation: {},
+}));
+
+await jest.unstable_mockModule('../src/models/user-model.js', () => ({
+  User: {},
+}));
+
+await jest.unstable_mockModule('../src/services/group-read-service.js', () => ({
+  GroupReadError: class GroupReadError extends Error {},
+  deleteGroupReadState: jest.fn(),
+  getLastReadAtForUser: jest.fn(),
+  markGroupRead: jest.fn(),
+}));
 
 await jest.unstable_mockModule('../src/services/group-service.js', () => ({
   getAllGroupsForApi: getAllGroupsForApiMock,
+  getMyGroupsForApi: getMyGroupsForApiMock,
 }));
 
 const { listGroups } = await import('../src/controllers/group-controller.js');

@@ -37,6 +37,16 @@ await jest.unstable_mockModule('../src/models/user-model.js', () => ({
   },
 }));
 
+await jest.unstable_mockModule('../src/models/message-model.js', () => ({
+  Message: {
+    aggregate: jest.fn(),
+  },
+}));
+
+await jest.unstable_mockModule('../src/services/group-read-service.js', () => ({
+  getLastReadAtMapForUser: jest.fn(),
+}));
+
 const { createGroup, inviteMember, listGroups } = await import('../src/services/group-service.js');
 
 const testUserId = new Types.ObjectId('507f1f77bcf86cd799439011');
