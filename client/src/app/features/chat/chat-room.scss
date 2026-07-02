@@ -84,11 +84,11 @@
     margin-bottom: var(--space-4);
   }
 
-  &__section-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-heading);
-    letter-spacing: 0.02em;
+  &__logo {
+    display: block;
+    height: 2rem;
+    width: auto;
+    object-fit: contain;
   }
 
   &__portrait {

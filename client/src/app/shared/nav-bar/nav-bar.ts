@@ -1,4 +1,4 @@
-import { UpperCasePipe } from '@angular/common';
+import { NgOptimizedImage, UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -17,6 +17,7 @@ import { AgentChat } from '../../features/agent/agent-chat';
   selector: 'app-nav-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    NgOptimizedImage,
     UpperCasePipe,
     RouterLink,
     RouterLinkActive,
