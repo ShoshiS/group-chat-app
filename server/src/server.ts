@@ -3,7 +3,7 @@ import { createServer } from 'node:http';
 import { createApp } from './app';
 import { connectDB } from './config/database';
 import { env } from './config/env';
-import { createSocketServer } from './sockets/index';
+import { attachIO, createSocketServer } from './sockets/index';
 
 /**
  * Process entry point: connects the database, then starts the HTTP + Socket.io
@@ -20,7 +20,8 @@ async function bootstrap(): Promise<void> {
 
   const app = createApp();
   const httpServer = createServer(app);
-  createSocketServer(httpServer);
+  const io = createSocketServer(httpServer);
+  attachIO(app, io);
 
   httpServer.listen(env.port, () => {
     console.log(`Server listening on http://localhost:${env.port} (${env.nodeEnv})`);

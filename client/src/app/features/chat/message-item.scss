@@ -1,0 +1,202 @@
+.message-item {
+  flex-shrink: 0;
+  max-width: 80%;
+  margin-bottom: var(--space-6);
+
+  &--grouped,
+  &--compact-bottom {
+    margin-bottom: var(--space-1);
+  }
+
+  &--own {
+    margin-inline-start: auto;
+  }
+
+  &__row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  &__column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+
+    &--own {
+      align-items: flex-end;
+    }
+  }
+
+  &__meta {
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding-inline: var(--space-1);
+  }
+
+  &__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    flex-shrink: 0;
+    margin-top: var(--space-1);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &__avatar-fallback {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-tint) 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: var(--space-1);
+  }
+
+  &__avatar-spacer {
+    width: 36px;
+    flex-shrink: 0;
+  }
+
+  &__bubble {
+    position: relative;
+    background: var(--bubble-other);
+    color: var(--text-body);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-xl);
+    border-start-start-radius: 4px;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+    line-height: 1.5;
+
+    &--own {
+      background: var(--bubble-self);
+      border: none;
+      box-shadow: none;
+      border-start-start-radius: var(--radius-xl);
+      border-start-end-radius: 4px;
+    }
+
+    &:hover .message-item__actions {
+      opacity: 1;
+    }
+  }
+
+  &__text {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 0.875rem;
+    font-family: inherit, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+    unicode-bidi: plaintext;
+  }
+
+  &__actions {
+    position: absolute;
+    top: -8px;
+    inset-inline-end: -4px;
+    display: flex;
+    gap: 2px;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+    background: var(--panel-bg);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-sm);
+
+    button {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 28px !important;
+      height: 28px !important;
+      padding: 0 !important;
+      color: var(--text-muted) !important;
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+
+      &:hover {
+        color: var(--brand) !important;
+      }
+    }
+  }
+
+  &__edit {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    width: 100%;
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      padding: var(--space-1) var(--space-2);
+      font-size: 0.875rem;
+    }
+  }
+
+  &__attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  &__image-btn {
+    display: block;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    line-height: 0;
+
+    &:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+  }
+
+  &__image {
+    max-width: 280px;
+    max-height: 200px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    display: block;
+  }
+
+  &__audio {
+    width: 100%;
+    max-width: 360px;
+  }
+
+  &__pdf {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--text-body);
+    text-decoration: none;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    background: var(--main-bg);
+
+    &:hover {
+      background: var(--brand-light);
+    }
+  }
+}

@@ -1,0 +1,45 @@
+name: Deploy
+
+# Runs after CI succeeds on main. Triggers optional Render deploy hooks.
+# Render Blueprint auto-deploy also works without this workflow — hooks are for
+# explicit deploy-after-CI control when both are configured.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: deploy-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render backend deploy
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "RENDER_DEPLOY_HOOK_BACKEND not set — skipping backend hook."
+          else
+            curl -fsS -X POST "$DEPLOY_HOOK"
+            echo "Backend deploy hook triggered."
+          fi
+
+      - name: Trigger Render frontend deploy
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "RENDER_DEPLOY_HOOK_FRONTEND not set — skipping frontend hook."
+          else
+            curl -fsS -X POST "$DEPLOY_HOOK"
+            echo "Frontend deploy hook triggered."
+          fi

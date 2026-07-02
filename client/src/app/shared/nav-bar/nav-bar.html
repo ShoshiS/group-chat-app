@@ -1,0 +1,105 @@
+@if (auth.isLoggedIn()) {
+  <nav class="nav-strip" aria-label="Main navigation">
+    <a class="nav-strip__logo" routerLink="/groups" aria-label="Group Chat home">
+      <span class="nav-strip__logo-shape nav-strip__logo-shape--primary" aria-hidden="true"></span>
+      <span class="nav-strip__logo-shape nav-strip__logo-shape--accent" aria-hidden="true"></span>
+    </a>
+
+    <div class="nav-strip__icons">
+      <a
+        class="nav-strip__btn"
+        [class.nav-strip__btn--active]="chatActive()"
+        routerLink="/groups"
+        matTooltip="Chat"
+        aria-label="Chat"
+      >
+        <mat-icon aria-hidden="true">groups</mat-icon>
+      </a>
+
+      <a
+        class="nav-strip__btn nav-strip__btn--badge"
+        routerLink="/invitations"
+        [class.nav-strip__btn--active]="invitationsActive()"
+        [matBadge]="invitations.pendingCount()"
+        [matBadgeHidden]="invitations.pendingCount() === 0"
+        matBadgeSize="small"
+        [matTooltip]="invitationsLabel()"
+        [attr.aria-label]="invitationsLabel()"
+      >
+        <mat-icon aria-hidden="true">mail</mat-icon>
+      </a>
+
+      <button
+        type="button"
+        class="nav-strip__btn"
+        [class.nav-strip__btn--active]="agentOpen()"
+        (click)="toggleAgent()"
+        matTooltip="AI Assistant"
+        aria-label="AI Assistant"
+        [attr.aria-expanded]="agentOpen()"
+      >
+        <mat-icon aria-hidden="true">smart_toy</mat-icon>
+      </button>
+    </div>
+
+    <div class="nav-strip__footer">
+      <button
+        mat-icon-button
+        class="nav-strip__logout"
+        type="button"
+        (click)="logout()"
+        matTooltip="Logout"
+        aria-label="Logout"
+      >
+        <mat-icon aria-hidden="true">logout</mat-icon>
+      </button>
+
+      @if (auth.currentUser(); as user) {
+        <a
+          class="nav-strip__avatar-link"
+          routerLink="/profile"
+          routerLinkActive="nav-strip__avatar-link--active"
+          [attr.aria-label]="user.username + ' profile'"
+          matTooltip="Profile"
+        >
+          <span class="nav-strip__avatar-wrap">
+            @if (user.avatar) {
+              <img
+                class="nav-strip__avatar"
+                [src]="user.avatar"
+                [alt]="user.username + ' avatar'"
+              />
+            } @else {
+              <span class="nav-strip__avatar-fallback">{{ user.username[0] | uppercase }}</span>
+            }
+            <span class="nav-strip__status-dot" aria-hidden="true"></span>
+          </span>
+        </a>
+      }
+    </div>
+  </nav>
+
+  @if (agentOpen()) {
+    <aside class="nav-agent-panel" aria-label="AI assistant panel">
+      <header class="nav-agent-panel__header">
+        <span class="nav-agent-panel__title">AI Assistant</span>
+        <button
+          type="button"
+          class="nav-agent-panel__close"
+          (click)="closeAgent()"
+          aria-label="Close AI assistant"
+        >
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </header>
+      <app-agent-chat />
+    </aside>
+  }
+} @else {
+  <nav class="nav-strip nav-strip--guest" aria-label="Site">
+    <a class="nav-strip__logo" routerLink="/login" aria-label="Group Chat home">
+      <span class="nav-strip__logo-shape nav-strip__logo-shape--primary" aria-hidden="true"></span>
+      <span class="nav-strip__logo-shape nav-strip__logo-shape--accent" aria-hidden="true"></span>
+    </a>
+  </nav>
+}

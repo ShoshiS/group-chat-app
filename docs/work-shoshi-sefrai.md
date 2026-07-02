@@ -5,235 +5,207 @@
 **תפקיד:** Primary ב-Groups, Messages/Chat | Secondary ב-Auth, Invitations, Profile  
 **תכנון ראשי:** [work-plan.md](work-plan.md)
 
+> **גישה:** קודם כל **השרת** — שיעבוד טוב מקצה לקצה (API + DB + Socket). רק אחרי
+> שהשרת יציב ובדוק — עוברים ל**צד לקוח**.
+
 ---
 
 ## סמן מיקום
 
 | | |
 |---|---|
-| **שלב נוכחי** | שלב 0 — הקמה משותפת |
-| **Slice פעיל** | — |
-| **Branch פעיל** | `main` |
-| **משימה עכשיו** | הקמת Monorepo עם תמר |
-| **עודכן לאחרונה** | 2026-06-08 |
+| **שלב נוכחי** | Slice 6 — גימור (Responsive mobile + Docs + Demo) |
+| **Branch פעיל** | `feature/client` |
+| **משימה עכשיו** | יום 8 — Responsive mobile + Docs + Demo |
+| **התקדמות Slice 5** | ✅ **100%** — remove member + avatar upload (תמר) |
+| **עודכן לאחרונה** | 2026-06-21 |
 | **עודכן על ידי** | שושי |
 
-> עדכני שדה זה בכל מעבר שלב — בסוף כל שבוע עבודה לפחות.
+> עדכני את הטבלה + סמני ✓ בכל סוף יום.
 
-### איך לעדכן
+---
 
-1. בסיום משימה / מעבר Slice — עדכני את הטבלה + תאריך
-2. הזיזי את `▶ **[שלב נוכחי]**` לכותרת השלב החדשה
-3. עדכני גם את מסמך תמר + התכנון הראשי (סנכרון צוות)
+## דדליין ולוח ימים
+
+**הגשה: יום שני 22/06/2026.**  
+ימי עבודה (ללא שישי ושבת): **8 ימים**.
+
+| # | יום | תאריך | פוקוס |
+|---|---|---|---|
+| 1 | חמישי | 11/06 (היום) | שרת — Groups: middleware + controller |
+| 2 | ראשון | 14/06 | שרת — Groups: routes + wiring + בדיקות |
+| 3 | שני | 15/06 | שרת — Messages: controller + routes |
+| 4 | שלישי | 16/06 | שרת — Upload (Cloudinary) + Rate-limiter |
+| 5 | רביעי | 17/06 | שרת — Socket.io events + בדיקת שרת מלאה ✅ **השרת עובד** |
+| 6 | חמישי | 18/06 | לקוח — Groups (service + list/card/form) + Auth (secondary) |
+| 7 | ראשון | 21/06 | לקוח — Chat (room/list/form + file preview) + Profile |
+| 8 | שני | 22/06 | גימור — Responsive mobile + Docs + Demo + PR סופי |
 
 ---
 
 ## עקרון העבודה שלך
 
 את **בעלים ראשית (~70%)** על Groups ו-Messages/Real-time.  
-בכל slice אחר את **חייבת** לגעת בכל שכבה (DB, API, Middleware, Service, UI) — לפחות כ-Secondary (~30%).
+ה-Secondary שלך (Auth, Invitations, Profile) = Review + משימות צד-לקוח מוגדרות בלבד —
+**לא** נוגעת בסמכויות של תמר (User/Invitation models, auth/error middleware, NavBar,
+SocketService client, MessageItem, MemberPanel, remove-member API, avatar של משתמש).
 
-**Branches שלך:**
-- `feature/groups`
-- `feature/chat-realtime`
-- `feature/polish` (משותף)
+**Branches שלך:** `feature/groups` (פעיל) · `feature/chat-realtime` · `feature/polish` (משותף)
 
----
+**קונבנציות בפועל:** TypeScript בשני הצדדים · `kebab-case` · מודלים `group-model.ts` ·
+קומפוננטות ללא סיומת (`group-list.ts`) · Joi בשרת · Signals + `inject()` ב-Angular ·
+PR → CI ירוק → Review מתמר → Squash merge.
 
-## ▶ **[שלב נוכחי]** שלב 0 — הקמה משותפת (ימים 1–2, עם תמר)
-
-- [ ] יצירת Monorepo + GitHub repo
-- [ ] `server/`: Express scaffold, `.env`, חיבור MongoDB
-- [ ] `client/`: `ng new` עם routing, Material, standalone
-- [ ] `.env.example` ב-server וב-client
-- [ ] תיקיית `docs/` עם templates
-- [ ] הסכמה על naming conventions ו-branch strategy
+**כבר בוצע:** Monorepo + CI · TypeScript בשרת · `ConnectionService` + `/api/health` +
+Socket.io bootstrap · `group-model.ts` ✓ · `message-model.ts` ✓.
 
 ---
 
-## Slice 1 — Auth (שבוע 1) — **Secondary**
+# חלק א׳ — שרת (ימים 1–5)
 
-### Server
+## יום 1 — חמישי 11/06 — Groups: middleware + controller
 
-- [ ] Review: User model (תמר)
-- [ ] **`static findByEmail()`** — וידוא/השלמה ב-User model
-- [ ] Review: auth routes, controllers, JWT
+- [ ] `server/src/middleware/group-middleware.ts`
+  - [ ] `isGroupMember` — בודק שהמשתמש ב-`members`
+  - [ ] `isGroupAdmin` — בודק שהמשתמש הוא `adminId`
+- [ ] `server/src/controllers/group-controller.ts` (התחלה)
+  - [ ] `getMyGroups` (`findForUser`)
+  - [ ] `createGroup` (Joi `validateGroup`, adminId מה-token)
+  - [ ] `getGroupById`
 
-### Client — **אחריותך העיקרית ב-Slice זה**
+**סוף יום:** מודל Group כבר קיים → middleware + 3 פעולות ראשונות מוכנות.
 
-- [ ] **`LoginComponent`** + Reactive Forms validation
-- [ ] **`AuthGuard`** — הגנה על routes
-- [ ] **`authInterceptor`** — attach JWT token ל-Header
-- [ ] Review: RegisterComponent, AuthService (תמר)
-- [ ] Validation: email required, password required
+## יום 2 — ראשון 14/06 — Groups: routes + wiring + בדיקות
 
-### Middleware (שלך)
+- [x] השלמת `group-controller.ts`: `updateGroup` (admin), `deleteGroup` (admin), `leaveGroup`
+- [x] `server/src/routes/group-routes.ts` — חיבור controllers + middleware
+- [x] חיבור הראוטר ב-`server/src/app.ts` תחת `/api/groups`
+- [x] בדיקות ב-Thunder Client: CRUD מלא + leave + הרשאות admin
+- [x] טיפול בשגיאות + status codes נכונים (201/400/403/404)
 
-- [ ] Review: errorLogger (תמר)
-- [ ] הכנה ל-`createRateLimiter` (יושלם ב-Slice 4)
+**סוף יום:** Groups API עובד מקצה לקצה ובדוק.
 
-### תוצר
+## יום 3 — שני 15/06 — Messages: controller + routes
 
-- [ ] Login + redirect ל-groups
-- [ ] Token נשלח בכל request
-- [ ] PR review ל-`feature/auth` של תמר
+- [ ] `server/src/controllers/message-controller.ts`
+  - [ ] `getMessages` (`findByGroup`, pagination לפי `before`)
+  - [ ] `createMessage` (Joi `validateMessage`, senderId מה-token)
+  - [ ] `updateMessage` (owner only)
+  - [ ] `deleteMessage` (owner או admin)
+- [ ] Routes: `/api/groups/:id/messages` (+ `PUT/DELETE /api/messages/:id`)
+- [ ] בדיקות ב-Thunder Client: שליחה/עריכה/מחיקה + הרשאות
 
----
+**סוף יום:** Messages API (טקסט) עובד.
 
-## Slice 2 — Groups (שבוע 2) — **Primary**
+## יום 4 — שלישי 16/06 — Upload (Cloudinary) + Rate-limiter
 
-### Server
+- [ ] הוספת `CLOUDINARY_*` ל-`env.ts` + מילוי `.env`
+- [ ] `server/src/middleware/upload-middleware.ts` — Multer + CloudinaryStorage
+  - [ ] `multer-storage-cloudinary` עם `resource_type: 'auto'`, `folder: 'chat-attachments'`
+  - [ ] `fileFilter` + `limits.fileSize = 10MB`
+  - [ ] ייצוא `uploadMessageFiles` + עזר מיפוי `req.files` ל-`IAttachment[]`
+- [ ] חיבור upload ל-route של יצירת הודעה (attachments → `req.body`)
+- [ ] `server/src/middleware/rate-limiter-middleware.ts`
+  - [ ] **`createRateLimiter(max, windowMs)`** — middleware creator (חובת הקורס שלך)
+  - [ ] הפעלה על endpoint של הודעות
+- [ ] בדיקה: העלאת תמונה/אודיו/PDF (url מ-Cloudinary) + חסימת חריגה מהקצב
 
-- [ ] `server/src/models/Group.model.js`
-  - שדות: name, description, adminId, members[], avatar
-  - refs ל-User, validation, indexes
-  - `static findForUser()`, `toJSON()`
-- [ ] `server/src/middleware/group.middleware.js` — `isGroupAdmin`, `isGroupMember`
-- [ ] `server/src/controllers/group.controller.js` — CRUD, leave, invite
-- [ ] `server/src/routes/group.routes.js`
-- [ ] Validation: name required, min 2 chars
+**סוף יום:** העלאת קבצים ל-Cloudinary + rate-limiter עובדים.
 
-### Client
+## יום 5 — רביעי 17/06 — Socket.io events + בדיקת שרת מלאה
 
-- [ ] **`GroupService`** + Signal store (רשימת קבוצות)
-- [ ] **`GroupListComponent`** — `/groups`
-- [ ] **`GroupCardComponent`** — כרטיס קבוצה
-- [ ] **`GroupFormComponent`** — shared form: `/groups/new` + `/groups/:id/edit`
-- [ ] Review: NavBar links (תמר)
+- [x] הרחבת `server/src/sockets/index.ts` מעבר ל-bootstrap:
+  - [x] `joinGroup`, `leaveGroup`
+  - [x] שידור `newMessage`, `messageUpdated`, `messageDeleted` לחדר הקבוצה
+- [x] חיבור controllers ל-emit אירועים אחרי שמירה ב-DB
+- [x] בדיקת שרת מלאה: Auth (stub) → Groups → Messages → Socket real-time
+- [x] `npm run lint` + `npm run typecheck` נקיים
 
-### תוצר
-
-- [ ] יצירה, עריכה, מחיקה (admin), יציאה מקבוצה
-- [ ] GroupForm עובד לפי id param (add vs edit)
-- [ ] PR → Review על ידי תמר → Merge
-
----
-
-## Slice 3 — Invitations (שבוע 3) — **Secondary**
-
-### Server
-
-- [ ] Review: Invitation model + endpoints (תמר)
-
-### Client — **אחריותך**
-
-- [ ] **`NavBar`** — badge/count להזמנות pending
-- [ ] Review: InvitationList, InvitationActions (תמר)
-- [ ] Review: InvitationService
-- [ ] Confirm dialog לפני reject (אם לא נעשה)
-
-### תוצר
-
-- [ ] Badge מציג מספר הזמנות ב-NavBar
-- [ ] PR review ל-`feature/invitations`
+**🎯 סוף יום 5: השרת עובד טוב ובדוק — מעבר לצד לקוח.**
 
 ---
 
-## Slice 4 — Messages + Real-time (שבועות 4–5) — **Primary**
+# חלק ב׳ — לקוח (ימים 6–7)
 
-### Server
+## יום 6 — חמישי 18/06 — Groups (לקוח) + Auth (secondary)
 
-- [ ] `server/src/models/Message.model.js`
-  - text, groupId, senderId, attachments[] (image/audio/pdf)
-  - `pre('save')`, `static findByGroup()`, `toJSON()`
-- [ ] `server/src/controllers/message.controller.js` — CRUD
-- [ ] `server/src/middleware/upload.middleware.js` — Multer (image, audio, PDF, max 10MB)
-- [ ] `server/src/middleware/rateLimiter.middleware.js` — **`createRateLimiter(max, windowMs)`** (middleware creator)
-- [ ] `server/src/sockets/index.js` — Socket.io setup
-  - Events: `joinGroup`, `leaveGroup`, `newMessage`, `messageUpdated`, `messageDeleted`
-- [ ] Routes: messages under `/api/groups/:id/messages`
+### Groups — Primary שלך
+- [x] `features/groups/group.ts` — service + Signal store (רשימת קבוצות)
+- [x] `features/groups/group-list.ts` — route `/groups`
+- [x] `features/groups/group-card.ts`
+- [x] `features/groups/group-form.ts` — shared: `/groups/new` + `/groups/:id/edit`
+- [x] Lazy routes ב-`app.routes.ts`
 
-### Client
+### Auth — Secondary שלך (Auth עצמו של תמר)
+- [x] `features/auth/login.ts` + Reactive Forms validation
+- [x] `core/guards/auth-guard.ts` (functional)
+- [x] `core/interceptors/auth-interceptor.ts` — attach JWT
+- [x] Review: `register.ts`, `auth.ts` (תמר)
 
-- [ ] **`MessageService`** + Signal (real-time updates)
-- [ ] **`ChatRoomComponent`** — `/groups/:id`
-- [ ] **`MessageListComponent`**
-- [ ] **`MessageFormComponent`** — text + file picker + preview
-- [ ] File preview: image, audio player, PDF link
-- [ ] Review: SocketService, MessageItem (תמר)
-- [ ] Validation client: file type + size
+**סוף יום:** התחברות + צפייה/יצירה/עריכה/מחיקה/יציאה מקבוצה בדפדפן. ✅ (דחוס ל-18/06)
 
-### תוצר
+## יום 7 — ראשון 21/06 — Chat (לקוח) + Profile *(דחוס ל-18/06)*
 
-- [ ] שליחת הודעות טקסט + קבצים
-- [ ] צ'אט real-time עם Socket.io
-- [ ] עריכה/מחיקה (owner) + מחיקה (admin)
-- [ ] PR → Review על ידי תמר → Merge
+### Chat — Primary שלך
+- [x] `features/chat/message.ts` — service + Signal (real-time updates)
+- [x] `features/chat/chat-room.ts` — `/groups/:id`
+- [x] `features/chat/message-list.ts`
+- [x] `features/chat/message-form.ts` — text + file picker + preview
+- [x] File preview: image / audio player / PDF link
+- [x] Validation: סוג + גודל קובץ
+- [x] Review: `socket.ts`, `message-item.ts` (תמר)
 
----
+### Profile — Secondary שלך
+- [x] `features/profile/profile.ts` — route `/profile` + עדכון username
+- [x] Group avatar URL field ב-`group-form.ts` (upload מלא — יום 8)
 
-## Slice 5 — Admin + Profile (שבוע 5) — **Secondary**
-
-### Server
-
-- [ ] Review: DELETE member endpoint (תמר)
-
-### Client — **אחריותך**
-
-- [ ] **`ProfileComponent`** — `/profile`
-- [ ] **`ProfileForm`** — עדכון username
-- [ ] **`AvatarUpload`** — review/שיפור flow של תמר
-- [ ] **Group avatar upload** — ב-GroupForm
-
-### תוצר
-
-- [ ] Profile + avatar upload עובדים
-- [ ] Group avatar ביצירה/עריכה
-- [ ] PR review
+**סוף יום:** צ'אט real-time + שליחת קבצים + פרופיל עובדים. ✅ (דחוס ל-18/06)
 
 ---
 
-## Slice 6 — גימור (שבוע 6) — **משותף**
+# חלק ג׳ — גימור (יום 8)
 
-### אחריותך
+## יום 8 — שני 22/06 — Responsive + Docs + Demo (יום הגשה)
 
-- [ ] **Responsive — Mobile:** hamburger menu + full-width chat
-- [ ] **`docs/server-analysis.md`** — תרשים פעולות Regular User (Mermaid)
-- [ ] **`docs/database-analysis.md`** — collections: groups, messages
-- [ ] **`docs/screens-analysis.md`** — מסכי Chat + Invitations
-- [ ] **`client/README.md`**
-- [ ] ייצוא MongoDB / Thunder Client
+- [ ] **Responsive — Mobile:** hamburger + full-width chat
+- [ ] `docs/database-analysis.md` — collections: groups, messages
+- [ ] `docs/screens-analysis.md` — מסכי Chat + Invitations
+- [ ] `docs/server-analysis.md` — תרשים פעולות Regular User (Mermaid)
+- [ ] `client/README.md`
+- [ ] ייצוא MongoDB / Thunder Client collection
 - [ ] **Demo prep:** Chat flow + Invitations flow
-- [ ] PR reviews לכל branches
+- [ ] PR אחרון + reviews → merge ל-`main`
 
 ---
 
 ## סיכום אחריות לפי שכבה
 
-| שכבה | קבצים/נושאים שלך |
-|---|---|
-| **MongoDB** | Group, Message |
-| **API** | Groups, Messages |
-| **Middleware** | isGroupAdmin, isGroupMember, createRateLimiter, Multer upload |
-| **Angular Components** | Login, Groups (List/Card/Form), Chat (Room/List/Form), Profile |
-| **Services** | GroupService, MessageService |
-| **Forms** | Login, Group, Message + file picker |
-| **Upload** | Message attachments, Group avatar |
-| **Socket.io** | Server setup + room events |
-| **UI Responsive** | Mobile layout (hamburger) |
-| **Docs** | Regular user server analysis, groups+messages DB, Chat+Invitations screens |
+| שכבה | שלך | של תמר (לא שלך) |
+|---|---|---|
+| **MongoDB** | Group, Message | User, Invitation |
+| **API** | Groups, Messages | Auth, Invitations, remove member |
+| **Middleware** | isGroupAdmin, isGroupMember, createRateLimiter, Multer + Cloudinary | authMiddleware, errorLogger |
+| **Components** | Login, Groups (List/Card/Form), Chat (Room/List/Form), Profile | Register, NavBar, Invitations, MessageItem, MemberPanel |
+| **Services** | Group, Message | Auth, Invitation, Socket (client) |
+| **Upload** | Message attachments, Group avatar | Avatar (user profile) |
+| **Socket.io** | Server setup + room events | Client integration |
+| **Responsive** | Mobile (hamburger) | Desktop (sidebar) |
+| **Docs** | Regular user analysis, groups+messages DB, Chat+Invitations screens | Admin analysis, users+invitations DB, Auth+Groups screens |
 
 ---
 
 ## Checklist הגשה — מה את אחראית להציג
 
-- [ ] Login + AuthGuard + interceptor
-- [ ] Groups CRUD + GroupForm (add/edit)
-- [ ] יציאה מקבוצה
-- [ ] צ'אט real-time + שליחת קבצים
-- [ ] Profile + avatar + group avatar
-- [ ] isGroupAdmin + createRateLimiter — הסבר
-- [ ] Socket.io server events
-
-**דדליין:** י"א כסלו תשפ"ו
+- [x] Login + AuthGuard + interceptor
+- [x] Groups CRUD + GroupForm (add/edit) + יציאה
+- [x] צ'אט real-time + שליחת קבצים
+- [x] Profile + group avatar URL (upload מלא — יום 8)
+- [x] isGroupAdmin + createRateLimiter — הסבר
+- [x] Socket.io server events
 
 ---
 
 ## ספריות npm — שלך להתקין
 
-**Server:**
-- `socket.io`, `multer`, `winston` (אם לא הותקנו)
-
-**Client:**
-- `socket.io-client`
-- ספרייה נוספת לבחירה (מומלץ: `date-fns` לתאריכי הודעות)
+**Server:** `socket.io` · `multer` · `@types/multer` · `cloudinary` · `multer-storage-cloudinary` · `joi` (בשימוש) · `express-rate-limit` (אופציונלי — אפשר creator ידני)  
+**Client:** `socket.io-client` (מותקן) · מומלץ `date-fns` לתאריכי הודעות

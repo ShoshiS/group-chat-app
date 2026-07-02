@@ -10,12 +10,12 @@
 
 | | |
 |---|---|
-| **שלב נוכחי** | שלב 0 — הקמה משותפת |
-| **Slice פעיל** | Slice 0 |
-| **Branch פעיל** | `main` |
-| **משימה עכשיו** | יצירת Monorepo + GitHub |
-| **עודכן לאחרונה** | 2026-06-08 |
-| **עודכן על ידי** | שתיהן |
+| **שלב נוכחי** | Slice 6 — גימור משותף (Responsive + Docs + Demo) |
+| **Slice פעיל** | Slice 6 |
+| **Branch פעיל** | `feature/admin-profile` · [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) |
+| **משימה עכשיו** | תמר: Responsive Desktop + server-analysis · שושי: Mobile + client docs |
+| **עודכן לאחרונה** | 2026-06-21 |
+| **עודכן על ידי** | תמר |
 
 > עדכנו שדה זה בכל מעבר שלב — בסוף כל שבוע עבודה לפחות.
 
@@ -34,12 +34,17 @@
 **צוות:** תמר זיסמן + שושי ספראי
 
 **טכנולוגיות (גרסאות עדכניות):**
-- **Server:** Node.js (LTS אחרון) + Express + Mongoose + JWT + bcrypt + Multer + Socket.io
+- **Server:** Node.js 22 LTS + Express + Mongoose + JWT + bcrypt + Socket.io — **TypeScript (ESM)**
 - **Client:** Angular 20 (standalone components, Signals, Reactive Forms) + Angular Material + HttpClient
 - **DB:** MongoDB Atlas (מומלץ) / Compass לייצוא מקומי
 - **State:** Angular Signals + Services (לא NgRx)
+- **Validation (Server):** Joi במודלים + `validateBody()` middleware (לא express-validator)
 - **Git:** Monorepo — `server/` + `client/` + README ראשי
 - **שפה:** אנגלית, LTR
+
+**Conventions (מוסכם):**
+- קבצים: `kebab-case` — למשל `user-model.ts`, `auth-middleware.ts`
+- Env: `MONGO_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN=7d` — גישה מרכזית ב-`server/src/config/env.ts`
 
 **עקרון חלוקה:** חלוקה לפי **Vertical Slices** (פיצ'רים) — כל אחת **בעלים ראשית** על חלק מהפיצ'רים, אבל **חובה לגעת בכל שכבה** (Schema, API, Middleware, Component, Service, Validation, Tests ידניים). השנייה עושה **Code Review + משימות משניות חובה** בכל slice.
 
@@ -82,35 +87,34 @@ flowchart TB
 ## מבנה Monorepo
 
 ```
-node-angular-project/
-├── README.md                  # תיאור כללי + הוראות הרצה
+group-chat-app/
+├── README.md
 ├── .gitignore
-├── docs/                      # מסמכי קדם-הגשה
-│   ├── work-plan.md           # תכנון עבודה ראשי (קובץ זה)
-│   ├── work-tamar-zisman.md   # קובץ עבודה — תמר
-│   ├── work-shoshi-sefrai.md  # קובץ עבודה — שושי
-│   ├── server-analysis.md     # תרשים פעולות לפי משתמש
-│   ├── database-analysis.md   # אוספים + קשרים
-│   └── screens-analysis.md    # מסכים + קומפוננטות
+├── docs/
+│   ├── work-plan.md
+│   ├── work-tamar-zisman.md
+│   ├── work-shoshi-sefrai.md
+│   ├── server-analysis.md
+│   ├── database-analysis.md
+│   └── screens-analysis.md
 ├── server/
 │   ├── .env.example
 │   ├── README.md
-│   ├── src/
-│   │   ├── config/
-│   │   ├── models/            # User, Group, Invitation, Message
-│   │   ├── routes/
-│   │   ├── controllers/
-│   │   ├── middleware/        # auth, errorLogger, shabbatBlock (custom)
-│   │   ├── services/
-│   │   ├── sockets/
-│   │   └── utils/
-│   └── uploads/               # תמונות, אודיו, PDF
+│   └── src/
+│       ├── config/          # env.ts, database.ts, cors.ts
+│       ├── models/          # user-model.ts, group-model.ts, ...
+│       ├── routes/
+│       ├── controllers/
+│       ├── middleware/      # auth-middleware.ts, error-middleware.ts, validate-middleware.ts
+│       ├── services/
+│       ├── sockets/
+│       └── utils/
 └── client/
     ├── .env.example
     ├── README.md
     └── src/app/
-        ├── core/              # auth, interceptors, guards
-        ├── shared/            # כפתורים, כרטיסים, טופס משותף
+        ├── core/
+        ├── shared/
         └── features/
             ├── auth/
             ├── groups/
@@ -228,88 +232,104 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ---
 
-### ▶ **[שלב נוכחי]** שלב 0 — הקמה משותפת (יום 1–2, **שתיהן ביחד**)
+### שלב 0 — הקמה משותפת (יום 1–2, **שתיהן ביחד**) ✅
 
-- [ ] יצירת Monorepo + GitHub repo
-- [ ] `server`: Express scaffold, `.env`, חיבור MongoDB
-- [ ] `client`: `ng new` עם routing, Material, standalone
-- [ ] הגדרת `.env.example` בשני הצדדים
-- [ ] הסכמה על conventions: naming, branch strategy (`main`, feature branches)
-- [ ] יצירת `docs/` עם templates לקדם-הגשה
-
----
-
-### Slice 1 — Auth (התחברות / הרשמה / JWT)
-
-| משימה | תמר (Primary) | שושי (Secondary) |
-|---|---|---|
-| **DB** | User model + pre hash + toJSON | Review + static `findByEmail` |
-| **API** | auth routes, register/login controllers, JWT sign | Review + validation middleware |
-| **Middleware** | `authMiddleware` — verify JWT | `errorLogger` middleware |
-| **Client Service** | AuthService + Signals (user state) | HTTP interceptor (attach token) |
-| **UI** | RegisterComponent + validation | LoginComponent + AuthGuard |
-| **Validation** | Server: express-validator on register | Client: Reactive Forms validators |
-
-**תוצר:** הרשמה, התחברות, logout, protected routes.
+- [x] יצירת Monorepo + GitHub repo
+- [x] `server`: Express scaffold, `.env`, חיבור MongoDB
+- [x] `client`: `ng new` עם routing, Material, standalone
+- [x] הגדרת `.env.example` בשני הצדדים
+- [x] הסכמה על conventions: TypeScript, kebab-case, Joi, branch strategy
+- [x] יצירת `docs/` עם templates לקדם-הגשה
 
 ---
 
-### Slice 2 — Groups (יצירה, רשימה, ניהול)
+### Slice 1 — Auth (התחברות / הרשמה / JWT) — ✅ **שבוע 1 הושלם**
 
-| משימה | שושי (Primary) | תמר (Secondary) |
-|---|---|---|
-| **DB** | Group model + refs + validation | Review + indexes |
-| **API** | CRUD groups, leave group, admin check | Review + tests in Thunder Client |
-| **Middleware** | `isGroupAdmin` middleware | Review |
-| **Client Service** | GroupService + group Signal store | Review |
-| **UI** | GroupList, GroupCard, GroupForm (add/edit by id) | NavBar links by role |
-| **Validation** | Server: group name required, min length | Client: Reactive Forms |
+| משימה | תמר (Primary) | שושי (Secondary) | סטטוס |
+|---|---|---|---|
+| **DB** | User model + pre hash + toJSON | Review + static `findByEmail` | ✅ |
+| **API** | auth routes, register/login controllers, JWT sign | Review | ✅ |
+| **Middleware** | `authMiddleware` — verify JWT | error logging (`console.error`) | ✅ |
+| **Client Service** | Auth service + Signals | JWT interceptor | ✅ |
+| **UI** | Register + Login + Home shell | Review Login/Guard | ✅ (תמר מימשה) |
+| **Validation** | Server: Joi on register/login body | Client: Reactive Forms validators | ✅ |
 
-**תוצר:** יצירת קבוצה, רשימת קבוצות, עריכה/מחיקה (admin), יציאה.
+**תוצר:** הרשמה, התחברות, logout, protected routes, session restore.
+
+**PR:** [#6 — feat: Slice 1 Auth](https://github.com/ShoshiS/group-chat-app/pull/6) · **✅ merged ל-`main`** (18.6.2026 · `df622a2`)
+
+**Tests:** server 74/74 · client 15/15 · smoke: health + register + login + getMe
 
 ---
 
-### Slice 3 — Invitations (הזמנות)
+### Slice 2 — Groups (יצירה, רשימה, ניהול) — **שבוע 2** ✅ (תמר)
 
-| משימה | תמר (Primary) | שושי (Secondary) |
-|---|---|---|
-| **DB** | Invitation model + status enum | Review |
-| **API** | invite, list, accept, reject endpoints | Review |
-| **Client Service** | InvitationService + Signal | Review |
-| **UI** | InvitationList + accept/reject buttons | Badge/count in NavBar |
-| **Validation** | Server: user exists, not already member | Client: confirm dialog |
+| משימה | שושי (Primary) | תמר (Secondary) | סטטוס |
+|---|---|---|---|
+| **DB** | Group model + refs + validation | Review + indexes | ✅ Review |
+| **API** | CRUD groups, leave group, admin check | Review + Thunder Client | ✅ Review · ⏳ Thunder אחרי merge שושי |
+| **Middleware** | `isGroupAdmin` middleware | Review | ✅ |
+| **Client Service** | GroupService + group Signal store | Review | ⏳ שושי |
+| **UI** | GroupList, GroupCard, GroupForm (add/edit by id) | **NavBar** links by auth state | ✅ NavBar · ⏳ Groups UI שושי |
+| **Validation** | Server: group name required, min length | Client: Reactive Forms | ⏳ שושי |
+
+**Branch:** `feature/groups` (שושי) · `feature/nav-bar` (תמר) → PR
+
+---
+
+### Slice 3 — Invitations (הזמנות) — ✅ **תמר Primary · שושי Secondary**
+
+| משימה | תמר (Primary) | שושי (Secondary) | סטטוס |
+|---|---|---|---|
+| **DB** | Invitation model + status enum | Review | ✅ |
+| **API** | invite, list, accept, reject endpoints | Review | ✅ |
+| **Client Service** | InvitationStore + Signal | Review | ✅ |
+| **UI** | InvitationList + accept/reject buttons | Badge/count in NavBar | ✅ |
+| **Validation** | Server: user exists, not already member | Client: confirm dialog | ✅ |
 
 **תוצר:** הזמנה לקבוצה, צפייה בהזמנות, קבלה/דחייה.
 
+**PR:** [#9 — feat: Slice 3 Invitations](https://github.com/ShoshiS/group-chat-app/pull/9) · **✅ merged ל-`main`** (20.6.2026 · `456c349`)
+
+**Tests:** server 88/88 · client 20/20
+
 ---
 
-### Slice 4 — Messages + Media + Real-time
+### Slice 4 — Messages + Media + Real-time — ✅ **שושי Primary · תמר Secondary**
 
-| משימה | שושי (Primary) | תמר (Secondary) |
-|---|---|---|
-| **DB** | Message model + attachments schema | Review + toJSON transform |
-| **API** | Message CRUD + Multer (image/audio/pdf) | Review |
-| **Socket.io** | Server: socket setup, room events | Client: socket service + listeners |
-| **Client Service** | MessageService + real-time Signal updates | Review |
-| **UI** | ChatRoom, MessageList, MessageForm, file preview | MessageItem (edit/delete own) |
-| **Validation** | Server: file type/size limits | Client: file picker validation |
-| **Middleware** | `createRateLimiter` (middleware creator) | Review |
+| משימה | שושי (Primary) | תמר (Secondary) | סטטוס |
+|---|---|---|---|
+| **DB** | Message model + attachments schema | Review + toJSON transform | ✅ |
+| **API** | Message CRUD + Multer (image/audio/pdf) | Review | ✅ |
+| **Socket.io** | Server: socket setup, room events | Client: socket service + listeners | ✅ |
+| **Client Service** | MessageService + real-time Signal updates | Review | ✅ |
+| **UI** | ChatRoom, MessageList, MessageForm, file preview | MessageItem (edit/delete own) | ✅ |
+| **Validation** | Server: file type/size limits | Client: file picker validation | ✅ |
+| **Middleware** | `createRateLimiter` (middleware creator) | Review | ✅ |
 
 **תוצר:** צ'אט בזמן אמת, שליחת טקסט + קבצים, עריכה/מחיקה.
 
----
+**PRs:** [PR #5](https://github.com/ShoshiS/group-chat-app/pull/5) (server realtime) · [PR #8](https://github.com/ShoshiS/group-chat-app/pull/8) (client chat) · [PR #10](https://github.com/ShoshiS/group-chat-app/pull/10) (fix `messageDeleted` payload)
 
-### Slice 5 — Admin Actions + Profile
-
-| משימה | תמר (Primary) | שושי (Secondary) |
-|---|---|---|
-| **API** | DELETE member from group (admin) | Review |
-| **UI** | Member management panel in group | ProfileComponent + avatar upload |
-| **Media** | Avatar upload flow (user) | Group avatar upload |
+**Tests:** client 20/20 · אימות ידני: newMessage + messageUpdated + messageDeleted בין שני clients
 
 ---
 
-### Slice 6 — גימור משותף (שבוע אחרון)
+### Slice 5 — Admin Actions + Profile — ✅ **תמר Primary · שושי Secondary**
+
+| משימה | תמר (Primary) | שושי (Secondary) | סטטוס |
+|---|---|---|---|
+| **API** | DELETE member from group (admin) | Review | ✅ |
+| **UI** | Member management panel in group | ProfileComponent + avatar upload | ✅ |
+| **Media** | Avatar upload flow (user) | Group avatar upload | ✅ user · ⏳ group |
+
+**תוצר:** admin מסיר חבר · משתמש מעלה avatar ב-`/profile` · URL ב-Cloudinary + MongoDB.
+
+**PR:** [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) (avatar upload + profile fix)
+
+---
+
+### ▶ **[שלב נוכחי]** Slice 6 — גימור משותף (שבוע אחרון)
 
 **שתיהן — חובה:**
 
@@ -345,7 +365,7 @@ const createRateLimiter = (maxRequests, windowMs) => (req, res, next) => { ... }
 
 ## ספריות npm נוספות (לבחירה)
 
-- **Server:** `express-validator`, `winston` (logging), `socket.io`
+- **Server:** `joi`, `winston` (logging), `socket.io`, `jsonwebtoken`, `bcrypt`
 - **Client:** `socket.io-client`, ספרייה נוספת לבחירה (למשל `date-fns` לתאריכים)
 
 ---
@@ -370,11 +390,11 @@ gantt
 
 | שבוע | מטרה | אחראית ראשית |
 |---|---|---|
-| 1 | Setup + Auth | תמר (API) + שושי (UI) |
-| 2 | Groups CRUD | שושי |
-| 3 | Invitations | תמר |
+| 1 | Setup + Auth | תמר — **✅ הושלם + merged** · [PR #6](https://github.com/ShoshiS/group-chat-app/pull/6) |
+| 2 | Groups CRUD | שושי (Primary) · תמר: NavBar + Review |
+| 3 | Invitations | תמר — **✅ merged** · [PR #9](https://github.com/ShoshiS/group-chat-app/pull/9) |
 | 4–5 | Messages + Socket.io + Media | שושי |
-| 5 | Admin + Profile | תמר |
+| 5 | Admin + Profile | תמר — **✅ הושלם** · [PR #11](https://github.com/ShoshiS/group-chat-app/pull/11) |
 | 6 | Docs, Responsive, Demo, Deploy (Render — בונוס) | שתיהן |
 
 **דדליין הגשה:** י"א כסלו תשפ"ו (לפי מסמך הדרישות)

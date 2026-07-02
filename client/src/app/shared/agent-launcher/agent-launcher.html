@@ -1,0 +1,29 @@
+@if (visible()) {
+  <button
+    type="button"
+    class="agent-launcher__fab"
+    (click)="togglePanel()"
+    [attr.aria-expanded]="panelOpen()"
+    aria-controls="agent-launcher-panel"
+    aria-label="Open AI assistant"
+  >
+    AI
+  </button>
+
+  @if (panelOpen()) {
+    <div class="agent-launcher__backdrop" (click)="closePanel()" aria-hidden="true"></div>
+
+    <aside
+      id="agent-launcher-panel"
+      class="agent-launcher__panel"
+      role="dialog"
+      aria-label="AI assistant"
+    >
+      <header class="agent-launcher__toolbar">
+        <span>AI Assistant</span>
+        <button type="button" (click)="closePanel()" aria-label="Close assistant">Close</button>
+      </header>
+      <app-agent-chat />
+    </aside>
+  }
+}

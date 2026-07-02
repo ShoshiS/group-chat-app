@@ -1,0 +1,141 @@
+import {
+  googleAuthBodySchema,
+  loginBodySchema,
+  registerBodySchema,
+  updateProfileBodySchema,
+} from '../src/models/user-model.js';
+
+describe('registerBodySchema', () => {
+  it('accepts valid registration input', () => {
+    const { error, value } = registerBodySchema.validate({
+      username: 'tamar',
+      email: 'tamar@example.com',
+      password: 'secret1',
+    });
+
+    expect(error).toBeUndefined();
+    expect(value).toEqual({
+      username: 'tamar',
+      email: 'tamar@example.com',
+      password: 'secret1',
+    });
+  });
+
+  it('rejects username shorter than 3 characters', () => {
+    const { error } = registerBodySchema.validate({
+      username: 'ab',
+      email: 'tamar@example.com',
+      password: 'secret1',
+    });
+
+    expect(error).toBeDefined();
+  });
+
+  it('rejects invalid email', () => {
+    const { error } = registerBodySchema.validate({
+      username: 'tamar',
+      email: 'not-an-email',
+      password: 'secret1',
+    });
+
+    expect(error).toBeDefined();
+  });
+
+  it('rejects password shorter than 6 characters', () => {
+    const { error } = registerBodySchema.validate({
+      username: 'tamar',
+      email: 'tamar@example.com',
+      password: '12345',
+    });
+
+    expect(error).toBeDefined();
+  });
+
+  it('strips unknown fields', () => {
+    const { error, value } = registerBodySchema.validate({
+      username: 'tamar',
+      email: 'tamar@example.com',
+      password: 'secret1',
+      role: 'admin',
+    });
+
+    expect(error).toBeUndefined();
+    expect(value).toEqual({
+      username: 'tamar',
+      email: 'tamar@example.com',
+      password: 'secret1',
+    });
+  });
+});
+
+describe('loginBodySchema', () => {
+  it('accepts valid login input', () => {
+    const { error, value } = loginBodySchema.validate({
+      email: 'tamar@example.com',
+      password: 'secret1',
+    });
+
+    expect(error).toBeUndefined();
+    expect(value).toEqual({
+      email: 'tamar@example.com',
+      password: 'secret1',
+    });
+  });
+
+  it('rejects missing password', () => {
+    const { error } = loginBodySchema.validate({
+      email: 'tamar@example.com',
+    });
+
+    expect(error).toBeDefined();
+  });
+});
+
+describe('googleAuthBodySchema', () => {
+  it('accepts a Google credential token', () => {
+    const { error, value } = googleAuthBodySchema.validate({
+      credential: 'google-id-token',
+    });
+
+    expect(error).toBeUndefined();
+    expect(value).toEqual({ credential: 'google-id-token' });
+  });
+
+  it('rejects missing credential', () => {
+    const { error } = googleAuthBodySchema.validate({});
+
+    expect(error).toBeDefined();
+  });
+});
+
+describe('updateProfileBodySchema', () => {
+  it('accepts valid username', () => {
+    const { error, value } = updateProfileBodySchema.validate({ username: 'newname' });
+
+    expect(error).toBeUndefined();
+    expect(value).toEqual({ username: 'newname' });
+  });
+
+  it('rejects username shorter than 3 characters', () => {
+    const { error } = updateProfileBodySchema.validate({ username: 'ab' });
+
+    expect(error).toBeDefined();
+  });
+
+  it('accepts avatar URL only', () => {
+    const { error, value } = updateProfileBodySchema.validate({
+      avatar: 'https://res.cloudinary.com/demo/image/upload/v1/user-avatars/avatar.jpg',
+    });
+
+    expect(error).toBeUndefined();
+    expect(value).toEqual({
+      avatar: 'https://res.cloudinary.com/demo/image/upload/v1/user-avatars/avatar.jpg',
+    });
+  });
+
+  it('rejects empty body', () => {
+    const { error } = updateProfileBodySchema.validate({});
+
+    expect(error).toBeDefined();
+  });
+});
