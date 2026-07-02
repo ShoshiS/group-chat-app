@@ -20,6 +20,7 @@ import { DatePipe, UpperCasePipe } from '@angular/common';
 import type { Group, GroupMember } from '../../core/models/group';
 import { Toast } from '../../core/services/toast';
 import { writeLastGroupId, clearLastGroupId, readLastGroupId } from '../../core/utils/last-group';
+import { groupHasUnread } from '../../core/utils/group-unread';
 import {
   SHARED_FILE_FILTER_LABELS,
   collectSharedFiles,
@@ -80,6 +81,9 @@ export class ChatRoom implements OnInit, OnDestroy {
   protected readonly previewImage = signal<{ url: string; name: string } | null>(null);
   protected readonly showChatList = signal(false);
   protected readonly inviteSending = signal(false);
+  protected readonly readBoundaryAt = signal<string | null>(null);
+  protected readonly showUnreadDivider = signal(true);
+  protected readonly isMessageListAtBottom = signal(true);
 
   protected readonly inviteControl = new FormControl('', {
     nonNullable: true,
@@ -141,12 +145,16 @@ export class ChatRoom implements OnInit, OnDestroy {
         const id = params.get('id') ?? '';
         if (id) {
           this.activateGroup(id);
+        } else {
+          this.deactivateGroup();
+          void this.groupStore.load();
         }
       }),
     );
 
     this.subscriptions.add(
       this.socketService.newMessage$.subscribe((msg) => {
+        this.groupStore.touchLastActivity(msg.groupId, msg.createdAt);
         if (msg.groupId === this.groupId()) {
           this.messageStore.addRealtime(msg);
         }
@@ -169,6 +177,7 @@ export class ChatRoom implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    void this.markGroupRead();
     const id = this.groupId();
     if (id) {
       this.socketService.leaveGroup(id);
@@ -202,6 +211,7 @@ export class ChatRoom implements OnInit, OnDestroy {
   }
 
   protected toggleMessageSearch(): void {
+    this.dismissUnreadDivider();
     this.showMessageSearch.update((open) => {
       if (open) {
         this.messageSearch.set('');
@@ -214,6 +224,22 @@ export class ChatRoom implements OnInit, OnDestroy {
     return parseGroupAvatar(avatar);
   }
 
+  protected hasUnread(group: Group): boolean {
+    return groupHasUnread(group);
+  }
+
+  protected dismissUnreadDivider(): void {
+    if (!this.showUnreadDivider()) {
+      return;
+    }
+    this.showUnreadDivider.set(false);
+    void this.markGroupRead();
+  }
+
+  protected onMessageListAtBottom(atBottom: boolean): void {
+    this.isMessageListAtBottom.set(atBottom);
+  }
+
   protected selectGroup(group: Group): void {
     this.switchGroup(group.id);
   }
@@ -223,6 +249,7 @@ export class ChatRoom implements OnInit, OnDestroy {
   }
 
   protected toggleMembersPanel(): void {
+    this.dismissUnreadDivider();
     this.showMembersPanel.update((open) => !open);
     if (this.showMembersPanel()) {
       this.fileFilter.set(null);
@@ -241,16 +268,19 @@ export class ChatRoom implements OnInit, OnDestroy {
   }
 
   protected openInviteFromMenu(): void {
+    this.dismissUnreadDivider();
     this.showMembersPanel.set(true);
     this.showInviteForm.set(true);
     void this.loadMembers();
   }
 
   protected toggleFilesPanel(): void {
+    this.dismissUnreadDivider();
     this.showFilesPanel.update((open) => !open);
   }
 
   protected selectFileFilter(filter: SharedFileFilter): void {
+    this.dismissUnreadDivider();
     this.showMembersPanel.set(false);
     this.showInviteForm.set(false);
     this.showMessageSearch.set(false);
@@ -361,6 +391,34 @@ export class ChatRoom implements OnInit, OnDestroy {
     return this.activeGroup()?.adminId === memberId;
   }
 
+  private deactivateGroup(): void {
+    const previousId = this.groupId();
+    if (!previousId) {
+      this.showChatList.set(true);
+      return;
+    }
+
+    void this.markGroupRead(previousId);
+    this.socketService.leaveGroup(previousId);
+
+    this.groupId.set('');
+    this.groupName.set('');
+    this.memberIds.set([]);
+    this.members.set([]);
+    this.showMembersPanel.set(false);
+    this.showInviteForm.set(false);
+    this.showMessageSearch.set(false);
+    this.messageSearch.set('');
+    this.memberSearch.set('');
+    this.fileFilter.set(null);
+    this.previewImage.set(null);
+    this.readBoundaryAt.set(null);
+    this.showUnreadDivider.set(false);
+    this.isMessageListAtBottom.set(true);
+    this.messageStore.reset();
+    this.showChatList.set(true);
+  }
+
   private activateGroup(id: string): void {
     const previousId = this.groupId();
     if (previousId === id) {
@@ -368,6 +426,7 @@ export class ChatRoom implements OnInit, OnDestroy {
     }
 
     if (previousId) {
+      void this.markGroupRead(previousId);
       this.socketService.leaveGroup(previousId);
     }
 
@@ -383,14 +442,41 @@ export class ChatRoom implements OnInit, OnDestroy {
     this.memberSearch.set('');
     this.fileFilter.set(null);
     this.previewImage.set(null);
+    this.isMessageListAtBottom.set(true);
+    this.showUnreadDivider.set(true);
 
-    void this.groupStore.load().then(() => this.syncGroup(id));
+    void this.bootstrapGroup(id);
 
     this.messageStore.reset();
     void this.messageStore.load(id);
 
     this.socketService.joinGroup(id);
     void this.loadMembers();
+  }
+
+  private async bootstrapGroup(id: string): Promise<void> {
+    if (this.groupStore.groups().length === 0) {
+      await this.groupStore.load();
+    }
+    this.syncGroup(id);
+    this.captureReadBoundary(id);
+  }
+
+  private captureReadBoundary(id: string): void {
+    const group = this.groupStore.getById(id);
+    this.readBoundaryAt.set(group?.lastReadAt ?? null);
+  }
+
+  private async markGroupRead(groupId = this.groupId()): Promise<void> {
+    if (!groupId) {
+      return;
+    }
+
+    try {
+      await this.groupStore.markRead(groupId);
+    } catch {
+      // Read state is best-effort; chat remains usable if the request fails.
+    }
   }
 
   private syncGroup(id: string): void {
@@ -409,6 +495,9 @@ export class ChatRoom implements OnInit, OnDestroy {
   private applyGroup(group: Group): void {
     this.groupName.set(group.name);
     this.memberIds.set(group.members);
+    if (!this.readBoundaryAt() && group.lastReadAt) {
+      this.readBoundaryAt.set(group.lastReadAt);
+    }
   }
 
   private async loadMembers(): Promise<void> {

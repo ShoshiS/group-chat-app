@@ -46,7 +46,11 @@ export class NavBar {
   );
 
   protected readonly chatActive = computed(() => {
-    const match = this.currentUrl()?.match(/^\/groups\/([^/]+)$/);
+    const url = this.currentUrl();
+    if (url === '/groups') {
+      return true;
+    }
+    const match = url?.match(/^\/groups\/([^/]+)$/);
     return match !== null && match[1] !== 'new';
   });
 

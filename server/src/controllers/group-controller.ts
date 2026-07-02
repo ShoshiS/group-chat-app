@@ -3,7 +3,13 @@ import type { NextFunction, Request, Response } from 'express';
 import { Group } from '../models/group-model.js';
 import { Invitation } from '../models/invitation-model.js';
 import { User } from '../models/user-model.js';
-import { getAllGroupsForApi } from '../services/group-service.js';
+import {
+  GroupReadError,
+  deleteGroupReadState,
+  getLastReadAtForUser,
+  markGroupRead,
+} from '../services/group-read-service.js';
+import { getAllGroupsForApi, getMyGroupsForApi } from '../services/group-service.js';
 
 /** Lists all groups — used by the agent to verify group records in MongoDB. */
 export async function listGroups(_req: Request, res: Response): Promise<void> {
@@ -19,7 +25,7 @@ export async function listGroups(_req: Request, res: Response): Promise<void> {
 
 export async function getMyGroups(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const groups = await Group.findForUser(req.userId!);
+    const groups = await getMyGroupsForApi(req.userId!);
     res.json(groups);
   } catch (err) {
     next(err);
@@ -36,8 +42,21 @@ export async function createGroup(req: Request, res: Response, next: NextFunctio
 }
 
 /** Returns a single group. Requires isGroupMember middleware on the route. */
-export function getGroupById(req: Request, res: Response): void {
-  res.json(req.group);
+export async function getGroupById(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const lastReadAt = await getLastReadAtForUser(req.userId!, req.group!._id);
+    const json = req.group!.toJSON() as Record<string, unknown>;
+    res.json({
+      ...json,
+      lastReadAt: lastReadAt ? lastReadAt.toISOString() : null,
+    });
+  } catch (err) {
+    next(err);
+  }
 }
 
 /** Updates group fields. Requires isGroupAdmin middleware on the route. */
@@ -86,6 +105,7 @@ export async function leaveGroup(req: Request, res: Response, next: NextFunction
 
     req.group!.members = req.group!.members.filter((memberId) => !memberId.equals(req.userId));
     const updated = await req.group!.save();
+    await deleteGroupReadState(req.userId!, req.group!._id);
     res.json(updated);
   } catch (err) {
     next(err);
@@ -164,6 +184,25 @@ export async function inviteToGroup(
 
     res.status(201).json(invitation);
   } catch (err) {
+    next(err);
+  }
+}
+
+/** Marks messages in a group as read up to the latest or a specific message. */
+export async function markGroupAsRead(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const messageId = (req.body as { messageId?: string }).messageId;
+    const lastReadAt = await markGroupRead(req.userId!, req.params['id'] as string, messageId);
+    res.json({ lastReadAt: lastReadAt.toISOString() });
+  } catch (err) {
+    if (err instanceof GroupReadError) {
+      res.status(err.statusCode).json({ error: err.message });
+      return;
+    }
     next(err);
   }
 }

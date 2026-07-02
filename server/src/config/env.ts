@@ -7,6 +7,18 @@ const envPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../.
 // override: true ensures .env changes apply on tsx hot reload (dotenv skips existing keys by default)
 dotenv.config({ path: envPath, override: true });
 
+/** Render blueprint may pass host-only values via fromService.property: host. */
+function normalizeOrigin(value: string | undefined, fallback: string): string {
+  const trimmed = (value ?? '').trim().replace(/\/$/, '');
+  if (!trimmed) {
+    return fallback;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
 /**
  * Central, typed access to environment variables. Reading them in one place
  * keeps the rest of the codebase free of `process.env` lookups and makes the
@@ -18,7 +30,7 @@ export const env = {
   mongoUri: process.env.MONGO_URI ?? '',
   jwtSecret: process.env.JWT_SECRET ?? '',
   jwtExpiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as StringValue,
-  clientOrigin: process.env.CLIENT_ORIGIN ?? 'http://localhost:4200',
+  clientOrigin: normalizeOrigin(process.env.CLIENT_ORIGIN, 'http://localhost:4200'),
   googleClientId: (process.env.GOOGLE_CLIENT_ID ?? '').trim(),
   geminiApiKey: process.env.GEMINI_API_KEY ?? '',
   geminiModel: process.env.GEMINI_MODEL ?? 'gemini-2.5-flash',

@@ -8,6 +8,7 @@ import {
   getMyGroups,
   inviteToGroup,
   leaveGroup,
+  markGroupAsRead,
   removeMember,
   updateGroup,
 } from '../controllers/group-controller.js';
@@ -20,6 +21,10 @@ import Joi from 'joi';
 
 const inviteBodySchema = Joi.object({
   invitee: Joi.string().min(2).required(),
+}).options({ stripUnknown: true });
+
+const markReadBodySchema = Joi.object({
+  messageId: Joi.string().optional(),
 }).options({ stripUnknown: true });
 
 const router = Router();
@@ -40,6 +45,7 @@ router.put(
 );
 router.delete('/:id', isGroupAdmin, deleteGroup);
 router.post('/:id/leave', isGroupMember, leaveGroup);
+router.put('/:id/read', isGroupMember, validateBody(markReadBodySchema), markGroupAsRead);
 router.post('/:id/invite', isGroupMember, validateBody(inviteBodySchema), inviteToGroup);
 router.delete('/:id/members/:userId', isGroupAdmin, removeMember);
 

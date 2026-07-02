@@ -2,7 +2,9 @@ import mongoose, { Types } from 'mongoose';
 
 import { Group } from '../models/group-model';
 import { Invitation } from '../models/invitation-model';
+import { Message } from '../models/message-model';
 import { User } from '../models/user-model';
+import { getLastReadAtMapForUser } from './group-read-service.js';
 
 export interface ToolResult {
   [key: string]: unknown;
@@ -101,4 +103,49 @@ export async function getAllGroupsForApi(): Promise<ToolResult[]> {
   assertDbConnected();
   const groups = await Group.find().sort({ createdAt: -1 });
   return groups.map((group) => group.toJSON() as ToolResult);
+}
+
+/** Groups for the authenticated user, sorted by most recent message (newest first). */
+export async function getMyGroupsForApi(
+  userId: Types.ObjectId | string,
+): Promise<ToolResult[]> {
+  assertDbConnected();
+
+  const groups = await Group.findForUser(userId);
+  if (groups.length === 0) {
+    return [];
+  }
+
+  const groupIds = groups.map((group) => group._id);
+  const latest = await Message.aggregate<{ _id: Types.ObjectId; lastMessageAt: Date }>([
+    { $match: { groupId: { $in: groupIds } } },
+    { $sort: { createdAt: -1 } },
+    { $group: { _id: '$groupId', lastMessageAt: { $first: '$createdAt' } } },
+  ]);
+
+  const lastByGroupId = new Map(
+    latest.map((entry) => [entry._id.toString(), entry.lastMessageAt]),
+  );
+  const readByGroupId = await getLastReadAtMapForUser(userId, groupIds);
+
+  return groups
+    .map((group) => {
+      const json = group.toJSON() as ToolResult;
+      const groupId = group._id.toString();
+      const lastMessageAt = lastByGroupId.get(groupId) ?? group.createdAt;
+      const lastReadAt = readByGroupId.get(groupId) ?? null;
+      return {
+        ...json,
+        lastMessageAt:
+          lastMessageAt instanceof Date
+            ? lastMessageAt.toISOString()
+            : new Date(lastMessageAt).toISOString(),
+        lastReadAt: lastReadAt ? lastReadAt.toISOString() : null,
+      };
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.lastMessageAt as string).getTime() -
+        new Date(a.lastMessageAt as string).getTime(),
+    );
 }
